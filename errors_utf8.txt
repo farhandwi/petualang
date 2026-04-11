@@ -1,0 +1,50 @@
+Analyzing petualang...
+
+  error - lib\screens\forgot_password_screen.dart:116:28 - Invalid constant value. - invalid_constant
+  error - lib\screens\home_screen.dart:130:28 - Invalid constant value. - invalid_constant
+  error - lib\screens\home_screen.dart:204:73 - Invalid constant value. - invalid_constant
+  error - lib\screens\home_screen.dart:403:67 - Invalid constant value. - invalid_constant
+  error - lib\screens\login_screen.dart:74:54 - Invalid constant value. - invalid_constant
+  error - lib\screens\login_screen.dart:158:36 - Invalid constant value. - invalid_constant
+  error - lib\screens\login_screen.dart:323:53 - Invalid constant value. - invalid_constant
+  error - lib\screens\login_screen.dart:336:53 - Invalid constant value. - invalid_constant
+  error - lib\screens\profile_screen.dart:285:69 - Invalid constant value. - invalid_constant
+  error - lib\screens\profile_screen.dart:296:55 - Invalid constant value. - invalid_constant
+  error - lib\screens\profile_screen.dart:368:18 - Invalid constant value. - invalid_constant
+  error - lib\screens\register_screen.dart:89:54 - Invalid constant value. - invalid_constant
+  error - lib\screens\register_screen.dart:172:36 - Invalid constant value. - invalid_constant
+  error - lib\screens\reset_password_screen.dart:113:28 - Invalid constant value. - invalid_constant
+warning - lib\screens\profile_screen.dart:382:29 - A value for optional parameter 'key' isn't ever given. Try removing the unused parameter. - unused_element_parameter
+   info - lib\screens\forgot_password_screen.dart:111:57 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\forgot_password_screen.dart:171:77 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\home_screen.dart:61:65 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\home_screen.dart:153:45 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\home_screen.dart:167:53 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\home_screen.dart:328:37 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\login_screen.dart:130:50 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\login_screen.dart:292:64 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\main_wrapper.dart:39:35 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\main_wrapper.dart:148:64 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\onboarding_screen.dart:90:55 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\onboarding_screen.dart:116:71 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\onboarding_screen.dart:180:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\profile_screen.dart:145:52 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\profile_screen.dart:166:65 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\profile_screen.dart:335:31 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\profile_screen.dart:344:33 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\profile_screen.dart:399:46 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\register_screen.dart:144:50 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\register_screen.dart:338:64 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\reset_password_screen.dart:108:57 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib\screens\reset_password_screen.dart:185:77 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - server\lib\db\database.dart:23:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\lib\db\database.dart:66:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\main.dart:7:3 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\main.dart:9:3 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\routes\api\auth\forgot_password.dart:93:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\routes\api\auth\login.dart:116:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\routes\api\auth\me.dart:73:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\routes\api\auth\register.dart:129:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - server\routes\api\auth\reset_password.dart:117:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+
+46 issues found.

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Petualang App - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f05a19",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221510",
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4">
+<!-- Onboarding Card Container -->
+<div class="w-full max-w-[480px] bg-white dark:bg-slate-900/50 rounded-xl overflow-hidden shadow-xl border border-primary/10">
+<!-- Top Bar / Skip Button -->
+<div class="flex items-center justify-end p-6">
+<button class="text-slate-500 font-medium hover:text-primary transition-colors">Lewati</button>
+</div>
+<!-- Illustration Container -->
+<div class="px-6">
+<div class="w-full bg-primary/5 rounded-xl aspect-[4/3] flex items-center justify-center overflow-hidden relative">
+<img alt="Kelompok pendaki gunung sedang berjalan di jalan setapak" class="w-full h-full object-cover" data-alt="Illustration of a group of people hiking on a scenic mountain trail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdZ5bhx4O-JdNv8KZNuy22DOUsu1OIqcsxmeCEYcrN3yzX6MtUhkQMLxVinal3nuRIsEXbP36I-kE7s3QkIokOsKGDvRre2zqGyiaxMkF_WZ0ohgW6lYQJzDaC4XLZtnIC2473z5szw7sunOAZoutYmeSM4WCoyqnnVac5WJWg71paX_YZig1vqJ4mqtjLs-BtchmoFhb7IXmrTV-g0WVg668jrYPZmIffepZRQs7kYwER7CL5xZ8bM1DZ3kXe_9IahcE9WM6Q280"/>
+<!-- Gradient overlay for depth -->
+<div class="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent"></div>
+</div>
+</div>
+<!-- Content Area -->
+<div class="p-8 text-center">
+<h1 class="text-slate-900 dark:text-slate-100 text-[32px] font-bold leading-tight mb-4">
+                    Cari Partner Mendaki
+                </h1>
+<p class="text-slate-600 dark:text-slate-400 text-base font-normal leading-relaxed mb-8">
+                    Temukan teman petualangan yang memiliki hobi dan visi yang sama untuk menaklukkan puncak impian Anda.
+                </p>
+<!-- Pagination Dots -->
+<div class="flex w-full flex-row items-center justify-center gap-3 mb-10">
+<div class="h-2.5 w-8 rounded-full bg-primary"></div>
+<div class="h-2.5 w-2.5 rounded-full bg-primary/20"></div>
+<div class="h-2.5 w-2.5 rounded-full bg-primary/20"></div>
+</div>
+<!-- Primary Action -->
+<div class="flex flex-col gap-3">
+<button class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all active:scale-[0.98]">
+                        Lanjut
+                    </button>
+<div class="flex items-center justify-center gap-2 mt-4 text-sm text-slate-500">
+<span>Sudah punya akun?</span>
+<a class="text-primary font-semibold hover:underline" href="#">Masuk</a>
+</div>
+</div>
+</div>
+<!-- Bottom Spacer for Home Indicator Area -->
+<div class="h-6 bg-white dark:bg-transparent"></div>
+</div>
+<!-- App Logo/Brand Tagline Footer -->
+<div class="mt-8 flex items-center gap-2 opacity-50">
+<span class="material-symbols-outlined text-primary text-xl">landscape</span>
+<span class="font-bold tracking-widest text-xs uppercase text-slate-900 dark:text-slate-100">Petualang App</span>
+</div>
+</div>
+</body></html>

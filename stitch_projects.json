@@ -1,0 +1,905 @@
+﻿{
+    "projects":  [
+                     {
+                         "name":  "projects/16979550497316270770",
+                         "title":  "Remix of Petualang",
+                         "visibility":  "PRIVATE",
+                         "createTime":  "2026-03-29T10:16:00.033779Z",
+                         "updateTime":  "2026-04-01T06:48:24.623175Z",
+                         "projectType":  "TEXT_TO_UI_PRO",
+                         "thumbnailScreenshot":  {
+                                                     "name":  "projects/16979550497316270770/files/48113f911d394db4babf7afaf720b14c",
+                                                     "downloadUrl":  "https://lh3.googleusercontent.com/aida/ADBb0ug1HDL5KKlKAbP9jIfewywy1A1vYhO-xVMmDqAoVIIfk8IKRIMQMlvSWrnUIXEcZIV8ec99JcGAeHkA_6cmTMWme2zIriRgByGNa0BfHEam_Rsk4968MbY9w7r85iYWjXXUNviVea_zP5CGQXcM0nipOs6OKaP8Ya6kGswI7ldXgXx_Nue0mplxZxWQd9giTeDoqtCqW6SJqm7tbWJPAi3qin7Ay1z0oKD3z2QjmRVPzog9mfdjdsVcN7BZ"
+                                                 },
+                         "origin":  "STITCH",
+                         "deviceType":  "MOBILE",
+                         "designTheme":  {
+                                             "colorMode":  "DARK",
+                                             "font":  "BE_VIETNAM_PRO",
+                                             "roundness":  "ROUND_EIGHT",
+                                             "customColor":  "#f05a19",
+                                             "saturation":  3
+                                         },
+                         "screenInstances":  [
+                                                 {
+                                                     "id":  "0502810c8384457fb0065203c95a802e",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/0502810c8384457fb0065203c95a802e",
+                                                     "x":  4994,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1280
+                                                 },
+                                                 {
+                                                     "id":  "100c73d399a74779ac9bc1348d98bd6f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/100c73d399a74779ac9bc1348d98bd6f",
+                                                     "x":  3632,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1361
+                                                 },
+                                                 {
+                                                     "id":  "1110a4b867d24d8a9869c584aea018dc",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/1110a4b867d24d8a9869c584aea018dc",
+                                                     "x":  908,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1647
+                                                 },
+                                                 {
+                                                     "id":  "1285938eb2d44caca4e5d17d993d19b5",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/1285938eb2d44caca4e5d17d993d19b5",
+                                                     "x":  8712,
+                                                     "y":  3362,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "12db804c94ec4444a4e0824743d3a518",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/12db804c94ec4444a4e0824743d3a518",
+                                                     "x":  908,
+                                                     "y":  45845,
+                                                     "width":  390,
+                                                     "height":  1082,
+                                                     "label":  "Register"
+                                                 },
+                                                 {
+                                                     "id":  "134af3471757461ca8f796adf5453b86",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/134af3471757461ca8f796adf5453b86",
+                                                     "x":  475,
+                                                     "y":  32787,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "141afc43562144b4a1e014422e7d8367",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/141afc43562144b4a1e014422e7d8367",
+                                                     "x":  3632,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1280
+                                                 },
+                                                 {
+                                                     "id":  "15436ed528384110b52600790752da10",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/15436ed528384110b52600790752da10",
+                                                     "x":  454,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "167827e84de24a2d95cefa24e0a356d3",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/167827e84de24a2d95cefa24e0a356d3",
+                                                     "y":  19546,
+                                                     "width":  390,
+                                                     "height":  1034
+                                                 },
+                                                 {
+                                                     "id":  "1779a1880bb04085ba690bf6c47636bc",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/1779a1880bb04085ba690bf6c47636bc",
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1250
+                                                 },
+                                                 {
+                                                     "id":  "181e60c123f54e04966c2ebc737be214",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/181e60c123f54e04966c2ebc737be214",
+                                                     "x":  454,
+                                                     "y":  29075,
+                                                     "width":  390,
+                                                     "height":  1647
+                                                 },
+                                                 {
+                                                     "id":  "1821eb7f7c584bb29ce89c4e453d2905",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/1821eb7f7c584bb29ce89c4e453d2905",
+                                                     "x":  3632,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1280
+                                                 },
+                                                 {
+                                                     "id":  "1ee4fdf958734817b329decb4c1fdae7",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/1ee4fdf958734817b329decb4c1fdae7",
+                                                     "x":  908,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "21ba7989f3d44e2fb40a8cdaabac78e2",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/21ba7989f3d44e2fb40a8cdaabac78e2",
+                                                     "x":  454,
+                                                     "y":  27818,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "23032666065d406f8b14cc50fc12cc92",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/23032666065d406f8b14cc50fc12cc92",
+                                                     "x":  488,
+                                                     "y":  34055,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "231a5e6b8a0b44c4af9d5c8e678d67f1",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/231a5e6b8a0b44c4af9d5c8e678d67f1",
+                                                     "x":  494,
+                                                     "y":  35057,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "2831706d402d41e2b105c94172f4b68e",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/2831706d402d41e2b105c94172f4b68e",
+                                                     "x":  3178,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1051
+                                                 },
+                                                 {
+                                                     "id":  "2b665499ad98468f9837e07bec1ff160",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/2b665499ad98468f9837e07bec1ff160",
+                                                     "x":  1816,
+                                                     "y":  45845,
+                                                     "width":  390,
+                                                     "height":  799,
+                                                     "hidden":  true
+                                                 },
+                                                 {
+                                                     "id":  "2e5e6cd2732749aea6895b603a2c585f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/2e5e6cd2732749aea6895b603a2c585f",
+                                                     "x":  1362,
+                                                     "y":  29075,
+                                                     "width":  390,
+                                                     "height":  972
+                                                 },
+                                                 {
+                                                     "id":  "30fff9887af942a8af93b46c36382928",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/30fff9887af942a8af93b46c36382928",
+                                                     "x":  908,
+                                                     "y":  7388,
+                                                     "width":  390,
+                                                     "height":  1529
+                                                 },
+                                                 {
+                                                     "id":  "34830a2cb8154cb3bf9009e92cab5cdb",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/34830a2cb8154cb3bf9009e92cab5cdb",
+                                                     "x":  1788,
+                                                     "y":  37887,
+                                                     "width":  390,
+                                                     "height":  1391
+                                                 },
+                                                 {
+                                                     "id":  "382284f3f8174fc49f68cb4e768a12f2",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/382284f3f8174fc49f68cb4e768a12f2",
+                                                     "x":  454,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  2254
+                                                 },
+                                                 {
+                                                     "id":  "3946379951eb4fddb1bc909b29f35275",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/3946379951eb4fddb1bc909b29f35275",
+                                                     "x":  5448,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1001
+                                                 },
+                                                 {
+                                                     "id":  "3cf392edb638451cb76ff09a76a9ecec",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/3cf392edb638451cb76ff09a76a9ecec",
+                                                     "x":  9620,
+                                                     "y":  3362,
+                                                     "width":  390,
+                                                     "height":  1195
+                                                 },
+                                                 {
+                                                     "id":  "434274e621a94862af41d76ba287b15f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/434274e621a94862af41d76ba287b15f",
+                                                     "x":  3178,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  1165
+                                                 },
+                                                 {
+                                                     "id":  "4571811fa8e84fee9b2873bddc9f88d0",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/4571811fa8e84fee9b2873bddc9f88d0",
+                                                     "x":  1362,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  3955
+                                                 },
+                                                 {
+                                                     "id":  "49a0cde0113d4847b7211fb0609a6499",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/49a0cde0113d4847b7211fb0609a6499",
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  1109
+                                                 },
+                                                 {
+                                                     "id":  "4b6c7ed814474b1ebec8f3d0c5406c2a",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/4b6c7ed814474b1ebec8f3d0c5406c2a",
+                                                     "x":  454,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "4ca6058a80294d41a257b6b33fcae1d0",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/4ca6058a80294d41a257b6b33fcae1d0",
+                                                     "x":  3178,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "5273a7aa76af4f10bc2571dfaa0dac20",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/5273a7aa76af4f10bc2571dfaa0dac20",
+                                                     "x":  634,
+                                                     "y":  13617,
+                                                     "width":  390,
+                                                     "height":  1647
+                                                 },
+                                                 {
+                                                     "id":  "52f336a8fe714adaba3b1d979fd8704b",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/52f336a8fe714adaba3b1d979fd8704b",
+                                                     "x":  8258,
+                                                     "y":  3362,
+                                                     "width":  390,
+                                                     "height":  1757
+                                                 },
+                                                 {
+                                                     "id":  "5889489733754cd0a8a63aee78d19854",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/5889489733754cd0a8a63aee78d19854",
+                                                     "y":  26678,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "5a8f200875c244da99646cadcbe652ee",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/5a8f200875c244da99646cadcbe652ee",
+                                                     "x":  1362,
+                                                     "y":  7388,
+                                                     "width":  390,
+                                                     "height":  1361
+                                                 },
+                                                 {
+                                                     "id":  "5c47438bf31449dda955269217dca345",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/5c47438bf31449dda955269217dca345",
+                                                     "x":  30,
+                                                     "y":  39627,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "6011e68ee6bc43549568f21970118f48",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/6011e68ee6bc43549568f21970118f48",
+                                                     "x":  5668,
+                                                     "y":  3498,
+                                                     "width":  390,
+                                                     "height":  957
+                                                 },
+                                                 {
+                                                     "id":  "61c2c9fd1031459ebee761e505c7417f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/61c2c9fd1031459ebee761e505c7417f",
+                                                     "x":  1816,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1757
+                                                 },
+                                                 {
+                                                     "id":  "6395bcc51fb54e928a2d643690203095",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/6395bcc51fb54e928a2d643690203095",
+                                                     "x":  7350,
+                                                     "y":  3362,
+                                                     "width":  390,
+                                                     "height":  1051
+                                                 },
+                                                 {
+                                                     "id":  "64b3f1821e92438088025d97fef3efda",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/64b3f1821e92438088025d97fef3efda",
+                                                     "y":  29075,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "6772345f784b4f059e5b48ed8f2d261e",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/6772345f784b4f059e5b48ed8f2d261e",
+                                                     "y":  27818,
+                                                     "width":  390,
+                                                     "height":  1001
+                                                 },
+                                                 {
+                                                     "id":  "68ccbeaf06464a3594a4b1589d22e594",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/68ccbeaf06464a3594a4b1589d22e594",
+                                                     "x":  2724,
+                                                     "y":  17533,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "6cf7d220137540d6837b360f3dcb20ed",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/6cf7d220137540d6837b360f3dcb20ed",
+                                                     "x":  3709,
+                                                     "y":  3525,
+                                                     "width":  390,
+                                                     "height":  882
+                                                 },
+                                                 {
+                                                     "id":  "6f4499076b294b0683e57f9c26ed8f98",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/6f4499076b294b0683e57f9c26ed8f98",
+                                                     "y":  9348,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "72c3f43deb504725b0f7f938d4471f41",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/72c3f43deb504725b0f7f938d4471f41",
+                                                     "x":  908,
+                                                     "y":  45845,
+                                                     "width":  390,
+                                                     "height":  990,
+                                                     "label":  "Register",
+                                                     "hidden":  true
+                                                 },
+                                                 {
+                                                     "id":  "73731dcb990f455786ed41a3c3d0222c",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/73731dcb990f455786ed41a3c3d0222c",
+                                                     "y":  25421,
+                                                     "width":  390,
+                                                     "height":  1001
+                                                 },
+                                                 {
+                                                     "id":  "7499797ed9b3496c936087ad5e59517b",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/8371fa44ec3f40d280e554ea6418ee30",
+                                                     "y":  45845,
+                                                     "width":  390,
+                                                     "height":  884,
+                                                     "hidden":  true
+                                                 },
+                                                 {
+                                                     "id":  "766b4aa557fb408fb6163156548bd466",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/766b4aa557fb408fb6163156548bd466",
+                                                     "x":  4540,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1051
+                                                 },
+                                                 {
+                                                     "id":  "77364a72ca8a4f33963485aea9bb0f17",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/77364a72ca8a4f33963485aea9bb0f17",
+                                                     "x":  484,
+                                                     "y":  39627,
+                                                     "width":  390,
+                                                     "height":  1617
+                                                 },
+                                                 {
+                                                     "id":  "774d8c97fdac46cfa2cb3dcc9e85d738",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/774d8c97fdac46cfa2cb3dcc9e85d738",
+                                                     "y":  17533,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "7c656cd83de24ec8bbf0bbca5ce8f5e8",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/7c656cd83de24ec8bbf0bbca5ce8f5e8",
+                                                     "x":  1362,
+                                                     "y":  17533,
+                                                     "width":  390,
+                                                     "height":  1757
+                                                 },
+                                                 {
+                                                     "id":  "8113ff313a194552a9090a0c5fc91307",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/8113ff313a194552a9090a0c5fc91307",
+                                                     "x":  5214,
+                                                     "y":  3498,
+                                                     "width":  390,
+                                                     "height":  884,
+                                                     "label":  "Onboarding - Cari Partner"
+                                                 },
+                                                 {
+                                                     "id":  "818f7b9c06794f4fad393c33c6510c3a",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/818f7b9c06794f4fad393c33c6510c3a",
+                                                     "x":  908,
+                                                     "y":  17533,
+                                                     "width":  390,
+                                                     "height":  1529
+                                                 },
+                                                 {
+                                                     "id":  "834fb81251d3435ea683b81e6efe0a51",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/834fb81251d3435ea683b81e6efe0a51",
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1250
+                                                 },
+                                                 {
+                                                     "id":  "837f3d5bfe2d449a8b6d1857a90a8d77",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/837f3d5bfe2d449a8b6d1857a90a8d77",
+                                                     "x":  909,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  1451
+                                                 },
+                                                 {
+                                                     "id":  "83bbaab9a8114593b6493ee091484c24",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/83bbaab9a8114593b6493ee091484c24",
+                                                     "x":  3178,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "84d41be28e4b4d61b20874d97607c4fa",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/84d41be28e4b4d61b20874d97607c4fa",
+                                                     "x":  454,
+                                                     "y":  37909,
+                                                     "width":  390,
+                                                     "height":  1384
+                                                 },
+                                                 {
+                                                     "id":  "87e2a99bbafd406da155780bb2da748e",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/87e2a99bbafd406da155780bb2da748e",
+                                                     "x":  -36,
+                                                     "y":  3980,
+                                                     "width":  1024,
+                                                     "height":  1024,
+                                                     "hidden":  true
+                                                 },
+                                                 {
+                                                     "id":  "8b81c89db67845eea343cf3ce8ef4cca",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/8b81c89db67845eea343cf3ce8ef4cca",
+                                                     "y":  36197,
+                                                     "width":  600,
+                                                     "height":  600
+                                                 },
+                                                 {
+                                                     "id":  "8d32d07b-3969-495b-9a9d-09c921748c34",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/1777021301677763631",
+                                                     "x":  1736,
+                                                     "y":  3525,
+                                                     "width":  411,
+                                                     "height":  136,
+                                                     "label":  "uploaded_image"
+                                                 },
+                                                 {
+                                                     "id":  "928173303ba94e3fae339b6f52e9abaf",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/928173303ba94e3fae339b6f52e9abaf",
+                                                     "x":  2724,
+                                                     "y":  45845,
+                                                     "width":  390,
+                                                     "height":  884,
+                                                     "hidden":  true
+                                                 },
+                                                 {
+                                                     "id":  "928f256961874a1db264965ee16238a7",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/928f256961874a1db264965ee16238a7",
+                                                     "x":  908,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "93162ab7fa3a41688c6e244131ed2ff0",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/93162ab7fa3a41688c6e244131ed2ff0",
+                                                     "x":  3256,
+                                                     "y":  3525,
+                                                     "width":  390,
+                                                     "height":  882
+                                                 },
+                                                 {
+                                                     "id":  "93ce5fff712b4b22ab5ecf6622e260e5",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/93ce5fff712b4b22ab5ecf6622e260e5",
+                                                     "y":  24077,
+                                                     "width":  390,
+                                                     "height":  1088
+                                                 },
+                                                 {
+                                                     "id":  "98582e5b6dcf45be9318d73cc18023b0",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/98582e5b6dcf45be9318d73cc18023b0",
+                                                     "x":  1362,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1529
+                                                 },
+                                                 {
+                                                     "id":  "9990e392ff1744e8adfe49ef126075c9",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/9990e392ff1744e8adfe49ef126075c9",
+                                                     "x":  2725,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  1012
+                                                 },
+                                                 {
+                                                     "id":  "9a9adf71792544a8b224ae2c2b097d2d",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/9a9adf71792544a8b224ae2c2b097d2d",
+                                                     "y":  7388,
+                                                     "width":  390,
+                                                     "height":  1250
+                                                 },
+                                                 {
+                                                     "id":  "9b0a9b4af2ba4282b68b66ba276c1e35",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/9b0a9b4af2ba4282b68b66ba276c1e35",
+                                                     "x":  2724,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1051
+                                                 },
+                                                 {
+                                                     "id":  "9f7213fe60df4514a10c96960cf205ee",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/9f7213fe60df4514a10c96960cf205ee",
+                                                     "x":  1362,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1034
+                                                 },
+                                                 {
+                                                     "id":  "a37d588a21aa4d4c900af2c3620c42b5",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/a37d588a21aa4d4c900af2c3620c42b5",
+                                                     "x":  908,
+                                                     "y":  29075,
+                                                     "width":  390,
+                                                     "height":  1001
+                                                 },
+                                                 {
+                                                     "id":  "a543dcd0402a4153a209d366996ffc8e",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/a543dcd0402a4153a209d366996ffc8e",
+                                                     "x":  925,
+                                                     "y":  34055,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "a8c397bec21542eb9abce6329e4bba05",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/a8c397bec21542eb9abce6329e4bba05",
+                                                     "x":  2270,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1361
+                                                 },
+                                                 {
+                                                     "id":  "aa109f378eb34389a8a86fc8906ca7a1",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/aa109f378eb34389a8a86fc8906ca7a1",
+                                                     "x":  2724,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  1460
+                                                 },
+                                                 {
+                                                     "id":  "assets-66611c4e1caa4944ab9eabaf6a6e6a3f-1774018688506",
+                                                     "x":  1054,
+                                                     "y":  40838,
+                                                     "width":  960,
+                                                     "height":  540,
+                                                     "sourceAsset":  "assets/66611c4e1caa4944ab9eabaf6a6e6a3f",
+                                                     "type":  "DESIGN_SYSTEM_INSTANCE"
+                                                 },
+                                                 {
+                                                     "id":  "b124283d02084c37948b00c63f507a4f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/b124283d02084c37948b00c63f507a4f",
+                                                     "x":  2270,
+                                                     "y":  17533,
+                                                     "width":  390,
+                                                     "height":  1361
+                                                 },
+                                                 {
+                                                     "id":  "b23615424c674b308356b0c201fd1faf",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/b23615424c674b308356b0c201fd1faf",
+                                                     "x":  2802,
+                                                     "y":  3525,
+                                                     "width":  390,
+                                                     "height":  882
+                                                 },
+                                                 {
+                                                     "id":  "b4dfa84707ab41f598e870dbbdcc5fd4",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/b4dfa84707ab41f598e870dbbdcc5fd4",
+                                                     "x":  1816,
+                                                     "y":  29075,
+                                                     "width":  390,
+                                                     "height":  1088
+                                                 },
+                                                 {
+                                                     "id":  "bb76d3f0e89a47e69813792315136cde",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/bb76d3f0e89a47e69813792315136cde",
+                                                     "x":  942,
+                                                     "y":  34055,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "bdb69ec19d5849da87aedf5c54fbb407",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/bdb69ec19d5849da87aedf5c54fbb407",
+                                                     "x":  908,
+                                                     "y":  37909,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "be926321cffe4e07bd0da0bfb2cb145d",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/be926321cffe4e07bd0da0bfb2cb145d",
+                                                     "x":  454,
+                                                     "y":  25421,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "bedb92f4c1cd413cb1014c9bb0b90d37",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/bedb92f4c1cd413cb1014c9bb0b90d37",
+                                                     "y":  37053,
+                                                     "width":  600,
+                                                     "height":  600
+                                                 },
+                                                 {
+                                                     "id":  "c07d29cfafd84c7aa1e91f32b5b75430",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/c07d29cfafd84c7aa1e91f32b5b75430",
+                                                     "x":  1362,
+                                                     "y":  11628,
+                                                     "width":  390,
+                                                     "height":  1529
+                                                 },
+                                                 {
+                                                     "id":  "c08cebec13d2443ab00dd50db8f4702b",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/c08cebec13d2443ab00dd50db8f4702b",
+                                                     "x":  1816,
+                                                     "y":  17533,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "c5d3e6986758458dbf5d1bc4219305ac",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/c5d3e6986758458dbf5d1bc4219305ac",
+                                                     "x":  454,
+                                                     "y":  7388,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "c8e3614d820543129e8290123edcda1b",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/c8e3614d820543129e8290123edcda1b",
+                                                     "x":  484,
+                                                     "y":  39627,
+                                                     "width":  390,
+                                                     "height":  1751
+                                                 },
+                                                 {
+                                                     "id":  "c9ea648c85424198b38cfa3a32dc3921",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/c9ea648c85424198b38cfa3a32dc3921",
+                                                     "x":  -496,
+                                                     "y":  3998,
+                                                     "width":  1024,
+                                                     "height":  1024,
+                                                     "hidden":  true
+                                                 },
+                                                 {
+                                                     "id":  "cc649524b8fb42bf829867e5b8f7dbac",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/cc649524b8fb42bf829867e5b8f7dbac",
+                                                     "x":  1362,
+                                                     "y":  37909,
+                                                     "width":  390,
+                                                     "height":  1023
+                                                 },
+                                                 {
+                                                     "id":  "cea404d1b31d4707a0029adaababc2cd",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/cea404d1b31d4707a0029adaababc2cd",
+                                                     "x":  2270,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "d1e7dabf4758463ab462b98905a5164b",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/d1e7dabf4758463ab462b98905a5164b",
+                                                     "x":  1816,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1704
+                                                 },
+                                                 {
+                                                     "id":  "d28d7b6096504c2e81bdc0edcab7db32",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/d28d7b6096504c2e81bdc0edcab7db32",
+                                                     "y":  10488,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "d3827d77a9944984ab047af5c96b5e50",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/d3827d77a9944984ab047af5c96b5e50",
+                                                     "x":  908,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  1297
+                                                 },
+                                                 {
+                                                     "id":  "d68d1a887af848e6893c017047dcf512",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/d68d1a887af848e6893c017047dcf512",
+                                                     "x":  1816,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  1307
+                                                 },
+                                                 {
+                                                     "id":  "d76d9cae17c54d1c8142906d8ced28d1",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/d76d9cae17c54d1c8142906d8ced28d1",
+                                                     "x":  3179,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  942
+                                                 },
+                                                 {
+                                                     "id":  "daa0ca22ccc6458898234e3d0b1f153e",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/daa0ca22ccc6458898234e3d0b1f153e",
+                                                     "x":  9166,
+                                                     "y":  3362,
+                                                     "width":  390,
+                                                     "height":  1280
+                                                 },
+                                                 {
+                                                     "id":  "dab47a913ffc452aa4302a248c7d0460",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/dab47a913ffc452aa4302a248c7d0460",
+                                                     "x":  908,
+                                                     "y":  27818,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "db341bbe429c4293bf4304aae477a5f6",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/db341bbe429c4293bf4304aae477a5f6",
+                                                     "x":  2724,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1529
+                                                 },
+                                                 {
+                                                     "id":  "dcae8d640dc94e5dba901678b9c3abe4",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/dcae8d640dc94e5dba901678b9c3abe4",
+                                                     "x":  925,
+                                                     "y":  32773,
+                                                     "width":  390,
+                                                     "height":  1218
+                                                 },
+                                                 {
+                                                     "id":  "dd34ae31fc4d4bbfb05aac9094515202",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/dd34ae31fc4d4bbfb05aac9094515202",
+                                                     "x":  7804,
+                                                     "y":  3362,
+                                                     "width":  390,
+                                                     "height":  1529
+                                                 },
+                                                 {
+                                                     "id":  "e1e0b3f29495436394a3c7637d14995a",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e1e0b3f29495436394a3c7637d14995a",
+                                                     "x":  2724,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1361
+                                                 },
+                                                 {
+                                                     "id":  "e1e5f123fe6845359b8321fa348edcc2",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e1e5f123fe6845359b8321fa348edcc2",
+                                                     "x":  2271,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "e286b14080f34bd9985489d5fc59a26f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e286b14080f34bd9985489d5fc59a26f",
+                                                     "x":  454,
+                                                     "y":  45845,
+                                                     "width":  390,
+                                                     "height":  884,
+                                                     "label":  "Login"
+                                                 },
+                                                 {
+                                                     "id":  "e4ca16dbe630480c98dcfdba84fd13d9",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e4ca16dbe630480c98dcfdba84fd13d9",
+                                                     "y":  13641,
+                                                     "width":  390,
+                                                     "height":  1507
+                                                 },
+                                                 {
+                                                     "id":  "e4dbef3c99934e63993da50e5ddad26b",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e4dbef3c99934e63993da50e5ddad26b",
+                                                     "x":  1363,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  1473
+                                                 },
+                                                 {
+                                                     "id":  "e7b251bfd0344c22956332f2876c079f",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e7b251bfd0344c22956332f2876c079f",
+                                                     "x":  2270,
+                                                     "y":  41634,
+                                                     "width":  390,
+                                                     "height":  1108
+                                                 },
+                                                 {
+                                                     "id":  "e9ffead7cd2045598ff6662cc48f0326",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/e9ffead7cd2045598ff6662cc48f0326",
+                                                     "x":  454,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1270
+                                                 },
+                                                 {
+                                                     "id":  "ebf3b9cba79c4074a834636d9f0031b8",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/ebf3b9cba79c4074a834636d9f0031b8",
+                                                     "x":  1816,
+                                                     "y":  15520,
+                                                     "width":  390,
+                                                     "height":  1757
+                                                 },
+                                                 {
+                                                     "id":  "ee29f961d3f54de9841a63c8e0f977bf",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/ee29f961d3f54de9841a63c8e0f977bf",
+                                                     "y":  22849,
+                                                     "width":  390,
+                                                     "height":  972
+                                                 },
+                                                 {
+                                                     "id":  "ef963a06fde8428abead3cf294569f87",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/ef963a06fde8428abead3cf294569f87",
+                                                     "x":  6122,
+                                                     "y":  3498,
+                                                     "width":  390,
+                                                     "height":  884
+                                                 },
+                                                 {
+                                                     "id":  "eff44b69522f4cafab4048683eb1e054",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/eff44b69522f4cafab4048683eb1e054",
+                                                     "x":  6941,
+                                                     "y":  3353,
+                                                     "width":  390,
+                                                     "height":  1270
+                                                 },
+                                                 {
+                                                     "id":  "f14c5ed274c44622bca87a9f8b31cc30",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/f14c5ed274c44622bca87a9f8b31cc30",
+                                                     "x":  455,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  1323
+                                                 },
+                                                 {
+                                                     "id":  "f4ff072217c04a1c9d9b6d0ff24573f1",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/f4ff072217c04a1c9d9b6d0ff24573f1",
+                                                     "x":  1817,
+                                                     "y":  31187,
+                                                     "width":  390,
+                                                     "height":  903
+                                                 },
+                                                 {
+                                                     "id":  "fa7aee2945e0480fba62c3688e60fdad",
+                                                     "sourceScreen":  "projects/16979550497316270770/screens/fa7aee2945e0480fba62c3688e60fdad",
+                                                     "x":  2270,
+                                                     "y":  20836,
+                                                     "width":  390,
+                                                     "height":  1647
+                                                 }
+                                             ],
+                         "metadata":  {
+                                          "userRole":  "OWNER",
+                                          "isRemixed":  true
+                                      }
+                     }
+                 ]
+}

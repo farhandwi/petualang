@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- image_picker: access to external files dir for captured/picked images -->
+    <external-files-path name="my_images" path="Pictures" />
+    <!-- Also allow access to cache dir -->
+    <cache-path name="my_cache" path="/" />
+    <external-cache-path name="my_external_cache" path="/" />
+    <!-- For Android 10+ scoped storage compatibility -->
+    <external-path name="my_external_files" path="." />
+</paths>

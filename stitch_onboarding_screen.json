@@ -1,0 +1,32 @@
+﻿{
+    "screenshot":  {
+                       "name":  "projects/16979550497316270770/files/a2c93fca731545d5b4d0a806b402b28f",
+                       "downloadUrl":  "https://lh3.googleusercontent.com/aida/ADBb0uh30p8K-DcFIoyu6_FHlAMaHkZHau56Ye7glz7e6c-hfmCE8BFi9QtG6oxWCyUGig_dSGKFt8HGoCwSwMJO-7DU7cUaVzLCvAFOiVXbNq0ZAkrD5S3u3mLKdzo-KEOMlAckMLVSjvq4HFADWSqFc3zWBLtQimu-B93_ZOrwf2X0Aeu42-hYHwZxNvNFwoctqPRv6hAUvErUvT_bipXnlKP5V0u1WyS0cNxpVn-Td1_50L1txeNgKlfJwWG4"
+                   },
+    "htmlCode":  {
+                     "name":  "projects/16979550497316270770/files/78c84248c654455e9ad6fc54d5199954",
+                     "downloadUrl":  "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY0ZTI3MDUyNTQ5MDEwMzMyY2VkYTk2MTI0MzVkEgsSBxDemsuo5RgYAZIBJAoKcHJvamVjdF9pZBIWQhQxNjk3OTU1MDQ5NzMxNjI3MDc3MA\u0026filename=\u0026opi=89354086",
+                     "mimeType":  "text/html"
+                 },
+    "id":  "8113ff313a194552a9090a0c5fc91307",
+    "generatedBy":  "figaro_agent",
+    "width":  "780",
+    "height":  "1768",
+    "title":  "Onboarding - Cari Partner",
+    "prompt":  "Onboarding Screen 1 for Petualang app. Illustration of people hiking. Text: \u0027Cari Partner Mendaki\u0027. Subtext: \u0027Temukan teman petualangan yang memiliki hobi dan visi yang sama.\u0027 Primary orange button: \u0027Lanjut\u0027. Light mode, modern card style.",
+    "name":  "projects/16979550497316270770/screens/8113ff313a194552a9090a0c5fc91307",
+    "theme":  {
+                  "colorMode":  "LIGHT",
+                  "font":  "BE_VIETNAM_PRO",
+                  "roundness":  "ROUND_EIGHT",
+                  "customColor":  "#f05a19",
+                  "saturation":  2
+              },
+    "deviceType":  "MOBILE",
+    "screenType":  "DESIGN",
+    "screenMetadata":  {
+                           "agentType":  "HATTER_AGENT",
+                           "isRemixed":  true,
+                           "status":  "COMPLETE"
+                       }
+}
