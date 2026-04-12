@@ -9,6 +9,7 @@ import '../config/app_config.dart';
 import '../models/community_model.dart';
 import 'booking/mountain_list_screen.dart';
 import 'community/community_detail_screen.dart';
+import 'community/community_screen.dart';
 import 'main_wrapper.dart';
 import 'explore/open_trip_list_screen.dart';
 
@@ -135,10 +136,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   childAspectRatio: 0.7,
                 ),
                 delegate: SliverChildListDelegate([
-                  const _ServiceItem(
-                    icon: Icons.group_add_rounded,
-                    label: 'Cari\nTeman',
-                    color: Color(0xFF3B82F6),
+                  _ServiceItem(
+                    icon: Icons.people_rounded,
+                    label: 'Komunitas',
+                    color: const Color(0xFF3B82F6),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CommunityScreen()),
+                      );
+                    },
                   ),
                   _ServiceItem(
                     icon: Icons.map_rounded,

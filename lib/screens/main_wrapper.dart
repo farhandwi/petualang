@@ -6,7 +6,6 @@ import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
-import 'community/community_screen.dart';
 import 'rental/rental_main_screen.dart';
 import 'explore/explore_screen.dart';
 
@@ -29,7 +28,7 @@ class MainWrapperState extends State<MainWrapper> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const ExploreScreen(),
-    const CommunityScreen(),
+    const _PlaceholderScreen(title: 'Pesanan Saya', icon: Icons.receipt_long_rounded),
     const RentalMainScreen(),
     const ProfileScreen(),
   ];
@@ -108,8 +107,8 @@ class MainWrapperState extends State<MainWrapper> {
                   onTap: () => setState(() => _currentIndex = 1),
                 ),
                 _NavBarItem(
-                  icon: Icons.people_rounded,
-                  label: 'Komunitas',
+                  icon: Icons.receipt_long_rounded,
+                  label: 'Pesanan',
                   isSelected: _currentIndex == 2,
                   onTap: () => setState(() => _currentIndex = 2),
                 ),
