@@ -157,6 +157,15 @@ class CommunityService {
     return data['data'] as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>?> sharePost(int postId, String token) async {
+    final response = await http
+        .post(Uri.parse(AppConfig.postShare(postId)), headers: _headers(token))
+        .timeout(_timeout);
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    if (data['success'] != true) return null;
+    return data['data'] as Map<String, dynamic>;
+  }
+
   // ─── Comments ────────────────────────────────────────────────
 
   Future<List<CommunityCommentModel>> getComments(int postId, {String? token}) async {

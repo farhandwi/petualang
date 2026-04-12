@@ -274,6 +274,52 @@ class CommunityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> sharePost(int postId, int communityId) async {
+    if (_token == null) return;
+    
+    // Optimistic update
+    _updateShareOptimistic(postId, communityId);
+    
+    final result = await service.sharePost(postId, _token!);
+    if (result != null) {
+      final count = result['share_count'] as int;
+      _setShareFromServer(postId, count, communityId);
+    }
+  }
+
+  void _updateShareOptimistic(int postId, int communityId) {
+    final feedIdx = globalFeed.indexWhere((p) => p.id == postId);
+    if (feedIdx != -1) {
+      final p = globalFeed[feedIdx];
+      globalFeed[feedIdx] = p.copyWith(shareCount: p.shareCount + 1);
+    }
+    final posts = postsByGroup[communityId];
+    if (posts != null) {
+      final idx = posts.indexWhere((p) => p.id == postId);
+      if (idx != -1) {
+        final p = posts[idx];
+        postsByGroup[communityId]![idx] = p.copyWith(shareCount: p.shareCount + 1);
+      }
+    }
+    notifyListeners();
+  }
+
+  void _setShareFromServer(int postId, int count, int communityId) {
+    final feedIdx = globalFeed.indexWhere((p) => p.id == postId);
+    if (feedIdx != -1) {
+      globalFeed[feedIdx] = globalFeed[feedIdx].copyWith(shareCount: count);
+    }
+    final posts = postsByGroup[communityId];
+    if (posts != null) {
+      final idx = posts.indexWhere((p) => p.id == postId);
+      if (idx != -1) {
+        postsByGroup[communityId]![idx] =
+            postsByGroup[communityId]![idx].copyWith(shareCount: count);
+      }
+    }
+    notifyListeners();
+  }
+
   // ─── Comments ────────────────────────────────────────────────
 
   Future<void> fetchComments(int postId) async {

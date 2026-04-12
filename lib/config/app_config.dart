@@ -40,6 +40,7 @@ class AppConfig {
   static String communityPosts(int id) => '$apiCommunity/$id/posts';
   static String postDetail(int postId) => '$apiCommunity/posts/$postId';
   static String postLike(int postId) => '$apiCommunity/posts/$postId/like';
+  static String postShare(int postId) => '$apiCommunity/posts/$postId/share';
   static String postComments(int postId) => '$apiCommunity/posts/$postId/comments';
   static String get apiReport => '$baseUrl/api/report';
   static String get apiCommunityTrending => '$apiCommunity/trending';

@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../config/app_config.dart';
 import '../../models/community_post_model.dart';
+import '../../providers/community_provider.dart';
 import '../../theme/app_theme.dart';
-import 'like_button.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'report_bottom_sheet.dart';
 
 class PostCard extends StatefulWidget {
@@ -192,13 +194,25 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 ],
               ),
             )
-          else
-            // Text-only post — tap to open
-            if (post.content.isNotEmpty)
-              GestureDetector(
-                onTap: widget.onTap,
-                child: const SizedBox.shrink(),
+          // Text-only post background tap area
+          else if (post.content.isNotEmpty)
+            GestureDetector(
+              onDoubleTap: () {
+                HapticFeedback.lightImpact();
+                if (!widget.post.isLiked) widget.onLike?.call();
+                setState(() => _showHeart = true);
+                _heartController.forward(from: 0.0);
+                Future.delayed(const Duration(milliseconds: 800), () {
+                  if (mounted) setState(() => _showHeart = false);
+                });
+              },
+              onTap: widget.onTap,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+                color: Colors.transparent,
               ),
+            ),
 
           // ── Action Bar ──
           Padding(
@@ -221,14 +235,22 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 _IGActionButton(
                   icon: Icons.mode_comment_outlined,
                   color: colors.textPrimary,
+                  label: post.commentCount > 0 ? '${post.commentCount}' : null,
                   onTap: widget.onTap,
                 ),
                 const SizedBox(width: 2),
-                // Share (decorative)
+                // Share
                 _IGActionButton(
                   icon: Icons.send_outlined,
                   color: colors.textPrimary,
-                  onTap: () {},
+                  label: post.shareCount > 0 ? '${post.shareCount}' : null,
+                  onTap: () async {
+                    // Update share count to backend optimisticly
+                    context.read<CommunityProvider>().sharePost(post.id, post.communityId);
+                    // Open native share dialog
+                    final shareText = 'Lihat postingan dari ${post.authorName} di komunitas ${post.communityName ?? "Petualang"}!\n${post.content}\n\nAyo gabung ke Petualang sekarang!';
+                    await Share.share(shareText);
+                  },
                 ),
                 const Spacer(),
                 // Bookmark (decorative)
@@ -324,9 +346,10 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
 class _IGActionButton extends StatelessWidget {
   final IconData icon;
   final Color color;
+  final String? label;
   final VoidCallback? onTap;
 
-  const _IGActionButton({required this.icon, required this.color, this.onTap});
+  const _IGActionButton({required this.icon, required this.color, this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +358,23 @@ class _IGActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: Icon(icon, size: 26, color: color),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 26, color: color),
+            if (label != null) ...[
+              const SizedBox(width: 6),
+              Text(
+                label!,
+                style: GoogleFonts.beVietnamPro(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ]
+          ],
+        ),
       ),
     );
   }

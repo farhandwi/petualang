@@ -214,7 +214,7 @@ class CommunityService {
       '''
       SELECT p.id, p.community_id, p.user_id, u.name AS author_name,
              u.profile_picture AS author_avatar,
-             p.content, p.image_url, p.like_count, p.comment_count,
+             p.content, p.image_url, p.like_count, p.comment_count, p.share_count,
              p.is_pinned, p.created_at, c.name AS community_name
              $likeField
       FROM community_posts p
@@ -241,7 +241,7 @@ class CommunityService {
       '''
       SELECT p.id, p.community_id, p.user_id, u.name AS author_name,
              u.profile_picture AS author_avatar,
-             p.content, p.image_url, p.like_count, p.comment_count,
+             p.content, p.image_url, p.like_count, p.comment_count, p.share_count,
              p.is_pinned, p.created_at, c.name AS community_name,
              (cl.id IS NOT NULL) AS is_liked
       FROM community_posts p
@@ -268,7 +268,7 @@ class CommunityService {
       '''
       SELECT p.id, p.community_id, p.user_id, u.name,
              u.profile_picture, p.content, p.image_url, p.like_count,
-             p.comment_count, p.is_pinned, p.created_at, c.name
+             p.comment_count, p.share_count, p.is_pinned, p.created_at, c.name
              $likeField
       FROM community_posts p
       JOIN users u ON u.id = p.user_id
@@ -377,6 +377,21 @@ class CommunityService {
       );
       return {'liked': true, 'like_count': r.first[0]};
     }
+  }
+
+  // ─── Share ──────────────────────────────────────────────────
+
+  static Future<Map<String, dynamic>> incrementShareCount(int postId) async {
+    final conn = await Database.connection;
+    await conn.execute(
+      'UPDATE community_posts SET share_count = share_count + 1 WHERE id = @id',
+      substitutionValues: {'id': postId},
+    );
+    final r = await conn.query(
+      'SELECT share_count FROM community_posts WHERE id = @id',
+      substitutionValues: {'id': postId},
+    );
+    return {'share_count': r.first[0] as int};
   }
 
   // ─── Comments ────────────────────────────────────────────────
@@ -542,10 +557,11 @@ class CommunityService {
         'image_url': r[6],
         'like_count': r[7],
         'comment_count': r[8],
-        'is_pinned': r[9],
-        'created_at': (r[10] as DateTime?)?.toIso8601String(),
-        'community_name': r[11],
-        'is_liked': r[12] ?? false,
+        'share_count': r[9],
+        'is_pinned': r[10],
+        'created_at': (r[11] as DateTime?)?.toIso8601String(),
+        'community_name': r[12],
+        'is_liked': r[13] ?? false,
       };
 
   static Map<String, dynamic> _mapComment(dynamic r) => {

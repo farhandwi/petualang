@@ -9,6 +9,7 @@ class CommunityPostModel {
   final String? communityName;
   final int likeCount;
   final int commentCount;
+  final int shareCount;
   final bool isLiked;
   final bool isPinned;
   final DateTime? createdAt;
@@ -24,6 +25,7 @@ class CommunityPostModel {
     this.communityName,
     required this.likeCount,
     required this.commentCount,
+    required this.shareCount,
     required this.isLiked,
     required this.isPinned,
     this.createdAt,
@@ -41,6 +43,7 @@ class CommunityPostModel {
       communityName: json['community_name'] as String?,
       likeCount: (json['like_count'] as num?)?.toInt() ?? 0,
       commentCount: (json['comment_count'] as num?)?.toInt() ?? 0,
+      shareCount: (json['share_count'] as num?)?.toInt() ?? 0,
       isLiked: json['is_liked'] as bool? ?? false,
       isPinned: json['is_pinned'] as bool? ?? false,
       createdAt: json['created_at'] != null
@@ -49,7 +52,7 @@ class CommunityPostModel {
     );
   }
 
-  CommunityPostModel copyWith({bool? isLiked, int? likeCount, int? commentCount}) {
+  CommunityPostModel copyWith({bool? isLiked, int? likeCount, int? commentCount, int? shareCount}) {
     return CommunityPostModel(
       id: id,
       communityId: communityId,
@@ -61,6 +64,7 @@ class CommunityPostModel {
       communityName: communityName,
       likeCount: likeCount ?? this.likeCount,
       commentCount: commentCount ?? this.commentCount,
+      shareCount: shareCount ?? this.shareCount,
       isLiked: isLiked ?? this.isLiked,
       isPinned: isPinned,
       createdAt: createdAt,

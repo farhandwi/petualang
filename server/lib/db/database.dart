@@ -185,6 +185,7 @@ class Database {
     await conn.execute('''
       ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS image_url TEXT;
       ALTER TABLE community_comments ADD COLUMN IF NOT EXISTS image_url TEXT;
+      ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS share_count INTEGER DEFAULT 0;
     ''');
 
     await conn.execute('''

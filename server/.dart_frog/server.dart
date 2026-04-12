@@ -20,6 +20,7 @@ import '../routes/api/explore/index.dart' as api_explore_index;
 import '../routes/api/community/trending.dart' as api_community_trending;
 import '../routes/api/community/index.dart' as api_community_index;
 import '../routes/api/community/feed.dart' as api_community_feed;
+import '../routes/api/community/posts/[postId]/share.dart' as api_community_posts_$post_id_share;
 import '../routes/api/community/posts/[postId]/like.dart' as api_community_posts_$post_id_like;
 import '../routes/api/community/posts/[postId]/index.dart' as api_community_posts_$post_id_index;
 import '../routes/api/community/posts/[postId]/comments.dart' as api_community_posts_$post_id_comments;
@@ -136,7 +137,7 @@ Handler buildApiCommunityHandler() {
 Handler buildApiCommunityPosts$postIdHandler(String postId,) {
   final pipeline = const Pipeline();
   final router = Router()
-    ..all('/comments', (context) => api_community_posts_$post_id_comments.onRequest(context,postId,))..all('/like', (context) => api_community_posts_$post_id_like.onRequest(context,postId,))..all('/', (context) => api_community_posts_$post_id_index.onRequest(context,postId,));
+    ..all('/comments', (context) => api_community_posts_$post_id_comments.onRequest(context,postId,))..all('/like', (context) => api_community_posts_$post_id_like.onRequest(context,postId,))..all('/share', (context) => api_community_posts_$post_id_share.onRequest(context,postId,))..all('/', (context) => api_community_posts_$post_id_index.onRequest(context,postId,));
   return pipeline.addHandler(router);
 }
 
