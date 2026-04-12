@@ -60,19 +60,52 @@ class _RentalCartScreenState extends State<RentalCartScreen> {
     }
   }
 
+  Future<void> _selectDateRange(BuildContext context) async {
+    final provider = context.read<RentalProvider>();
+    final initialStart = provider.startDate ?? DateTime.now();
+    final initialEnd = provider.endDate ?? DateTime.now().add(const Duration(days: 1));
+
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+      initialDateRange: DateTimeRange(start: initialStart, end: initialEnd),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: context.colors.primaryOrange,
+              primary: context.colors.primaryOrange,
+              onPrimary: Colors.white,
+              surface: context.colors.background,
+              onSurface: context.colors.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      provider.setRentalDates(picked.start, picked.end);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RentalProvider>();
-    final startDate = provider.startDate ?? DateTime.now();
-    final endDate = provider.endDate ?? DateTime.now();
-    final days = endDate.difference(startDate).inDays;
-    final validDays = days >= 0 ? days + 1 : 1;
+    final startDate = provider.startDate;
+    final endDate = provider.endDate;
+    final validDays = (startDate != null && endDate != null) 
+      ? (endDate.difference(startDate).inDays >= 0 ? endDate.difference(startDate).inDays + 1 : 1)
+      : 0;
     
     double totalPerDay = 0;
     for (var c in provider.cart) {
       totalPerDay += c.item.pricePerDay * c.quantity;
     }
-    final grandTotal = (totalPerDay * validDays) + provider.deliveryFee;
+    final daysMultiplier = validDays > 0 ? validDays : 1;
+    final grandTotal = (totalPerDay * daysMultiplier) + provider.deliveryFee;
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -98,38 +131,44 @@ class _RentalCartScreenState extends State<RentalCartScreen> {
           )
         : Column(
             children: [
-              // Date Info (Read-only)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                color: context.colors.surface,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_month_rounded, color: context.colors.primaryOrange),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tanggal Sewa ($validDays Hari)',
-                            style: GoogleFonts.beVietnamPro(
-                              color: context.colors.textSecondary,
-                              fontSize: 12,
+              // Date Info (Clickable)
+              InkWell(
+                onTap: () => _selectDateRange(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  color: context.colors.surface,
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_month_rounded, color: context.colors.primaryOrange),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              validDays > 0 ? 'Tanggal Sewa ($validDays Hari)' : 'Pilih Tanggal Sewa',
+                              style: GoogleFonts.beVietnamPro(
+                                color: context.colors.textSecondary,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${DateFormat('dd MMM').format(startDate)} - ${DateFormat('dd MMM yyyy').format(endDate)}',
-                            style: GoogleFonts.beVietnamPro(
-                              color: context.colors.textPrimary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                            const SizedBox(height: 4),
+                            Text(
+                              (startDate != null && endDate != null)
+                                ? '${DateFormat('dd MMM').format(startDate)} - ${DateFormat('dd MMM yyyy').format(endDate)}'
+                                : 'Ketuk untuk atur jadwal',
+                              style: GoogleFonts.beVietnamPro(
+                                color: context.colors.textPrimary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      Icon(Icons.chevron_right, color: context.colors.textMuted),
+                    ],
+                  ),
                 ),
               ),
 
@@ -258,9 +297,9 @@ class _RentalCartScreenState extends State<RentalCartScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Sewa Alat ($validDays Hari)', style: GoogleFonts.beVietnamPro(color: context.colors.textSecondary)),
+                        Text(validDays > 0 ? 'Sewa Alat ($validDays Hari)' : 'Belum pilih tanggal', style: GoogleFonts.beVietnamPro(color: context.colors.textSecondary)),
                         Text(
-                          NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(totalPerDay * validDays),
+                          NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(totalPerDay * daysMultiplier),
                           style: GoogleFonts.beVietnamPro(color: context.colors.textPrimary, fontWeight: FontWeight.w600),
                         ),
                       ],

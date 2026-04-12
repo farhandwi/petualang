@@ -10,6 +10,7 @@ import '../routes/ws/chat/[communityId].dart' as ws_chat_$community_id;
 import '../routes/api/report.dart' as api_report;
 import '../routes/api/upload/image.dart' as api_upload_image;
 import '../routes/api/tickets/index.dart' as api_tickets_index;
+import '../routes/api/rentals/vendors.dart' as api_rentals_vendors;
 import '../routes/api/rentals/items.dart' as api_rentals_items;
 import '../routes/api/rentals/index.dart' as api_rentals_index;
 import '../routes/api/open_trips/index.dart' as api_open_trips_index;
@@ -100,7 +101,7 @@ Handler buildApiTicketsHandler() {
 Handler buildApiRentalsHandler() {
   final pipeline = const Pipeline();
   final router = Router()
-    ..all('/items', (context) => api_rentals_items.onRequest(context,))..all('/', (context) => api_rentals_index.onRequest(context,));
+    ..all('/items', (context) => api_rentals_items.onRequest(context,))..all('/vendors', (context) => api_rentals_vendors.onRequest(context,))..all('/', (context) => api_rentals_index.onRequest(context,));
   return pipeline.addHandler(router);
 }
 

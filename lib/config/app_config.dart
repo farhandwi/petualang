@@ -29,6 +29,7 @@ class AppConfig {
   // Rental endpoints
   static String get apiRentals => '$baseUrlApi/rentals';
   static String get rentalItemsEndpoint => '$apiRentals/items';
+  static String get rentalVendorsEndpoint => '$apiRentals/vendors';
 
   // Community endpoints
   static String get apiCommunity => '$baseUrl/api/community';

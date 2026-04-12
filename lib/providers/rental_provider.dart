@@ -1,10 +1,23 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/mountain_model.dart';
 import '../models/rental_model.dart';
+import '../models/vendor_model.dart';
+import '../services/location_service.dart';
 import '../services/rental_service.dart';
 
 class RentalProvider extends ChangeNotifier {
   final RentalService _service = RentalService();
+
+  List<VendorModel> _vendors = [];
+  /// Only show vendors within 100km radius (green zone)
+  static const double _maxRadiusKm = 100.0;
+  List<VendorModel> get vendors => _vendors
+      .where((v) => v.distance == null || v.distance! < _maxRadiusKm)
+      .toList();
+
+  VendorModel? _selectedVendor;
+  VendorModel? get selectedVendor => _selectedVendor;
 
   List<RentalItemModel> _items = [];
   List<RentalItemModel> get items => _items;
@@ -17,7 +30,6 @@ class RentalProvider extends ChangeNotifier {
 
   String _searchQuery = '';
 
-  // Pre-requisites for rental mapping (Mountain, routes, dates)
   MountainModel? _selectedMountain;
   MountainModel? get selectedMountain => _selectedMountain;
 
@@ -35,7 +47,7 @@ class RentalProvider extends ChangeNotifier {
 
   double get deliveryFee {
     if (_entryRoute != null && _exitRoute != null && _entryRoute!.id != _exitRoute!.id) {
-      return 50000.0; // Biaya beda pos
+      return 50000.0;
     }
     return 0.0;
   }
@@ -61,7 +73,14 @@ class RentalProvider extends ChangeNotifier {
     _endDate = null;
     _entryRoute = null;
     _exitRoute = null;
+    _selectedVendor = null;
     _items.clear();
+    notifyListeners();
+  }
+
+  void setRentalDates(DateTime start, DateTime end) {
+    _startDate = start;
+    _endDate = end;
     notifyListeners();
   }
 
@@ -88,13 +107,102 @@ class RentalProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    _items = await _service.getRentalItems(
-      category: _selectedCategory,
-      mountainId: _selectedMountain?.id,
-    );
+    try {
+      _items = await _service.getRentalItems(
+        category: _selectedCategory,
+        mountainId: _selectedMountain?.id,
+        vendorId: _selectedVendor?.id,
+      );
+    } catch (e) {
+      print('fetchItems error: $e');
+    }
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  // Location
+  String _currentLocationName = 'Jakarta Pusat';
+  String get currentLocationName => _currentLocationName;
+  double _userLat = -6.2088;
+  double _userLng = 106.8456;
+
+  bool _vendorsFetched = false;
+
+  Future<void> fetchVendors({String? query}) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Always fetch with current coords (defaults to Jakarta)
+      _vendors = await _service.getVendors(
+        lat: _userLat,
+        lng: _userLng,
+        query: query ?? (_searchQuery.isNotEmpty ? _searchQuery : null),
+      );
+    } catch (e) {
+      print('fetchVendors error: $e');
+      _vendors = [];
+    }
+
+    _isLoading = false;
+    _vendorsFetched = true;
+    notifyListeners();
+
+    // Try GPS in background, only once
+    if (!_vendorsFetched || query == null) {
+      _tryUpdateLocationInBackground();
+    }
+  }
+
+  Future<void> _tryUpdateLocationInBackground() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+      final newLat = position.latitude;
+      final newLng = position.longitude;
+
+      // Update name via Nominatim
+      final name = await LocationService.reverseGeocode(newLat, newLng);
+
+      _userLat = newLat;
+      _userLng = newLng;
+      _currentLocationName = name ?? 'Lokasi Terkini';
+
+      // Refetch vendors with real GPS coords
+      final updated = await _service.getVendors(lat: newLat, lng: newLng);
+      _vendors = updated;
+      notifyListeners();
+    } catch (e) {
+      print('GPS background update failed: $e');
+    }
+  }
+
+  void setLocationFromSearch(LocationResult loc) {
+    _userLat = loc.lat;
+    _userLng = loc.lng;
+    _currentLocationName = loc.shortName;
+    fetchVendors();
+  }
+
+  void selectVendor(VendorModel vendor) {
+    _selectedVendor = vendor;
+    _selectedCategory = 'Semua';
+    fetchItems();
   }
 
   // Cart Actions
@@ -132,23 +240,18 @@ class RentalProvider extends ChangeNotifier {
 
   int get totalItemsInCart => _cart.fold(0, (sum, item) => sum + item.quantity);
 
-  Future<Map<String, dynamic>> checkout({
-    required String token,
-  }) async {
+  Future<Map<String, dynamic>> checkout({required String token}) async {
     if (_startDate == null || _endDate == null) {
       return {'success': false, 'message': 'Tanggal sewa belum dipilih.'};
     }
 
     final days = _endDate!.difference(_startDate!).inDays;
-    // minimal sewa dihitung 1 hari walaupun return di hari yg sama
     final validDays = days >= 0 ? days + 1 : 1;
 
     double total = 0;
     for (var c in _cart) {
       total += c.item.pricePerDay * c.quantity * validDays;
     }
-    
-    // Add delivery fee
     total += deliveryFee;
 
     return await _service.checkoutRental(
@@ -164,3 +267,4 @@ class RentalProvider extends ChangeNotifier {
     );
   }
 }
+

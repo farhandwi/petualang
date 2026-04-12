@@ -14,6 +14,7 @@ Future<Response> onRequest(RequestContext context) async {
     // Optional query filters
     final category = context.request.url.queryParameters['category'];
     final mountainId = context.request.url.queryParameters['mountain_id'];
+    final vendorId = context.request.url.queryParameters['vendor_id'];
     
     final conn = await Database.connection;
     String query = 'SELECT id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition FROM rental_items';
@@ -28,6 +29,11 @@ Future<Response> onRequest(RequestContext context) async {
     if (mountainId != null && mountainId.isNotEmpty) {
       conditions.add('(mountain_id = @mountainId OR mountain_id IS NULL)');
       substitutionValues['mountainId'] = int.tryParse(mountainId) ?? 0;
+    }
+
+    if (vendorId != null && vendorId.isNotEmpty) {
+      conditions.add('vendor_id = @vendorId');
+      substitutionValues['vendorId'] = int.tryParse(vendorId) ?? 0;
     }
 
     if (conditions.isNotEmpty) {

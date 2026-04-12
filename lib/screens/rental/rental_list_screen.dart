@@ -58,6 +58,60 @@ class _RentalListScreenState extends State<RentalListScreen> {
             ),
           )
         : null,
+      appBar: AppBar(
+        backgroundColor: context.colors.surface,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.colors.textPrimary, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              provider.selectedVendor?.name ?? 'Daftar Alat',
+              style: GoogleFonts.beVietnamPro(
+                  fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.textPrimary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (provider.selectedVendor?.address != null)
+              Text(
+                provider.selectedVendor!.address,
+                style: GoogleFonts.beVietnamPro(fontSize: 11, color: context.colors.textSecondary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
+        ),
+        actions: [
+          if (provider.totalItemsInCart > 0)
+            Stack(
+              alignment: Alignment.topRight,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.shopping_cart_rounded, color: context.colors.textPrimary),
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const RentalCartScreen())),
+                ),
+                Positioned(
+                  top: 6, right: 6,
+                  child: Container(
+                    width: 16, height: 16,
+                    decoration: BoxDecoration(
+                        color: context.colors.primaryOrange,
+                        shape: BoxShape.circle),
+                    child: Center(
+                      child: Text('${provider.totalItemsInCart}',
+                          style: GoogleFonts.beVietnamPro(
+                              color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [

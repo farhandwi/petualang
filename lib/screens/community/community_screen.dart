@@ -105,13 +105,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ],
                       ),
                     ),
+                    // Instagram-style Stories bar
                     SizedBox(
-                      height: 100,
+                      height: 110,
                       child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         scrollDirection: Axis.horizontal,
                         itemCount: joinedCommunities.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        separatorBuilder: (_, __) => const SizedBox(width: 14),
                         itemBuilder: (_, i) {
                           final c = joinedCommunities[i];
                           return GestureDetector(
@@ -120,14 +121,34 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               MaterialPageRoute(builder: (_) => CommunityDetailScreen(community: c)),
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                _GroupAvatar(community: c),
-                                const SizedBox(height: 4),
+                                // Story ring
+                                Container(
+                                  padding: const EdgeInsets.all(2.5),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFF05A19), Color(0xFFFF9A5C), Color(0xFFF05A19)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: colors.background,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: _GroupAvatar(community: c, size: 56),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
                                 SizedBox(
-                                  width: 60,
+                                  width: 66,
                                   child: Text(
                                     c.name,
-                                    style: TextStyle(fontSize: 11, color: colors.textPrimary),
+                                    style: TextStyle(fontSize: 11, color: colors.textPrimary, fontWeight: FontWeight.w500),
                                     textAlign: TextAlign.center,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -156,20 +177,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ),
 
-            // Divider
+            // Divider (Instagram thick separator between stories & feed)
             SliverToBoxAdapter(
-              child: Divider(color: colors.border, thickness: 6, height: 8),
-            ),
-
-            // Feed header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                child: Text(
-                  'Feed',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: colors.textPrimary),
-                ),
-              ),
+              child: Divider(color: colors.border, thickness: 1, height: 1),
             ),
 
             // Feed
@@ -192,11 +202,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   (_, i) {
                     if (i == community.globalFeed.length) {
                       return Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Center(
                           child: TextButton(
                             onPressed: () => community.fetchFeed(),
-                            child: Text('Muat lebih banyak', style: TextStyle(color: colors.primaryOrange)),
+                            child: Text('Muat lebih banyak',
+                                style: TextStyle(color: colors.primaryOrange)),
                           ),
                         ),
                       );
@@ -208,7 +219,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       onLike: () => community.toggleLike(post.id, post.communityId),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => PostDetailScreen(postId: post.id, communityId: post.communityId)),
+                        MaterialPageRoute(builder: (_) =>
+                            PostDetailScreen(postId: post.id, communityId: post.communityId)),
                       ),
                     );
                   },
@@ -246,19 +258,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
 class _GroupAvatar extends StatelessWidget {
   final dynamic community;
-  const _GroupAvatar({required this.community});
+  final double size;
+  const _GroupAvatar({required this.community, this.size = 56});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Container(
-      width: 56,
-      height: 56,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: colors.primaryOrange, width: 2),
         gradient: LinearGradient(
-          colors: [colors.primaryOrange.withOpacity(0.8), colors.primaryOrange.withOpacity(0.4)],
+          colors: [colors.primaryOrange.withValues(alpha: 0.8), colors.primaryOrange.withValues(alpha: 0.4)],
         ),
       ),
       child: community.iconImageUrl != null
@@ -266,7 +278,7 @@ class _GroupAvatar extends StatelessWidget {
           : Center(
               child: Text(
                 community.name.isNotEmpty ? community.name[0].toUpperCase() : 'G',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: size * 0.38),
               ),
             ),
     );

@@ -266,6 +266,16 @@ class Database {
     ''');
 
     await conn.execute('''
+      ALTER TABLE rental_vendors 
+      ADD COLUMN IF NOT EXISTS rating DECIMAL(3, 1) DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS is_open BOOLEAN DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS image_url TEXT,
+      ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 6),
+      ADD COLUMN IF NOT EXISTS longitude DECIMAL(10, 6);
+    ''');
+
+    await conn.execute('''
       CREATE TABLE IF NOT EXISTS rental_items (
         id SERIAL PRIMARY KEY,
         vendor_id INTEGER REFERENCES rental_vendors(id) ON DELETE CASCADE,
@@ -425,26 +435,69 @@ class Database {
       ON CONFLICT (community_id) DO NOTHING;
     ''');
 
-    // Seed data untuk rental vendor & alat
+    // Seed / Upsert data untuk rental vendor
+    // Use ON CONFLICT DO UPDATE so data always stays fresh on restart
+    // First, clean up any existing duplicates that might prevent index creation
     await conn.execute('''
-      INSERT INTO rental_vendors (name, mountain_id, contact_phone, address)
-      SELECT 'Rinjani Rent Camp', id, '08123456789', 'Basecamp Sembalun' FROM mountains WHERE name = 'Gunung Rinjani'
-      ON CONFLICT DO NOTHING;
-      
-      INSERT INTO rental_vendors (name, mountain_id, contact_phone, address)
-      SELECT 'Semeru Outdoor Services', id, '08987654321', 'Basecamp Ranu Pani' FROM mountains WHERE name = 'Gunung Semeru'
-      ON CONFLICT DO NOTHING;
+      DELETE FROM rental_vendors a USING rental_vendors b
+      WHERE a.id > b.id AND a.name = b.name;
+    ''');
+
+    // Then ensure unique constraint exists
+    await conn.execute('''
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_rental_vendors_name ON rental_vendors (name);
     ''');
 
     await conn.execute('''
+      INSERT INTO rental_vendors (name, mountain_id, contact_phone, address, rating, review_count, is_open, image_url, latitude, longitude)
+      SELECT 'Rinjani Outdoor Rental', id, '08123456789', 'Jl. Raya Sembalun No.1, Sembalun Lawang, Lombok Timur, Nusa Tenggara Barat', 4.8, 120, TRUE, 'assets/images/rental_store_2.png', -8.361548, 116.518606 FROM mountains WHERE name = 'Gunung Rinjani'
+      ON CONFLICT (name) DO UPDATE SET address = EXCLUDED.address, image_url = EXCLUDED.image_url, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude;
+
+      INSERT INTO rental_vendors (name, mountain_id, contact_phone, address, rating, review_count, is_open, image_url, latitude, longitude)
+      SELECT 'Semeru Outdoor Services', id, '08987654321', 'Ranu Pani, Senduro, Lumajang, Jawa Timur 67373', 4.5, 80, FALSE, 'assets/images/rental_store_3.png', -7.942732, 112.618685 FROM mountains WHERE name = 'Gunung Semeru'
+      ON CONFLICT (name) DO UPDATE SET address = EXCLUDED.address, image_url = EXCLUDED.image_url, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude;
+    ''');
+
+    await conn.execute('''
+      INSERT INTO rental_vendors (name, mountain_id, contact_phone, address, rating, review_count, is_open, image_url, latitude, longitude)
+      VALUES
+        ('Basecamp Adventure Store', NULL, '085512341234', 'Jl. MH Thamrin No.1, Menteng, Jakarta Pusat, DKI Jakarta 10310', 4.9, 210, TRUE, 'assets/images/store_jakarta.png', -6.208763, 106.845599),
+        ('Summit Gear Indonesia', NULL, '08111222333', 'Jl. Ir. H. Juanda No.15, Dago, Bandung Utara, Jawa Barat 40132', 4.7, 150, TRUE, 'assets/images/store_bandung.png', -6.890333, 107.610214),
+        ('Malioboro Outdoor', NULL, '082212341234', 'Jl. Malioboro No.52, Gedongtengen, Kota Yogyakarta, DIY 55213', 4.8, 205, TRUE, 'assets/images/store_yogya.png', -7.797068, 110.370529),
+        ('Lumpia Adventure Camp', NULL, '083312341234', 'Jl. Pahlawan No.10, Simpang Lima, Semarang Tengah, Jawa Tengah 50243', 4.6, 95, TRUE, 'assets/images/store_semarang.png', -6.981822, 110.420822),
+        ('Pahlawan Rent Gear', NULL, '084412341234', 'Jl. Tunjungan No.1, Genteng, Surabaya, Jawa Timur 60275', 4.9, 320, TRUE, 'assets/images/store_surabaya.png', -7.265691, 112.743152),
+        ('Osing Trekking Center', NULL, '085512341234', 'Jl. Ahmad Yani No.105, Taman Baru, Banyuwangi, Jawa Timur 68416', 4.8, 140, TRUE, 'assets/images/store_banyuwangi.png', -8.219233, 114.369227)
+      ON CONFLICT (name) DO UPDATE SET
+        address = EXCLUDED.address,
+        contact_phone = EXCLUDED.contact_phone,
+        rating = EXCLUDED.rating,
+        review_count = EXCLUDED.review_count,
+        is_open = EXCLUDED.is_open,
+        image_url = EXCLUDED.image_url,
+        latitude = EXCLUDED.latitude,
+        longitude = EXCLUDED.longitude;
+    ''');
+
+
+    await conn.execute('''
       INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
-      SELECT v.id, v.mountain_id, 'Tenda Dome 4P', 'Shelter', 'Tenda kapasitas 4 orang, double layer tahan hujan.', 50000.00, 'assets/images/rental_tenda_1775786628804.png', 10, 10, 'Consina', 'Baik'
-      FROM rental_vendors v WHERE v.name = 'Rinjani Rent Camp'
+      SELECT v.id, v.mountain_id, 'Tenda Dome 4P', 'TENDA', 'Tenda kapasitas 4 orang, double layer tahan hujan.', 50000.00, 'assets/images/rental_tenda_1775786628804.png', 10, 10, 'Consina', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Rinjani Outdoor Rental'
       ON CONFLICT DO NOTHING;
       
       INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
-      SELECT v.id, v.mountain_id, 'Carrier 60L', 'Carrier', 'Tas punggung gunung kapasitas besar 60 Liter.', 40000.00, 'assets/images/rental_carrier_1775786645881.png', 15, 15, 'Eiger', 'Baik'
-      FROM rental_vendors v WHERE v.name = 'Rinjani Rent Camp'
+      SELECT v.id, v.mountain_id, 'Carrier 60L', 'CARRIER', 'Tas punggung gunung kapasitas besar 60 Liter.', 40000.00, 'assets/images/rental_carrier_1775786645881.png', 15, 15, 'Eiger', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Rinjani Outdoor Rental'
+      ON CONFLICT DO NOTHING;
+
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Sleeping Bag Polar', 'SLEEPING BAG', 'Kantung tidur tebal dan hangat.', 25000.00, 'assets/images/rental_sb_1775786660007.png', 20, 20, 'Arei', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Basecamp Adventure Store'
+      ON CONFLICT DO NOTHING;
+
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Sepatu Trekking', 'SEPATU', 'Sepatu anti slip untuk medan terjal.', 35000.00, 'assets/images/rental_tenda_1775786628804.png', 15, 15, 'Eiger', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Basecamp Adventure Store'
       ON CONFLICT DO NOTHING;
       
       INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
@@ -453,8 +506,62 @@ class Database {
       ON CONFLICT DO NOTHING;
       
       INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
-      SELECT v.id, v.mountain_id, 'Kompor Portable', 'Cooking', 'Kompor lipat kecil untk pendakian, ringan dan praktis.', 15000.00, 'assets/images/rental_kompor_1775786676160.png', 12, 12, 'Kovar', 'Baik'
+      SELECT v.id, v.mountain_id, 'Kompor Portable', 'COOKING', 'Kompor lipat kecil untk pendakian, ringan dan praktis.', 15000.00, 'assets/images/rental_kompor_1775786676160.png', 12, 12, 'Kovar', 'Baik'
       FROM rental_vendors v WHERE v.name = 'Semeru Outdoor Services'
+      ON CONFLICT DO NOTHING;
+
+      -- Bandung
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Tenda Pramuka', 'TENDA', 'Tenda klasik untuk grup besar', 75000.00, 'assets/images/rental_tenda_1775786628804.png', 5, 5, 'Local', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Summit Gear Indonesia'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Nesting Set', 'COOKING', 'Alat masak komplit 4 orang', 25000.00, 'assets/images/rental_kompor_1775786676160.png', 15, 15, 'DS300', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Summit Gear Indonesia'
+      ON CONFLICT DO NOTHING;
+
+      -- Yogya
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Matras Foil', 'MATRAS', 'Matras hangat anti dingin', 10000.00, 'assets/images/rental_sb_1775786660007.png', 30, 30, 'Klymit', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Malioboro Outdoor'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Tenda Kapasitas 2', 'TENDA', 'Tenda ringan 2 orang', 35000.00, 'assets/images/rental_tenda_1775786628804.png', 12, 12, 'Eiger', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Malioboro Outdoor'
+      ON CONFLICT DO NOTHING;
+
+      -- Semarang
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Headlamp LED', 'PENERANGAN', 'Lampu kepala sangat terang', 15000.00, 'assets/images/rental_tenda_1775786628804.png', 25, 25, 'Energizer', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Lumpia Adventure Camp'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Tenda Lapisan Ganda', 'TENDA', 'Tenda dome 4 orang', 45000.00, 'assets/images/rental_tenda_1775786628804.png', 8, 8, 'Consina', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Lumpia Adventure Camp'
+      ON CONFLICT DO NOTHING;
+
+      -- Surabaya
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Sepatu Gunung', 'SEPATU', 'Sepatu kokoh vibram', 40000.00, 'assets/images/rental_tenda_1775786628804.png', 20, 20, 'Arei', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Pahlawan Rent Gear'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Jaket Gunung', 'PAKAIAN', 'Jaket waterproof dan windproof', 30000.00, 'assets/images/rental_sb_1775786660007.png', 15, 15, 'Eiger', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Pahlawan Rent Gear'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Carrier 40L', 'CARRIER', 'Tas gunung medium', 35000.00, 'assets/images/rental_carrier_1775786645881.png', 12, 12, 'Osprey', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Pahlawan Rent Gear'
+      ON CONFLICT DO NOTHING;
+
+      -- Banyuwangi
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Tenda Raung', 'TENDA', 'Tenda siap badai Raung', 60000.00, 'assets/images/rental_tenda_1775786628804.png', 5, 5, 'Naturehike', 'Sangat Baik'
+      FROM rental_vendors v WHERE v.name = 'Osing Trekking Center'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)
+      SELECT v.id, v.mountain_id, 'Kompor Gas Lipat', 'COOKING', 'Include gas', 25000.00, 'assets/images/rental_kompor_1775786676160.png', 10, 10, 'Kovar', 'Baik'
+      FROM rental_vendors v WHERE v.name = 'Osing Trekking Center'
       ON CONFLICT DO NOTHING;
     ''');
 

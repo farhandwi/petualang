@@ -2,11 +2,40 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../models/rental_model.dart';
+import '../models/vendor_model.dart';
 
 class RentalService {
   final Duration _timeout = const Duration(seconds: 15);
 
-  Future<List<RentalItemModel>> getRentalItems({String? category, int? mountainId}) async {
+  Future<List<VendorModel>> getVendors({double? lat, double? lng, String? query}) async {
+    try {
+      final queryParams = <String, String>{};
+      if (lat != null && lng != null) {
+        queryParams['lat'] = lat.toString();
+        queryParams['lng'] = lng.toString();
+      }
+      if (query != null && query.isNotEmpty) {
+        queryParams['q'] = query;
+      }
+      final uri = Uri.parse(AppConfig.rentalVendorsEndpoint).replace(
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
+      final response = await http.get(uri).timeout(_timeout);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          final List rows = data['data'] as List;
+          return rows.map((json) => VendorModel.fromJson(json as Map<String, dynamic>)).toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching vendors: $e');
+      return [];
+    }
+  }
+
+  Future<List<RentalItemModel>> getRentalItems({String? category, int? mountainId, int? vendorId}) async {
     try {
       final queryParams = <String, String>{};
       if (category != null && category != 'Semua') {
@@ -14,6 +43,9 @@ class RentalService {
       }
       if (mountainId != null) {
         queryParams['mountain_id'] = mountainId.toString();
+      }
+      if (vendorId != null) {
+        queryParams['vendor_id'] = vendorId.toString();
       }
 
       final uri = Uri.parse(AppConfig.rentalItemsEndpoint).replace(
