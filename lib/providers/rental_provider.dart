@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/mountain_model.dart';
 import '../models/rental_model.dart';
@@ -6,15 +6,64 @@ import '../models/vendor_model.dart';
 import '../services/location_service.dart';
 import '../services/rental_service.dart';
 
+enum VendorSortMode { nearest, topRated }
+
 class RentalProvider extends ChangeNotifier {
   final RentalService _service = RentalService();
 
   List<VendorModel> _vendors = [];
   /// Only show vendors within 100km radius (green zone)
   static const double _maxRadiusKm = 100.0;
-  List<VendorModel> get vendors => _vendors
-      .where((v) => v.distance == null || v.distance! < _maxRadiusKm)
-      .toList();
+
+  // ── Vendor sort & filter state ──
+  VendorSortMode _vendorSortMode = VendorSortMode.nearest;
+  VendorSortMode get vendorSortMode => _vendorSortMode;
+
+  bool _showOpenOnly = true; // default: hanya tampilkan yang buka
+  bool get showOpenOnly => _showOpenOnly;
+
+  void setVendorSortMode(VendorSortMode mode) {
+    _vendorSortMode = mode;
+    _resetVendorPagination();
+    notifyListeners();
+  }
+
+  void toggleShowOpenOnly() {
+    _showOpenOnly = !_showOpenOnly;
+    _resetVendorPagination();
+    notifyListeners();
+  }
+
+  List<VendorModel> get vendors {
+    // 1. Filter radius — HANYA aktif saat mode Terdekat
+    //    Mode Rating Tertinggi: tampilkan SEMUA vendor tanpa batas jarak
+    var list = _vendorSortMode == VendorSortMode.nearest
+        ? _vendors
+            .where((v) => v.distance == null || v.distance! < _maxRadiusKm)
+            .toList()
+        : List<VendorModel>.from(_vendors);
+
+    // 2. Filter buka sekarang (jika aktif)
+    if (_showOpenOnly) {
+      list = list.where((v) => v.isOpen).toList();
+    }
+
+    // 3. Sort
+    switch (_vendorSortMode) {
+      case VendorSortMode.nearest:
+        list.sort((a, b) {
+          final da = a.distance ?? double.infinity;
+          final db = b.distance ?? double.infinity;
+          return da.compareTo(db);
+        });
+        break;
+      case VendorSortMode.topRated:
+        list.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+    }
+
+    return list;
+  }
 
   VendorModel? _selectedVendor;
   VendorModel? get selectedVendor => _selectedVendor;
@@ -24,6 +73,41 @@ class RentalProvider extends ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  // ── Lazy loading vendor ──
+  static const int _pageSize = 20;
+  int _vendorPage = 1;
+  bool _isLoadingMore = false;
+
+  bool get isLoadingMore => _isLoadingMore;
+
+  /// Vendor yang ditampilkan — slice dari daftar lengkap yang sudah di-sort/filter
+  List<VendorModel> get vendorsPage {
+    final all = vendors;
+    final end = (_vendorPage * _pageSize).clamp(0, all.length);
+    return all.sublist(0, end);
+  }
+
+  bool get hasMoreVendors {
+    final all = vendors;
+    return (_vendorPage * _pageSize) < all.length;
+  }
+
+  void loadMoreVendors() {
+    if (_isLoadingMore || !hasMoreVendors) return;
+    _isLoadingMore = true;
+    notifyListeners();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      _vendorPage++;
+      _isLoadingMore = false;
+      notifyListeners();
+    });
+  }
+
+  void _resetVendorPagination() {
+    _vendorPage = 1;
+  }
+
 
   String _selectedCategory = 'Semua';
   String get selectedCategory => _selectedCategory;
@@ -147,6 +231,7 @@ class RentalProvider extends ChangeNotifier {
 
     _isLoading = false;
     _vendorsFetched = true;
+    _resetVendorPagination();
     notifyListeners();
 
     // Try GPS in background, only once

@@ -9,6 +9,7 @@ import '../../services/location_service.dart';
 import '../../theme/app_theme.dart';
 import 'rental_list_screen.dart';
 
+
 class RentalVendorScreen extends StatefulWidget {
   const RentalVendorScreen({super.key});
 
@@ -17,6 +18,8 @@ class RentalVendorScreen extends StatefulWidget {
 }
 
 class _RentalVendorScreenState extends State<RentalVendorScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +28,24 @@ class _RentalVendorScreenState extends State<RentalVendorScreen> {
         context.read<RentalProvider>().fetchVendors();
       }
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final current = _scrollController.position.pixels;
+    // Trigger load more 200px sebelum akhir list
+    if (current >= maxScroll - 200) {
+      context.read<RentalProvider>().loadMoreVendors();
+    }
   }
 
   void _showLocationSearch() {
@@ -100,11 +121,27 @@ class _RentalVendorScreenState extends State<RentalVendorScreen> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               children: [
-                _FilterChip(label: 'Terdekat', selected: true),
+                // Sort: Terdekat
+                _FilterChip(
+                  label: 'Terdekat',
+                  selected: provider.vendorSortMode == VendorSortMode.nearest,
+                  onTap: () => provider.setVendorSortMode(VendorSortMode.nearest),
+                ),
                 const SizedBox(width: 8),
-                _FilterChip(label: 'Rating Tertinggi', selected: false),
+                // Sort: Rating Tertinggi
+                _FilterChip(
+                  label: 'Rating Tertinggi',
+                  selected: provider.vendorSortMode == VendorSortMode.topRated,
+                  onTap: () => provider.setVendorSortMode(VendorSortMode.topRated),
+                ),
                 const SizedBox(width: 8),
-                _FilterChip(label: 'Buka Sekarang', selected: false),
+                // Filter independen: Buka Sekarang
+                _FilterChip(
+                  label: 'Buka Sekarang',
+                  selected: provider.showOpenOnly,
+                  onTap: () => provider.toggleShowOpenOnly(),
+                  isToggle: true,
+                ),
               ],
             ),
           ),
@@ -125,17 +162,30 @@ class _RentalVendorScreenState extends State<RentalVendorScreen> {
                     ),
                   )
                 : provider.vendors.isEmpty
-                    ? _EmptyState(onRetry: () => provider.fetchVendors())
+                    ? _EmptyState(
+                        onRetry: () => provider.fetchVendors(),
+                        isOpenFilter: provider.showOpenOnly,
+                        onShowAll: () => provider.toggleShowOpenOnly(),
+                      )
                     : RefreshIndicator(
                         color: colors.primaryOrange,
                         onRefresh: () => provider.fetchVendors(),
                         child: ListView.separated(
+                          controller: _scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          itemCount: provider.vendors.length,
+                          itemCount: provider.vendorsPage.length + (provider.isLoadingMore ? 1 : 0),
                           separatorBuilder: (_, __) => const SizedBox(height: 16),
                           itemBuilder: (ctx, i) {
+                            if (i == provider.vendorsPage.length) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: CircularProgressIndicator(color: colors.primaryOrange),
+                                ),
+                              );
+                            }
                             try {
-                              return _VendorCard(vendor: provider.vendors[i]);
+                              return _VendorCard(vendor: provider.vendorsPage[i]);
                             } catch (e) {
                               return const SizedBox.shrink();
                             }
@@ -155,34 +205,66 @@ class _RentalVendorScreenState extends State<RentalVendorScreen> {
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool selected;
-  const _FilterChip({required this.label, required this.selected});
+  final VoidCallback onTap;
+  /// Jika true, chip berperilaku sebagai toggle independen (icon berbeda)
+  final bool isToggle;
+
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.isToggle = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: selected ? colors.primaryOrange.withValues(alpha: 0.12) : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: selected ? colors.primaryOrange : colors.border,
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected
+              ? colors.primaryOrange.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? colors.primaryOrange : colors.border,
+            width: selected ? 1.5 : 1.0,
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon khusus untuk toggle "Buka Sekarang"
+            if (isToggle) ...[
+              Icon(
+                selected ? Icons.check_circle_rounded : Icons.store_rounded,
+                size: 13,
+                color: selected ? colors.primaryOrange : colors.textSecondary,
+              ),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
               style: GoogleFonts.beVietnamPro(
                 color: selected ? colors.primaryOrange : colors.textSecondary,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.normal,
                 fontSize: 13,
-              )),
-          const SizedBox(width: 4),
-          Icon(CupertinoIcons.chevron_down,
-              size: 12,
-              color: selected ? colors.primaryOrange : colors.textSecondary),
-        ],
+              ),
+            ),
+            if (!isToggle) ...[
+              const SizedBox(width: 4),
+              Icon(
+                CupertinoIcons.chevron_down,
+                size: 12,
+                color: selected ? colors.primaryOrange : colors.textSecondary,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -193,38 +275,81 @@ class _FilterChip extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final VoidCallback onRetry;
-  const _EmptyState({required this.onRetry});
+  /// Apakah state kosong ini disebabkan oleh filter "Buka Sekarang"
+  final bool isOpenFilter;
+  /// Callback untuk menampilkan semua toko (matikan filter buka)
+  final VoidCallback? onShowAll;
+
+  const _EmptyState({
+    required this.onRetry,
+    this.isOpenFilter = false,
+    this.onShowAll,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+
+    final title = isOpenFilter
+        ? 'Semua toko sedang tutup'
+        : 'Tidak ada toko di area ini';
+    final subtitle = isOpenFilter
+        ? 'Tidak ada toko yang buka saat ini di area Anda'
+        : 'Coba ubah lokasi atau perluas area pencarian';
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(CupertinoIcons.building_2_fill, size: 72,
-                color: colors.textMuted.withValues(alpha: 0.3)),
-            const SizedBox(height: 16),
-            Text('Tidak ada toko di area ini',
-                style: GoogleFonts.beVietnamPro(
-                    color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            Text('Coba ubah lokasi atau perluas area pencarian',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.beVietnamPro(color: colors.textSecondary, fontSize: 13)),
-            const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text('Coba Lagi', style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.w600)),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colors.primaryOrange,
-                side: BorderSide(color: colors.primaryOrange),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+            Icon(
+              isOpenFilter
+                  ? CupertinoIcons.moon_zzz_fill
+                  : CupertinoIcons.building_2_fill,
+              size: 72,
+              color: colors.textMuted.withValues(alpha: 0.3),
             ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: GoogleFonts.beVietnamPro(
+                  color: colors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.beVietnamPro(color: colors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 24),
+            // Jika filter buka sekarang aktif, tawarkan opsi "Lihat Semua"
+            if (isOpenFilter && onShowAll != null)
+              ElevatedButton.icon(
+                onPressed: onShowAll,
+                icon: const Icon(Icons.store_mall_directory_rounded, size: 16),
+                label: Text(
+                  'Lihat Semua Toko',
+                  style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.w600),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primaryOrange,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                ),
+              )
+            else
+              OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text('Coba Lagi', style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.w600)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.primaryOrange,
+                  side: BorderSide(color: colors.primaryOrange),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
           ],
         ),
       ),
