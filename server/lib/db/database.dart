@@ -236,6 +236,43 @@ class Database {
     ''');
 
     // ============================================================
+    // DM (DIRECT MESSAGE) TABLES
+    // ============================================================
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS dm_conversations (
+        id SERIAL PRIMARY KEY,
+        user1_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user2_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE (user1_id, user2_id)
+      );
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS dm_messages (
+        id SERIAL PRIMARY KEY,
+        dm_conversation_id INTEGER REFERENCES dm_conversations(id) ON DELETE CASCADE,
+        sender_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        type VARCHAR(20) DEFAULT 'text',
+        content TEXT NOT NULL,
+        image_url TEXT,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS dm_blocks (
+        id SERIAL PRIMARY KEY,
+        blocker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        blocked_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE (blocker_id, blocked_id)
+      );
+    ''');
+
+    // ============================================================
     // REPORT TABLE
     // ============================================================
     await conn.execute('''

@@ -8,6 +8,7 @@ import 'home_screen.dart';
 import 'profile_screen.dart';
 import 'rental/rental_main_screen.dart';
 import 'explore/explore_screen.dart';
+import 'dm/dm_list_screen.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -28,8 +29,8 @@ class MainWrapperState extends State<MainWrapper> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const ExploreScreen(),
+    const DmListScreen(),
     const _PlaceholderScreen(title: 'Pesanan Saya', icon: Icons.receipt_long_rounded),
-    const RentalMainScreen(),
     const ProfileScreen(),
   ];
 
@@ -107,14 +108,14 @@ class MainWrapperState extends State<MainWrapper> {
                   onTap: () => setState(() => _currentIndex = 1),
                 ),
                 _NavBarItem(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Pesanan',
+                  icon: Icons.chat_bubble_rounded,
+                  label: 'Pesan',
                   isSelected: _currentIndex == 2,
                   onTap: () => setState(() => _currentIndex = 2),
                 ),
                 _NavBarItem(
-                  icon: Icons.handyman_rounded,
-                  label: 'Alat',
+                  icon: Icons.receipt_long_rounded,
+                  label: 'Pesanan',
                   isSelected: _currentIndex == 3,
                   onTap: () => setState(() => _currentIndex = 3),
                 ),

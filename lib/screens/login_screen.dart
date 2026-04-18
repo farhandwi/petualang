@@ -88,6 +88,10 @@ class _LoginScreenState extends State<LoginScreen>
           margin: const EdgeInsets.all(16),
         ),
       );
+    } else {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     }
   }
 

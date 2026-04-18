@@ -6,6 +6,7 @@ import 'providers/theme_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/community_provider.dart';
 import 'providers/chat_provider.dart';
+import 'providers/dm_provider.dart';
 import 'providers/rental_provider.dart';
 import 'providers/explore_provider.dart';
 import 'providers/open_trip_provider.dart';
@@ -63,6 +64,18 @@ class PetualangApp extends StatelessWidget {
               token: auth.token,
               userId: auth.user?.id,
               name: auth.user?.name,
+            );
+            return provider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, DmProvider>(
+          create: (_) => DmProvider(),
+          update: (context, auth, provider) {
+            provider!.setUser(
+              token: auth.token,
+              userId: auth.user?.id,
+              name: auth.user?.name,
+              avatar: auth.user?.profilePicture,
             );
             return provider;
           },

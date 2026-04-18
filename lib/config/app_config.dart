@@ -50,6 +50,13 @@ class AppConfig {
   static String chatMessages(int communityId) => '$baseUrl/api/chat/$communityId/messages';
   static String chatRead(int communityId) => '$baseUrl/api/chat/$communityId/read';
 
+  // DM endpoints
+  static String get apiDm => '$baseUrlApi/dm';
+  static String dmConversations() => apiDm;
+  static String dmMessages(int conversationId) => '$apiDm/$conversationId/messages';
+  static String dmBlock(int userId) => '$apiDm/$userId/block';
+  static String dmSearchUsers(String query) => '$baseUrlApi/users/search?q=$query';
+
   // Upload endpoint
   static String get uploadImageEndpoint => '$baseUrl/api/upload/image';
 
@@ -61,6 +68,8 @@ class AppConfig {
   }
   static String chatWsUrl(int communityId, String token) =>
       '$wsBaseUrl/ws/chat/$communityId?token=$token';
+  static String dmWsUrl(int conversationId, String token) =>
+      '$wsBaseUrl/ws/dm/$conversationId?token=$token';
 
   /// Resolves an image URL from the background.
   /// If [url] is relative (starts with /), it prefixes it with [baseUrl].

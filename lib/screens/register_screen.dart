@@ -104,6 +104,10 @@ class _RegisterScreenState extends State<RegisterScreen>
           margin: const EdgeInsets.all(16),
         ),
       );
+    } else {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     }
   }
 

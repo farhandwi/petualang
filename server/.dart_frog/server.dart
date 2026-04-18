@@ -6,8 +6,10 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 
 import '../main.dart' as entrypoint;
+import '../routes/ws/dm/[conversationId].dart' as ws_dm_$conversation_id;
 import '../routes/ws/chat/[communityId].dart' as ws_chat_$community_id;
 import '../routes/api/report.dart' as api_report;
+import '../routes/api/users/search.dart' as api_users_search;
 import '../routes/api/upload/image.dart' as api_upload_image;
 import '../routes/api/tickets/index.dart' as api_tickets_index;
 import '../routes/api/rentals/vendors.dart' as api_rentals_vendors;
@@ -17,6 +19,9 @@ import '../routes/api/open_trips/index.dart' as api_open_trips_index;
 import '../routes/api/open_trips/book.dart' as api_open_trips_book;
 import '../routes/api/mountains/index.dart' as api_mountains_index;
 import '../routes/api/explore/index.dart' as api_explore_index;
+import '../routes/api/dm/index.dart' as api_dm_index;
+import '../routes/api/dm/[id]/messages.dart' as api_dm_$id_messages;
+import '../routes/api/dm/[id]/block.dart' as api_dm_$id_block;
 import '../routes/api/community/trending.dart' as api_community_trending;
 import '../routes/api/community/index.dart' as api_community_index;
 import '../routes/api/community/feed.dart' as api_community_feed;
@@ -54,20 +59,31 @@ Future<HttpServer> createServer(InternetAddress address, int port) {
 Handler buildRootHandler() {
   final pipeline = const Pipeline().addMiddleware(middleware.middleware);
   final router = Router()
+    ..mount('/ws/dm', (context) => buildWsDmHandler()(context))
     ..mount('/ws/chat', (context) => buildWsChatHandler()(context))
     ..mount('/api', (context) => buildApiHandler()(context))
+    ..mount('/api/users', (context) => buildApiUsersHandler()(context))
     ..mount('/api/upload', (context) => buildApiUploadHandler()(context))
     ..mount('/api/tickets', (context) => buildApiTicketsHandler()(context))
     ..mount('/api/rentals', (context) => buildApiRentalsHandler()(context))
     ..mount('/api/open_trips', (context) => buildApiOpenTripsHandler()(context))
     ..mount('/api/mountains', (context) => buildApiMountainsHandler()(context))
     ..mount('/api/explore', (context) => buildApiExploreHandler()(context))
+    ..mount('/api/dm', (context) => buildApiDmHandler()(context))
+    ..mount('/api/dm/<id>', (context,id,) => buildApiDm$idHandler(id,)(context))
     ..mount('/api/community', (context) => buildApiCommunityHandler()(context))
     ..mount('/api/community/posts/<postId>', (context,postId,) => buildApiCommunityPosts$postIdHandler(postId,)(context))
     ..mount('/api/community/<id>', (context,id,) => buildApiCommunity$idHandler(id,)(context))
     ..mount('/api/community/<id>/posts', (context,id,) => buildApiCommunity$idPostsHandler(id,)(context))
     ..mount('/api/chat/<communityId>', (context,communityId,) => buildApiChat$communityIdHandler(communityId,)(context))
     ..mount('/api/auth', (context) => buildApiAuthHandler()(context));
+  return pipeline.addHandler(router);
+}
+
+Handler buildWsDmHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/<conversationId>', (context,conversationId,) => ws_dm_$conversation_id.onRequest(context,conversationId,));
   return pipeline.addHandler(router);
 }
 
@@ -82,6 +98,13 @@ Handler buildApiHandler() {
   final pipeline = const Pipeline();
   final router = Router()
     ..all('/report', (context) => api_report.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildApiUsersHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/search', (context) => api_users_search.onRequest(context,));
   return pipeline.addHandler(router);
 }
 
@@ -124,6 +147,20 @@ Handler buildApiExploreHandler() {
   final pipeline = const Pipeline();
   final router = Router()
     ..all('/', (context) => api_explore_index.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildApiDmHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/', (context) => api_dm_index.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildApiDm$idHandler(String id,) {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/block', (context) => api_dm_$id_block.onRequest(context,id,))..all('/messages', (context) => api_dm_$id_messages.onRequest(context,id,));
   return pipeline.addHandler(router);
 }
 

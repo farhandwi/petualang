@@ -12,6 +12,7 @@ import 'community/community_detail_screen.dart';
 import 'community/community_screen.dart';
 import 'main_wrapper.dart';
 import 'explore/open_trip_list_screen.dart';
+import 'rental/rental_main_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -163,10 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'Sewa\nAlat',
                     color: const Color(0xFFF59E0B),
                     onTap: () {
-                      final wrapper = context.findAncestorStateOfType<MainWrapperState>();
-                      if (wrapper != null) {
-                        wrapper.switchTab(3);
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RentalMainScreen()),
+                      );
                     },
                   ),
                   _ServiceItem(
