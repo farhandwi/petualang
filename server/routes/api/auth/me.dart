@@ -42,7 +42,7 @@ Future<Response> onRequest(RequestContext context) async {
       '''
       SELECT id, name, email, phone, profile_picture, nik, date_of_birth, gender, 
              ktp_address, domicile_address, emergency_contact_name, emergency_contact_phone, 
-             height_cm, weight_kg, is_active, created_at
+             height_cm, weight_kg, level, exp, is_active, created_at
       FROM users 
       WHERE id = @id AND is_active = true
       ''',
@@ -75,8 +75,10 @@ Future<Response> onRequest(RequestContext context) async {
           'emergency_contact_phone': user[11],
           'height_cm': user[12],
           'weight_kg': user[13],
-          'is_active': user[14],
-          'created_at': (user[15] as DateTime?)?.toIso8601String(),
+          'level': user[14],
+          'exp': user[15],
+          'is_active': user[16],
+          'created_at': (user[17] as DateTime?)?.toIso8601String(),
         },
       },
     );

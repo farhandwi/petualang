@@ -12,6 +12,7 @@ import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/chat/chat_input_bar.dart';
 import '../../widgets/chat/typing_indicator.dart';
 import '../../widgets/chat/date_separator.dart';
+import '../../widgets/level_avatar.dart';
 import '../../utils/permission_helper.dart';
 import '../../config/app_config.dart';
 import 'create_post_screen.dart';
@@ -542,15 +543,14 @@ class _MembersTab extends StatelessWidget {
         final colors = context.colors;
 
         return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: colors.primaryOrange.withOpacity(0.1),
-            child: Text(
-              member['username'][0].toUpperCase(),
-              style: TextStyle(color: colors.primaryOrange, fontWeight: FontWeight.bold),
-            ),
+          leading: LevelAvatar(
+            level: member['level'] as int? ?? 1,
+            radius: 20,
+            avatarUrl: member['profile_picture'] as String?,
+            name: (member['name'] ?? member['username'] ?? '?') as String,
           ),
           title: Text(
-            member['username'],
+            (member['name'] ?? member['username'] ?? '') as String,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           subtitle: Text(

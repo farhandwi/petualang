@@ -18,6 +18,7 @@ import '../routes/api/rentals/index.dart' as api_rentals_index;
 import '../routes/api/open_trips/index.dart' as api_open_trips_index;
 import '../routes/api/open_trips/book.dart' as api_open_trips_book;
 import '../routes/api/mountains/index.dart' as api_mountains_index;
+import '../routes/api/gamification/me.dart' as api_gamification_me;
 import '../routes/api/explore/index.dart' as api_explore_index;
 import '../routes/api/dm/index.dart' as api_dm_index;
 import '../routes/api/dm/[id]/messages.dart' as api_dm_$id_messages;
@@ -68,6 +69,7 @@ Handler buildRootHandler() {
     ..mount('/api/rentals', (context) => buildApiRentalsHandler()(context))
     ..mount('/api/open_trips', (context) => buildApiOpenTripsHandler()(context))
     ..mount('/api/mountains', (context) => buildApiMountainsHandler()(context))
+    ..mount('/api/gamification', (context) => buildApiGamificationHandler()(context))
     ..mount('/api/explore', (context) => buildApiExploreHandler()(context))
     ..mount('/api/dm', (context) => buildApiDmHandler()(context))
     ..mount('/api/dm/<id>', (context,id,) => buildApiDm$idHandler(id,)(context))
@@ -140,6 +142,13 @@ Handler buildApiMountainsHandler() {
   final pipeline = const Pipeline();
   final router = Router()
     ..all('/', (context) => api_mountains_index.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildApiGamificationHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/me', (context) => api_gamification_me.onRequest(context,));
   return pipeline.addHandler(router);
 }
 

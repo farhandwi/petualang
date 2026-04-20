@@ -167,7 +167,7 @@ class CommunityService {
     final conn = await Database.connection;
     final results = await conn.query(
       '''
-      SELECT u.id, u.name, u.profile_picture, cm.role, cm.joined_at
+      SELECT u.id, u.name, u.profile_picture, u.level, cm.role, cm.joined_at
       FROM community_members cm
       JOIN users u ON u.id = cm.user_id
       WHERE cm.community_id = @cid
@@ -181,8 +181,9 @@ class CommunityService {
               'id': r[0],
               'name': r[1],
               'profile_picture': r[2],
-              'role': r[3],
-              'joined_at': (r[4] as DateTime?)?.toIso8601String(),
+              'level': r[3],
+              'role': r[4],
+              'joined_at': (r[5] as DateTime?)?.toIso8601String(),
             })
         .toList();
   }
@@ -213,7 +214,7 @@ class CommunityService {
     final results = await conn.query(
       '''
       SELECT p.id, p.community_id, p.user_id, u.name AS author_name,
-             u.profile_picture AS author_avatar,
+             u.profile_picture AS author_avatar, u.level AS author_level,
              p.content, p.image_url, p.like_count, p.comment_count, p.share_count,
              p.is_pinned, p.created_at, c.name AS community_name
              $likeField
@@ -240,7 +241,7 @@ class CommunityService {
     final results = await conn.query(
       '''
       SELECT p.id, p.community_id, p.user_id, u.name AS author_name,
-             u.profile_picture AS author_avatar,
+             u.profile_picture AS author_avatar, u.level AS author_level,
              p.content, p.image_url, p.like_count, p.comment_count, p.share_count,
              p.is_pinned, p.created_at, c.name AS community_name,
              (cl.id IS NOT NULL) AS is_liked
@@ -267,7 +268,7 @@ class CommunityService {
     final results = await conn.query(
       '''
       SELECT p.id, p.community_id, p.user_id, u.name,
-             u.profile_picture, p.content, p.image_url, p.like_count,
+             u.profile_picture, u.level AS author_level, p.content, p.image_url, p.like_count,
              p.comment_count, p.share_count, p.is_pinned, p.created_at, c.name
              $likeField
       FROM community_posts p
@@ -404,7 +405,7 @@ class CommunityService {
     // Fetch top-level comments
     final results = await conn.query(
       '''
-      SELECT c.id, c.post_id, c.user_id, u.name, u.profile_picture,
+      SELECT c.id, c.post_id, c.user_id, u.name, u.profile_picture, u.level as author_level,
              c.parent_id, c.content, c.image_url, c.like_count, c.created_at
       FROM community_comments c
       JOIN users u ON u.id = c.user_id
@@ -420,7 +421,7 @@ class CommunityService {
       // Fetch replies
       final replies = await conn.query(
         '''
-        SELECT c.id, c.post_id, c.user_id, u.name, u.profile_picture,
+        SELECT c.id, c.post_id, c.user_id, u.name, u.profile_picture, u.level as author_level,
                c.parent_id, c.content, c.image_url, c.like_count, c.created_at
         FROM community_comments c
         JOIN users u ON u.id = c.user_id
@@ -553,15 +554,16 @@ class CommunityService {
         'user_id': r[2],
         'author_name': r[3],
         'author_avatar': r[4],
-        'content': r[5],
-        'image_url': r[6],
-        'like_count': r[7],
-        'comment_count': r[8],
-        'share_count': r[9],
-        'is_pinned': r[10],
-        'created_at': (r[11] as DateTime?)?.toIso8601String(),
-        'community_name': r[12],
-        'is_liked': r[13] ?? false,
+        'author_level': r[5],
+        'content': r[6],
+        'image_url': r[7],
+        'like_count': r[8],
+        'comment_count': r[9],
+        'share_count': r[10],
+        'is_pinned': r[11],
+        'created_at': (r[12] as DateTime?)?.toIso8601String(),
+        'community_name': r[13],
+        'is_liked': r[14] ?? false,
       };
 
   static Map<String, dynamic> _mapComment(dynamic r) => {
@@ -570,11 +572,12 @@ class CommunityService {
         'user_id': r[2],
         'author_name': r[3],
         'author_avatar': r[4],
-        'parent_id': r[5],
-        'content': r[6],
-        'image_url': r[7],
-        'like_count': r[8],
-        'created_at': (r[9] as DateTime?)?.toIso8601String(),
+        'author_level': r[5],
+        'parent_id': r[6],
+        'content': r[7],
+        'image_url': r[8],
+        'like_count': r[9],
+        'created_at': (r[10] as DateTime?)?.toIso8601String(),
         'replies': <Map<String, dynamic>>[],
       };
 }

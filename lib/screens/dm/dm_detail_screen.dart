@@ -9,12 +9,14 @@ import '../../theme/app_theme.dart';
 import '../../utils/permission_helper.dart';
 import '../../models/dm_message_model.dart';
 import '../../config/app_config.dart';
+import '../../widgets/level_avatar.dart';
 
 class DmDetailScreen extends StatefulWidget {
   final int conversationId;
   final int targetUserId;
   final String targetUserName;
   final String? targetUserAvatar;
+  final int targetUserLevel;
 
   const DmDetailScreen({
     super.key,
@@ -22,6 +24,7 @@ class DmDetailScreen extends StatefulWidget {
     required this.targetUserId,
     required this.targetUserName,
     this.targetUserAvatar,
+    this.targetUserLevel = 1,
   });
 
   @override
@@ -173,15 +176,11 @@ class _DmDetailScreenState extends State<DmDetailScreen> {
         ),
         title: Row(
           children: [
-            CircleAvatar(
+            LevelAvatar(
+              level: widget.targetUserLevel,
               radius: 18,
-              backgroundColor: context.colors.input,
-              backgroundImage: widget.targetUserAvatar != null && widget.targetUserAvatar!.isNotEmpty
-                  ? NetworkImage(AppConfig.resolveImageUrl(widget.targetUserAvatar!))
-                  : null,
-              child: widget.targetUserAvatar == null || widget.targetUserAvatar!.isEmpty
-                  ? Icon(Icons.person, color: context.colors.textSecondary, size: 20)
-                  : null,
+              avatarUrl: widget.targetUserAvatar,
+              name: widget.targetUserName,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -390,15 +389,11 @@ class _MessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
-            CircleAvatar(
+            LevelAvatar(
+              level: message.senderLevel,
               radius: 14,
-              backgroundColor: context.colors.input,
-              backgroundImage: message.senderAvatar != null && message.senderAvatar!.isNotEmpty
-                  ? NetworkImage(AppConfig.resolveImageUrl(message.senderAvatar!))
-                  : null,
-              child: message.senderAvatar == null || message.senderAvatar!.isEmpty
-                  ? Icon(Icons.person, size: 16, color: context.colors.textSecondary)
-                  : null,
+              avatarUrl: message.senderAvatar,
+              name: message.senderName ?? '?',
             ),
             const SizedBox(width: 8),
           ],

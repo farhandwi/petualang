@@ -44,7 +44,7 @@ Future<Response> onRequest(RequestContext context) async {
     // Or we can just return if they are blocked. Let's return block status.
     final results = await conn.query(
       '''
-      SELECT u.id, u.name, u.profile_picture, u.email,
+      SELECT u.id, u.name, u.profile_picture, u.email, u.level,
              EXISTS (
                 SELECT 1 FROM dm_blocks 
                 WHERE (blocker_id = @uid AND blocked_id = u.id)
@@ -65,7 +65,8 @@ Future<Response> onRequest(RequestContext context) async {
       'name': r[1],
       'profile_picture': r[2],
       'email': r[3],
-      'is_blocked': r[4],
+      'level': r[4],
+      'is_blocked': r[5],
     }).toList();
 
     return Response.json(body: {

@@ -4,6 +4,7 @@ class CommunityPostModel {
   final int userId;
   final String authorName;
   final String? authorAvatar;
+  final int authorLevel;
   final String content;
   final String? imageUrl;
   final String? communityName;
@@ -20,6 +21,7 @@ class CommunityPostModel {
     required this.userId,
     required this.authorName,
     this.authorAvatar,
+    this.authorLevel = 1,
     required this.content,
     this.imageUrl,
     this.communityName,
@@ -38,6 +40,7 @@ class CommunityPostModel {
       userId: (json['user_id'] as num?)?.toInt() ?? 0,
       authorName: json['author_name'] as String? ?? 'Petualang',
       authorAvatar: json['author_avatar'] as String?,
+      authorLevel: json['author_level'] as int? ?? 1,
       content: json['content'] as String? ?? '',
       imageUrl: json['image_url'] as String?,
       communityName: json['community_name'] as String?,
@@ -59,6 +62,7 @@ class CommunityPostModel {
       userId: userId,
       authorName: authorName,
       authorAvatar: authorAvatar,
+      authorLevel: authorLevel,
       content: content,
       imageUrl: imageUrl,
       communityName: communityName,

@@ -4,6 +4,7 @@ class ChatMessageModel {
   final int? senderId;
   final String? senderName;
   final String? senderAvatar;
+  final int senderLevel;
   final String type; // 'text' | 'image' | 'system'
   final String content;
   final String? imageUrl;
@@ -17,6 +18,7 @@ class ChatMessageModel {
     this.senderId,
     this.senderName,
     this.senderAvatar,
+    this.senderLevel = 1,
     required this.type,
     required this.content,
     this.imageUrl,
@@ -33,6 +35,7 @@ class ChatMessageModel {
       senderId: senderId,
       senderName: json['sender_name'] as String?,
       senderAvatar: json['sender_avatar'] as String?,
+      senderLevel: json['sender_level'] as int? ?? 1,
       type: json['type'] as String? ?? 'text',
       content: json['content'] as String? ?? '',
       imageUrl: json['image_url'] as String?,
@@ -54,6 +57,7 @@ class ChatMessageModel {
     String type = 'text',
     String? imageUrl,
     String? senderAvatar,
+    int senderLevel = 1,
   }) {
     return ChatMessageModel(
       id: tempId,
@@ -61,6 +65,7 @@ class ChatMessageModel {
       senderId: senderId,
       senderName: senderName,
       senderAvatar: senderAvatar,
+      senderLevel: senderLevel,
       type: type,
       content: content,
       imageUrl: imageUrl,

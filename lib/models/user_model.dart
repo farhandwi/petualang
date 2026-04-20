@@ -13,6 +13,8 @@ class UserModel {
   final String? emergencyContactPhone;
   final int? heightCm;
   final int? weightKg;
+  final int level;
+  final int exp;
   final bool isActive;
   final DateTime? createdAt;
 
@@ -31,6 +33,8 @@ class UserModel {
     this.emergencyContactPhone,
     this.heightCm,
     this.weightKg,
+    this.level = 1,
+    this.exp = 0,
     this.isActive = true,
     this.createdAt,
   });
@@ -51,6 +55,8 @@ class UserModel {
       emergencyContactPhone: json['emergency_contact_phone'] as String?,
       heightCm: json['height_cm'] as int?,
       weightKg: json['weight_kg'] as int?,
+      level: json['level'] as int? ?? 1,
+      exp: json['exp'] as int? ?? 0,
       isActive: json['is_active'] as bool? ?? true,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String)
@@ -74,6 +80,8 @@ class UserModel {
       'emergency_contact_phone': emergencyContactPhone,
       'height_cm': heightCm,
       'weight_kg': weightKg,
+      'level': level,
+      'exp': exp,
       'is_active': isActive,
       'created_at': createdAt?.toIso8601String(),
     };
@@ -109,6 +117,8 @@ class UserModel {
       emergencyContactPhone: emergencyContactPhone ?? this.emergencyContactPhone,
       heightCm: heightCm ?? this.heightCm,
       weightKg: weightKg ?? this.weightKg,
+      level: level,
+      exp: exp,
       isActive: isActive,
       createdAt: createdAt,
     );

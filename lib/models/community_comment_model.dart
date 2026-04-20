@@ -5,6 +5,7 @@ class CommunityCommentModel {
   final int? parentId;
   final String authorName;
   final String? authorAvatar;
+  final int authorLevel;
   final String content;
   final String? imageUrl;
   final int likeCount;
@@ -18,6 +19,7 @@ class CommunityCommentModel {
     this.parentId,
     required this.authorName,
     this.authorAvatar,
+    this.authorLevel = 1,
     required this.content,
     this.imageUrl,
     required this.likeCount,
@@ -34,6 +36,7 @@ class CommunityCommentModel {
       parentId: json['parent_id'] as int?,
       authorName: json['author_name'] as String? ?? 'Unknown',
       authorAvatar: json['author_avatar'] as String?,
+      authorLevel: json['author_level'] as int? ?? 1,
       content: json['content'] as String? ?? '',
       imageUrl: json['image_url'] as String?,
       likeCount: json['like_count'] as int? ?? 0,

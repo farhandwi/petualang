@@ -5,6 +5,7 @@ import '../../providers/dm_provider.dart';
 import '../../theme/app_theme.dart';
 import 'dm_detail_screen.dart';
 import 'dm_search_screen.dart';
+import '../../widgets/level_avatar.dart';
 
 class DmListScreen extends StatefulWidget {
   const DmListScreen({super.key});
@@ -97,15 +98,11 @@ class _DmListScreenState extends State<DmListScreen> {
                 final conv = provider.conversations[index];
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  leading: CircleAvatar(
+                  leading: LevelAvatar(
+                    level: conv.otherUserLevel,
                     radius: 28,
-                    backgroundColor: context.colors.input,
-                    backgroundImage: conv.otherUserAvatar != null && conv.otherUserAvatar!.isNotEmpty
-                        ? NetworkImage(conv.otherUserAvatar!)
-                        : null,
-                    child: conv.otherUserAvatar == null || conv.otherUserAvatar!.isEmpty
-                        ? Icon(Icons.person, color: context.colors.textMuted)
-                        : null,
+                    avatarUrl: conv.otherUserAvatar,
+                    name: conv.otherUserName,
                   ),
                   title: Text(
                     conv.otherUserName,
@@ -167,6 +164,7 @@ class _DmListScreenState extends State<DmListScreen> {
                           targetUserId: conv.otherUserId,
                           targetUserName: conv.otherUserName,
                           targetUserAvatar: conv.otherUserAvatar,
+                          targetUserLevel: conv.otherUserLevel,
                         ),
                       ),
                     );

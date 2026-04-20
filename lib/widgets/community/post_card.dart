@@ -8,6 +8,7 @@ import '../../providers/community_provider.dart';
 import '../../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../level_avatar.dart';
 import 'report_bottom_sheet.dart';
 
 class PostCard extends StatefulWidget {
@@ -82,7 +83,12 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
             child: Row(
               children: [
                 // Avatar
-                _Avatar(name: post.authorName, avatarUrl: post.authorAvatar, size: 36),
+                LevelAvatar(
+                  level: post.authorLevel,
+                  radius: 18,
+                  avatarUrl: post.authorAvatar,
+                  name: post.authorName,
+                ),
                 const SizedBox(width: 10),
                 // Name + meta
                 Expanded(
@@ -380,47 +386,3 @@ class _IGActionButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Avatar widget
-// ─────────────────────────────────────────────
-class _Avatar extends StatelessWidget {
-  final String name;
-  final String? avatarUrl;
-  final double size;
-
-  const _Avatar({required this.name, this.avatarUrl, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    if (avatarUrl != null && avatarUrl!.isNotEmpty) {
-      return CircleAvatar(
-        radius: size / 2,
-        backgroundImage: NetworkImage(AppConfig.resolveImageUrl(avatarUrl)),
-      );
-    }
-    final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            colors.primaryOrange,
-            colors.primaryOrange.withValues(alpha: 0.6),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          initials,
-          style: GoogleFonts.beVietnamPro(
-              color: Colors.white, fontWeight: FontWeight.w800, fontSize: size * 0.4),
-        ),
-      ),
-    );
-  }
-}

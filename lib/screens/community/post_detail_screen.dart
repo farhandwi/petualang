@@ -12,6 +12,7 @@ import '../../theme/app_theme.dart';
 import '../../models/community_post_model.dart';
 import '../../models/community_comment_model.dart';
 import '../../widgets/community/report_bottom_sheet.dart';
+import '../../widgets/level_avatar.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PostDetailScreen extends StatefulWidget {
@@ -170,7 +171,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                     padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
                     child: Row(
                       children: [
-                        _IGAvatar(name: post.authorName, url: post.authorAvatar, size: 36),
+                        _IGAvatar(name: post.authorName, url: post.authorAvatar, size: 36, level: post.authorLevel),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -480,6 +481,7 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                         name: context.read<AuthProvider>().user?.name ?? 'U',
                         url: context.read<AuthProvider>().user?.profilePicture,
                         size: 32,
+                        level: context.read<AuthProvider>().user?.level ?? 1,
                       ),
                       const SizedBox(width: 10),
 
@@ -605,7 +607,7 @@ class _IGCommentTile extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _IGAvatar(name: comment.authorName, url: comment.authorAvatar, size: 32),
+              _IGAvatar(name: comment.authorName, url: comment.authorAvatar, size: 32, level: comment.authorLevel),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -711,7 +713,7 @@ class _IGCommentTile extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _IGAvatar(name: reply.authorName, url: reply.authorAvatar, size: 26),
+                      _IGAvatar(name: reply.authorName, url: reply.authorAvatar, size: 26, level: reply.authorLevel),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -830,43 +832,17 @@ class _IGAvatar extends StatelessWidget {
   final String name;
   final String? url;
   final double size;
+  final int level;
 
-  const _IGAvatar({required this.name, this.url, required this.size});
+  const _IGAvatar({required this.name, this.url, required this.size, this.level = 1});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    if (url != null && url!.isNotEmpty) {
-      return CircleAvatar(
-        radius: size / 2,
-        backgroundImage: NetworkImage(AppConfig.resolveImageUrl(url)),
-      );
-    }
-    final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            colors.primaryOrange,
-            colors.primaryOrange.withValues(alpha: 0.6),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          initials,
-          style: GoogleFonts.beVietnamPro(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: size * 0.4,
-          ),
-        ),
-      ),
+    return LevelAvatar(
+      level: level,
+      radius: size / 2,
+      avatarUrl: url,
+      name: name,
     );
   }
 }

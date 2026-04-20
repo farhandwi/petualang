@@ -67,7 +67,51 @@ class Database {
       ADD COLUMN IF NOT EXISTS emergency_contact_name VARCHAR(100),
       ADD COLUMN IF NOT EXISTS emergency_contact_phone VARCHAR(20),
       ADD COLUMN IF NOT EXISTS height_cm INTEGER,
-      ADD COLUMN IF NOT EXISTS weight_kg INTEGER;
+      ADD COLUMN IF NOT EXISTS weight_kg INTEGER,
+      ADD COLUMN IF NOT EXISTS level INTEGER DEFAULT 1,
+      ADD COLUMN IF NOT EXISTS exp INTEGER DEFAULT 0;
+    ''');
+    
+    // ============================================================
+    // GAMIFICATION TABLES
+    // ============================================================
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS activities (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        icon_name VARCHAR(100) NOT NULL
+      );
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS user_activities (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        activity_id INTEGER REFERENCES activities(id) ON DELETE CASCADE,
+        completion_count INTEGER DEFAULT 0,
+        UNIQUE (user_id, activity_id)
+      );
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS achievements (
+        id SERIAL PRIMARY KEY,
+        activity_id INTEGER REFERENCES activities(id) ON DELETE CASCADE,
+        title VARCHAR(150) NOT NULL UNIQUE,
+        description TEXT,
+        trigger_count INTEGER NOT NULL,
+        image_url TEXT
+      );
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS user_achievements (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        achievement_id INTEGER REFERENCES achievements(id) ON DELETE CASCADE,
+        unlocked_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE (user_id, achievement_id)
+      );
     ''');
 
     // Create refresh_tokens table
@@ -431,6 +475,49 @@ class Database {
         ON community_members(user_id);
     ''');
 
+    // ============================================================
+    // SEED GAMIFICATION
+    // ============================================================
+    await conn.execute('''
+      ALTER TABLE communities ADD COLUMN IF NOT EXISTS activity_id INTEGER REFERENCES activities(id) ON DELETE SET NULL;
+    ''');
+    await conn.execute('''
+      INSERT INTO activities (name, icon_name) VALUES
+      ('Pendakian', 'terrain'),
+      ('Lari Trail', 'directions_run'),
+      ('Berkemah', 'holiday_village'),
+      ('Open Trip', 'groups'),
+      ('Sepeda Gunung', 'pedal_bike'),
+      ('Panjat Tebing', 'filter_hdr')
+      ON CONFLICT DO NOTHING;
+    ''');
+
+    await conn.execute('''
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Penakluk Awan', 'Menginjakkan kaki > 3.000 mdpl', 1, 'https://ui-avatars.com/api/?name=P+A&background=random' FROM activities WHERE name = 'Pendakian' ON CONFLICT DO NOTHING;
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Sang Sherpa', 'Menyelesaikan 20 pendakian', 20, 'https://ui-avatars.com/api/?name=S+S&background=random' FROM activities WHERE name = 'Pendakian' ON CONFLICT DO NOTHING;
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Jejak Abadi', 'Menaklukkan 7 puncak tertinggi', 7, 'https://ui-avatars.com/api/?name=J+A&background=random' FROM activities WHERE name = 'Pendakian' ON CONFLICT DO NOTHING;
+      
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Kijang Hutan', 'Personal pace tercepat di jalur pinus', 1, 'https://ui-avatars.com/api/?name=K+H&background=random' FROM activities WHERE name = 'Lari Trail' ON CONFLICT DO NOTHING;
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Kilat Menyambar', 'Menyelesaikan ultra-marathon', 5, 'https://ui-avatars.com/api/?name=K+M&background=random' FROM activities WHERE name = 'Lari Trail' ON CONFLICT DO NOTHING;
+      
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Jiwa Api Unggun', 'Mendirikan tenda di lanskap berbeda', 3, 'https://ui-avatars.com/api/?name=J+A&background=random' FROM activities WHERE name = 'Berkemah' ON CONFLICT DO NOTHING;
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Penguasa Malam', 'Tidur di alam bebas 30 malam', 30, 'https://ui-avatars.com/api/?name=P+M&background=random' FROM activities WHERE name = 'Berkemah' ON CONFLICT DO NOTHING;
+      
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Roda Gila', 'Downhill 10km tanpa insiden', 10, 'https://ui-avatars.com/api/?name=R+G&background=random' FROM activities WHERE name = 'Sepeda Gunung' ON CONFLICT DO NOTHING;
+      
+      INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
+      SELECT id, 'Magnet Tongkrongan', 'Join 10 open trip berbeda', 10, 'https://ui-avatars.com/api/?name=M+T&background=random' FROM activities WHERE name = 'Open Trip' ON CONFLICT DO NOTHING;
+    ''');
+
+
     // Seed data
     await conn.execute('''
       INSERT INTO mountains (name, location, elevation, difficulty, price, image_url, description)
@@ -458,12 +545,12 @@ class Database {
 
     // Seed komunitas data
     await conn.execute('''
-      INSERT INTO communities (name, slug, description, category, privacy, cover_image_url)
+      INSERT INTO communities (name, slug, description, category, privacy, cover_image_url, activity_id)
       VALUES
-        ('Pendaki Rinjani', 'pendaki-rinjani', 'Komunitas para pendaki dan pecinta Gunung Rinjani. Berbagi pengalaman, tips, dan jadwal pendakian bersama.', 'Pendakian', 'public', null),
-        ('Campers Nusantara', 'campers-nusantara', 'Tempat berkumpul para pecinta camping dari seluruh Nusantara. Share spot camping, gear review, dan trip bareng!', 'Camping', 'public', null),
-        ('Fotografi Alam Liar', 'fotografi-alam-liar', 'Komunitas fotografer alam dan wildlife. Bagikan karya terbaik dan tips fotografi di alam terbuka.', 'Fotografi', 'public', null)
-      ON CONFLICT (slug) DO NOTHING;
+        ('Pendaki Rinjani', 'pendaki-rinjani', 'Komunitas para pendaki dan pecinta Gunung Rinjani.', 'Pendakian', 'public', null, (SELECT id FROM activities WHERE name = 'Pendakian' LIMIT 1)),
+        ('Campers Nusantara', 'campers-nusantara', 'Tempat berkumpul para pecinta camping.', 'Camping', 'public', null, (SELECT id FROM activities WHERE name = 'Berkemah' LIMIT 1)),
+        ('Fotografi Alam Liar', 'fotografi-alam-liar', 'Komunitas fotografer alam dan wildlife.', 'Fotografi', 'public', null, (SELECT id FROM activities WHERE name = 'Open Trip' LIMIT 1))
+      ON CONFLICT (slug) DO UPDATE SET activity_id = EXCLUDED.activity_id;
     ''');
 
     // Create chat conversations for each community
