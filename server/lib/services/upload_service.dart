@@ -4,8 +4,11 @@ import 'package:path/path.dart' as p;
 
 class UploadService {
   static const _uploadDir = 'public/uploads';
-  static const _maxFileSizeBytes = 5 * 1024 * 1024; // 5MB
-  static const _allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  static const _maxFileSizeBytes = 50 * 1024 * 1024; // 50MB
+  static const _allowedTypes = [
+    'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+    'video/mp4', 'video/quicktime', 'video/x-m4v'
+  ];
 
   static Future<String?> saveImage({
     required List<int> bytes,
@@ -13,10 +16,10 @@ class UploadService {
   }) async {
     final mimeType = lookupMimeType(originalFilename, headerBytes: bytes);
     if (mimeType == null || !_allowedTypes.contains(mimeType)) {
-      throw Exception('Tipe file tidak didukung. Gunakan JPEG, PNG, WebP, atau GIF.');
+      throw Exception('Tipe file tidak didukung. Gunakan format gambar (JPG/PNG) atau video (MP4/MOV).');
     }
     if (bytes.length > _maxFileSizeBytes) {
-      throw Exception('Ukuran file terlalu besar. Maksimal 5MB.');
+      throw Exception('Ukuran file terlalu besar. Maksimal 50MB.');
     }
 
     // Ensure upload directory exists
@@ -49,6 +52,11 @@ class UploadService {
         return '.webp';
       case 'image/gif':
         return '.gif';
+      case 'video/mp4':
+        return '.mp4';
+      case 'video/quicktime':
+      case 'video/x-m4v':
+        return '.mov';
       default:
         return '.jpg';
     }

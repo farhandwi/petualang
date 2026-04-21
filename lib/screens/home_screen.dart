@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/community_provider.dart';
 import '../theme/app_theme.dart';
 import '../config/app_config.dart';
 import '../models/community_model.dart';
+import '../providers/explore_provider.dart';
+import '../models/mountain_model.dart';
+import '../models/explore_model.dart';
 import 'booking/mountain_list_screen.dart';
 import 'community/community_detail_screen.dart';
 import 'community/community_screen.dart';
@@ -31,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _initialized = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<CommunityProvider>().fetchTrendingCommunities();
+        context.read<ExploreProvider>().fetchExploreData();
       });
     }
   }
@@ -41,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = auth.user;
     final firstName = user?.name.split(' ').first ?? 'Pendaki';
     final communityProvider = context.watch<CommunityProvider>();
+    final exploreProvider = context.watch<ExploreProvider>();
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -314,6 +320,60 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
               ),
             ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+            // Destinasi Populer Section (From Explore Screen)
+            if (exploreProvider.isLoading && exploreProvider.exploreData == null)
+              const SliverToBoxAdapter(
+                child: Center(
+                  child: CircularProgressIndicator(color: AppTheme.primaryOrange),
+                ),
+              )
+            else if (exploreProvider.exploreData != null) ...[
+              if (exploreProvider.exploreData!.popularMountains.isNotEmpty) ...[
+                _SectionTitle(title: 'Destinasi Populer', actionText: 'Lihat Semua', onActionTap: () {}),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 240,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: exploreProvider.exploreData!.popularMountains.length,
+                      itemBuilder: (context, index) {
+                        return _MountainHeroCard(
+                          mountain: exploreProvider.exploreData!.popularMountains[index],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+              // Edukasi & Tips Petualang Section (From Explore Screen)
+              if (exploreProvider.exploreData!.articles.isNotEmpty) ...[
+                _SectionTitle(title: 'Edukasi & Tips Petualang', onActionTap: () {}),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.8,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _ArticleCard(
+                        article: exploreProvider.exploreData!.articles[index],
+                      ),
+                      childCount: exploreProvider.exploreData!.articles.length,
+                    ),
+                  ),
+                ),
+              ],
+            ],
 
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
@@ -697,6 +757,182 @@ class _TrendingEmpty extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _MountainHeroCard extends StatelessWidget {
+  final MountainModel mountain;
+
+  const _MountainHeroCard({required this.mountain});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        image: DecorationImage(
+          image: AssetImage(mountain.imageUrl),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Colors.black.withOpacity(0.8),
+            ],
+            stops: const [0.4, 1.0],
+          ),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white.withOpacity(0.3)),
+              ),
+              child: Text(
+                mountain.difficulty,
+                style: GoogleFonts.beVietnamPro(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              mountain.name,
+              style: GoogleFonts.beVietnamPro(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.location_on_rounded, color: Colors.white70, size: 14),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    mountain.location,
+                    style: GoogleFonts.beVietnamPro(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  '${mountain.elevation} mdpl',
+                  style: GoogleFonts.beVietnamPro(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ArticleCard extends StatelessWidget {
+  final ArticleModel article;
+
+  const _ArticleCard({required this.article});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: isDark 
+            ? Border.all(color: Colors.white.withOpacity(0.05))
+            : Border.all(color: Colors.grey.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                image: article.imageUrl != null 
+                  ? DecorationImage(
+                      image: AssetImage(article.imageUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+                color: isDark ? Colors.black12 : Colors.grey.shade100,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.category,
+                    style: GoogleFonts.beVietnamPro(
+                      color: colors.primaryOrange,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: Text(
+                      article.title,
+                      style: GoogleFonts.beVietnamPro(
+                        color: colors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        height: 1.3,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('dd MMM yyyy').format(article.createdAt),
+                    style: GoogleFonts.beVietnamPro(
+                      color: colors.textSecondary,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

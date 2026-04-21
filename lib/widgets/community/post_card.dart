@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../level_avatar.dart';
 import 'report_bottom_sheet.dart';
+import '../video_player_widget.dart';
 
 class PostCard extends StatefulWidget {
   final CommunityPostModel post;
@@ -70,6 +71,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     final colors = context.colors;
     final post = widget.post;
+    final isVideo = post.imageUrl != null && 
+                    (post.imageUrl!.toLowerCase().endsWith('.mp4') || 
+                     post.imageUrl!.toLowerCase().endsWith('.mov'));
 
     return Container(
       color: colors.surface,
@@ -157,34 +161,40 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 children: [
                   AspectRatio(
                     aspectRatio: 1 / 1, // Square like Instagram default
-                    child: Image.network(
-                      AppConfig.resolveImageUrl(post.imageUrl),
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      loadingBuilder: (ctx, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: colors.surface,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: colors.primaryOrange,
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
+                    child: isVideo
+                        ? VideoPlayerWidget(
+                            url: AppConfig.resolveImageUrl(post.imageUrl),
+                            autoPlay: true, // Instagram-like auto play
+                            loop: true,
+                          )
+                        : Image.network(
+                            AppConfig.resolveImageUrl(post.imageUrl),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            loadingBuilder: (ctx, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: colors.surface,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: colors.primaryOrange,
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (_, __, ___) => AspectRatio(
+                              aspectRatio: 1,
+                              child: Container(
+                                color: colors.border,
+                                child: Icon(Icons.broken_image_rounded,
+                                    color: colors.textMuted, size: 48),
+                              ),
                             ),
                           ),
-                        );
-                      },
-                      errorBuilder: (_, __, ___) => AspectRatio(
-                        aspectRatio: 1,
-                        child: Container(
-                          color: colors.border,
-                          child: Icon(Icons.broken_image_rounded,
-                              color: colors.textMuted, size: 48),
-                        ),
-                      ),
-                    ),
                   ),
                   // Double-tap heart animation
                   if (_showHeart)

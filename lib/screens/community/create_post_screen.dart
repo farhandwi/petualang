@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/video_player_widget.dart';
+import 'package:provider/provider.dart';
 import '../../providers/community_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/permission_helper.dart';
@@ -22,7 +24,8 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final _contentController = TextEditingController();
-  File? _selectedImage;
+  File? _selectedMedia;
+  bool _isVideo = false;
   bool _isSubmitting = false;
 
   @override
@@ -31,20 +34,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickMedia() async {
     try {
       // Professional Permission Check
       final granted = await PermissionHelper.checkPhotosPermission(context);
       if (!granted) return;
 
       final picker = ImagePicker();
-      final picked = await picker.pickImage(
-        source: ImageSource.gallery,
+      final picked = await picker.pickMedia(
         imageQuality: 85,
-        maxWidth: 1920,
       );
       if (picked != null && mounted) {
-        setState(() => _selectedImage = File(picked.path));
+        setState(() {
+          _selectedMedia = File(picked.path);
+          _isVideo = picked.path.toLowerCase().endsWith('.mp4') || 
+                     picked.path.toLowerCase().endsWith('.mov');
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -70,7 +75,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final success = await provider.createPost(
       communityId: widget.communityId,
       content: content,
-      imageFile: _selectedImage,
+      imageFile: _selectedMedia,
     );
 
     if (mounted) {
@@ -180,8 +185,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
 
-            // Image preview
-            if (_selectedImage != null) ...[
+            // Media preview
+            if (_selectedMedia != null) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Stack(
@@ -190,17 +195,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       borderRadius: BorderRadius.circular(12),
                       child: AspectRatio(
                         aspectRatio: 16 / 9,
-                        child: Image.file(_selectedImage!, fit: BoxFit.cover),
+                        child: _isVideo 
+                          ? VideoPlayerWidget(file: _selectedMedia!)
+                          : Image.file(_selectedMedia!, fit: BoxFit.cover),
                       ),
                     ),
                     Positioned(
                       top: 8,
                       right: 8,
                       child: GestureDetector(
-                        onTap: () => setState(() => _selectedImage = null),
+                        onTap: () => setState(() {
+                          _selectedMedia = null;
+                          _isVideo = false;
+                        }),
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.black54,
                             shape: BoxShape.circle,
                           ),
@@ -222,10 +232,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Row(
                 children: [
                   TextButton.icon(
-                    onPressed: _pickImage,
+                    onPressed: _pickMedia,
                     icon: Icon(Icons.photo_library_rounded, color: colors.primaryOrange),
                     label: Text(
-                      'Foto dari Galeri',
+                      'Media dari Galeri',
                       style: TextStyle(color: colors.primaryOrange),
                     ),
                   ),

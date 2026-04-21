@@ -516,7 +516,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       Colors.transparent, BlendMode.multiply)
                                   : const ColorFilter.mode(
                                       Colors.grey, BlendMode.saturation),
-                              child: Image.network(ach.imageUrl, fit: BoxFit.cover),
+                              child: Image.network(
+                                ach.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(Icons.emoji_events, color: Colors.grey.withOpacity(0.5)),
+                              ),
                             ),
                           ),
                         ),

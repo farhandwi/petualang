@@ -109,7 +109,7 @@ class MainWrapperState extends State<MainWrapper> {
                 ),
                 _NavBarItem(
                   icon: Icons.chat_bubble_rounded,
-                  label: 'Pesan',
+                  label: 'Chat',
                   isSelected: _currentIndex == 2,
                   onTap: () => setState(() => _currentIndex = 2),
                 ),

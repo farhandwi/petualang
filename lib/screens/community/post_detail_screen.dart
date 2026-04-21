@@ -13,6 +13,7 @@ import '../../models/community_post_model.dart';
 import '../../models/community_comment_model.dart';
 import '../../widgets/community/report_bottom_sheet.dart';
 import '../../widgets/level_avatar.dart';
+import '../../widgets/video_player_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PostDetailScreen extends StatefulWidget {
@@ -137,6 +138,10 @@ class _PostDetailScreenState extends State<PostDetailScreen>
         .firstOrNull;
     final comments = provider.commentsByPost[widget.postId] ?? [];
 
+    final isVideo = post?.imageUrl != null && 
+                    (post!.imageUrl!.toLowerCase().endsWith('.mp4') || 
+                     post.imageUrl!.toLowerCase().endsWith('.mov'));
+
     return Scaffold(
       backgroundColor: colors.background,
       appBar: AppBar(
@@ -220,33 +225,39 @@ class _PostDetailScreenState extends State<PostDetailScreen>
                         children: [
                           AspectRatio(
                             aspectRatio: 1,
-                            child: Image.network(
-                              AppConfig.resolveImageUrl(post.imageUrl),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              loadingBuilder: (ctx, child, prog) {
-                                if (prog == null) return child;
-                                return Container(
-                                  color: colors.surface,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: colors.primaryOrange,
-                                      value: prog.expectedTotalBytes != null
-                                          ? prog.cumulativeBytesLoaded / prog.expectedTotalBytes!
-                                          : null,
+                            child: isVideo
+                                ? VideoPlayerWidget(
+                                    url: AppConfig.resolveImageUrl(post.imageUrl),
+                                    autoPlay: true,
+                                    loop: true,
+                                  )
+                                : Image.network(
+                                    AppConfig.resolveImageUrl(post!.imageUrl),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    loadingBuilder: (ctx, child, prog) {
+                                      if (prog == null) return child;
+                                      return Container(
+                                        color: colors.surface,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: colors.primaryOrange,
+                                            value: prog.expectedTotalBytes != null
+                                                ? prog.cumulativeBytesLoaded / prog.expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (_, __, ___) => AspectRatio(
+                                      aspectRatio: 1,
+                                      child: Container(
+                                        color: colors.border,
+                                        child: Icon(Icons.broken_image_rounded,
+                                            color: colors.textMuted, size: 48),
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                              errorBuilder: (_, __, ___) => AspectRatio(
-                                aspectRatio: 1,
-                                child: Container(
-                                  color: colors.border,
-                                  child: Icon(Icons.broken_image_rounded,
-                                      color: colors.textMuted, size: 48),
-                                ),
-                              ),
-                            ),
                           ),
                           if (_showHeart)
                             ScaleTransition(
