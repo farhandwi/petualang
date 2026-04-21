@@ -40,11 +40,17 @@ Future<Response> onRequest(RequestContext context) async {
 
     final conn = await Database.connection;
 
-    // Find user by email
+    // Find user by email — ambil semua kolom profil
     final results = await conn.query(
       '''
       SELECT id, name, email, phone, password_hash, password_salt, 
-             profile_picture, is_active
+             profile_picture, is_active,
+             nik, date_of_birth, gender,
+             ktp_address, domicile_address,
+             emergency_contact_name, emergency_contact_phone,
+             height_cm, weight_kg, level, exp, created_at,
+             birth_place, ktp_photo_url, selfie_ktp_url,
+             verification_status, verified_at
       FROM users 
       WHERE email = @email
       ''',
@@ -104,6 +110,24 @@ Future<Response> onRequest(RequestContext context) async {
           'email': userEmail,
           'phone': user[3],
           'profile_picture': user[6],
+          'nik': user[8],
+          'date_of_birth': (user[9] as DateTime?)?.toIso8601String(),
+          'gender': user[10],
+          'ktp_address': user[11],
+          'domicile_address': user[12],
+          'emergency_contact_name': user[13],
+          'emergency_contact_phone': user[14],
+          'height_cm': user[15],
+          'weight_kg': user[16],
+          'level': user[17] ?? 1,
+          'exp': user[18] ?? 0,
+          'is_active': isActive,
+          'created_at': (user[19] as DateTime?)?.toIso8601String(),
+          'birth_place': user[20],
+          'ktp_photo_url': user[21],
+          'selfie_ktp_url': user[22],
+          'verification_status': user[23] ?? 'unverified',
+          'verified_at': (user[24] as DateTime?)?.toIso8601String(),
         },
       },
     );

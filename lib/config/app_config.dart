@@ -25,6 +25,7 @@ class AppConfig {
   static String get profileEndpoint => '$apiAuth/profile';
   static String get forgotPasswordEndpoint => '$apiAuth/forgot_password';
   static String get resetPasswordEndpoint => '$apiAuth/reset_password';
+  static String get verifyIdentityEndpoint => '$apiAuth/verify_identity';
 
   // Rental endpoints
   static String get apiRentals => '$baseUrlApi/rentals';

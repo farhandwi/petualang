@@ -17,6 +17,12 @@ class UserModel {
   final int exp;
   final bool isActive;
   final DateTime? createdAt;
+  // ---- Verifikasi Identitas ----
+  final String? birthPlace;
+  final String? ktpPhotoUrl;
+  final String? selfieKtpUrl;
+  final String verificationStatus; // unverified | pending | verified | rejected
+  final DateTime? verifiedAt;
 
   UserModel({
     required this.id,
@@ -37,6 +43,11 @@ class UserModel {
     this.exp = 0,
     this.isActive = true,
     this.createdAt,
+    this.birthPlace,
+    this.ktpPhotoUrl,
+    this.selfieKtpUrl,
+    this.verificationStatus = 'unverified',
+    this.verifiedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -61,6 +72,13 @@ class UserModel {
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String)
           : null,
+      birthPlace: json['birth_place'] as String?,
+      ktpPhotoUrl: json['ktp_photo_url'] as String?,
+      selfieKtpUrl: json['selfie_ktp_url'] as String?,
+      verificationStatus: json['verification_status'] as String? ?? 'unverified',
+      verifiedAt: json['verified_at'] != null
+          ? DateTime.tryParse(json['verified_at'] as String)
+          : null,
     );
   }
 
@@ -84,6 +102,11 @@ class UserModel {
       'exp': exp,
       'is_active': isActive,
       'created_at': createdAt?.toIso8601String(),
+      'birth_place': birthPlace,
+      'ktp_photo_url': ktpPhotoUrl,
+      'selfie_ktp_url': selfieKtpUrl,
+      'verification_status': verificationStatus,
+      'verified_at': verifiedAt?.toIso8601String(),
     };
   }
 
@@ -101,6 +124,11 @@ class UserModel {
     String? emergencyContactPhone,
     int? heightCm,
     int? weightKg,
+    String? birthPlace,
+    String? ktpPhotoUrl,
+    String? selfieKtpUrl,
+    String? verificationStatus,
+    DateTime? verifiedAt,
   }) {
     return UserModel(
       id: id,
@@ -121,24 +149,36 @@ class UserModel {
       exp: exp,
       isActive: isActive,
       createdAt: createdAt,
+      birthPlace: birthPlace ?? this.birthPlace,
+      ktpPhotoUrl: ktpPhotoUrl ?? this.ktpPhotoUrl,
+      selfieKtpUrl: selfieKtpUrl ?? this.selfieKtpUrl,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      verifiedAt: verifiedAt ?? this.verifiedAt,
     );
   }
 
+  bool get isVerified => verificationStatus == 'verified';
+  bool get isPendingVerification => verificationStatus == 'pending';
+
   double get profileCompleteness {
     int filled = 0;
+    // name & email selalu ada (required), tapi tetap dihitung
     if (name.isNotEmpty) filled++;
     if (email.isNotEmpty) filled++;
     if (phone != null && phone!.isNotEmpty) filled++;
-    if (profilePicture != null && profilePicture!.isNotEmpty) filled++;
     if (nik != null && nik!.isNotEmpty) filled++;
     if (dateOfBirth != null) filled++;
     if (gender != null && gender!.isNotEmpty) filled++;
     if (ktpAddress != null && ktpAddress!.isNotEmpty) filled++;
     if (domicileAddress != null && domicileAddress!.isNotEmpty) filled++;
-    if (emergencyContactName != null && emergencyContactName!.isNotEmpty && emergencyContactPhone != null && emergencyContactPhone!.isNotEmpty) filled++;
+    if (emergencyContactName != null &&
+        emergencyContactName!.isNotEmpty &&
+        emergencyContactPhone != null &&
+        emergencyContactPhone!.isNotEmpty) filled++;
     if (heightCm != null) filled++;
     if (weightKg != null) filled++;
 
-    return filled / 12.0;
+    // Total 11 field yang bisa diisi via EditProfileScreen
+    return filled / 11.0;
   }
 }

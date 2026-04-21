@@ -69,7 +69,12 @@ class Database {
       ADD COLUMN IF NOT EXISTS height_cm INTEGER,
       ADD COLUMN IF NOT EXISTS weight_kg INTEGER,
       ADD COLUMN IF NOT EXISTS level INTEGER DEFAULT 1,
-      ADD COLUMN IF NOT EXISTS exp INTEGER DEFAULT 0;
+      ADD COLUMN IF NOT EXISTS exp INTEGER DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS birth_place VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS ktp_photo_url TEXT,
+      ADD COLUMN IF NOT EXISTS selfie_ktp_url TEXT,
+      ADD COLUMN IF NOT EXISTS verification_status VARCHAR(20) DEFAULT 'unverified',
+      ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
     ''');
     
     // ============================================================

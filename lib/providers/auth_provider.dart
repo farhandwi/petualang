@@ -1,3 +1,4 @@
+import 'dart:io' as dart_io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_model.dart';
@@ -125,6 +126,35 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     final result = await _authService.updateProfile(_token!, data);
+
+    _isLoading = false;
+
+    if (result.success && result.user != null) {
+      _user = result.user;
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result.message;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Upload gambar (KTP / selfie) ke server, kembalikan URL
+  Future<String?> uploadImage(dart_io.File imageFile) async {
+    if (_token == null) return null;
+    return _authService.uploadImageFile(_token!, imageFile);
+  }
+
+  /// Submit verifikasi identitas (KYC)
+  Future<bool> verifyIdentity(Map<String, dynamic> data) async {
+    if (_token == null) return false;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await _authService.verifyIdentity(_token!, data);
 
     _isLoading = false;
 

@@ -9,6 +9,7 @@ import 'settings_screen.dart';
 import '../models/gamification_models.dart';
 import '../widgets/level_avatar.dart';
 import 'gamification_detail_screen.dart';
+import 'identity_verification_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -302,6 +303,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+
+          // ── Verifikasi Identitas Card ─────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 28, bottom: 4),
+              child: _buildVerificationCard(context, user.verificationStatus),
             ),
           ),
 
@@ -616,6 +625,206 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: context.colors.textPrimary,
           fontSize: 16,
           fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerificationCard(BuildContext context, String status) {
+    final colors = context.colors;
+    const Color accent = Color(0xFF00B894);
+    const Color accentDark = Color(0xFF00A67E);
+    const Color amber = Color(0xFFFFC107);
+
+    // Config per-status — hanya brand colors yang hardcode, sisanya pakai AppColors
+    final IconData icon;
+    final Color iconBg;
+    final Color iconColor;
+    final String badgeText;
+    final Color badgeBg;
+    final Color badgeColor;
+    final String title;
+    final String subtitle;
+    final String btnText;
+    final List<Color> btnGradient;
+    final Color borderColor;
+    final Color? glowColor;
+
+    switch (status) {
+      case 'pending':
+        icon = Icons.hourglass_top_rounded;
+        iconBg = amber.withAlpha(30);
+        iconColor = amber;
+        badgeText = 'Sedang Diproses';
+        badgeBg = amber.withAlpha(30);
+        badgeColor = amber;
+        title = 'Verifikasi dalam Review';
+        subtitle = 'Data Anda sedang diproses tim kami. Biasanya selesai dalam 1×24 jam.';
+        btnText = 'Lihat Status';
+        btnGradient = [amber, const Color(0xFFFF9800)];
+        borderColor = amber.withAlpha(80);
+        glowColor = amber;
+        break;
+      case 'verified':
+        icon = Icons.verified_rounded;
+        iconBg = accent.withAlpha(30);
+        iconColor = accent;
+        badgeText = 'Terverifikasi';
+        badgeBg = accent.withAlpha(30);
+        badgeColor = accent;
+        title = 'Identitas Terverifikasi ✓';
+        subtitle = 'Identitas Anda telah diverifikasi. Nikmati akses penuh ke semua fitur.';
+        btnText = 'Lihat Detail';
+        btnGradient = [accent, accentDark];
+        borderColor = accent.withAlpha(80);
+        glowColor = accent;
+        break;
+      case 'rejected':
+        icon = Icons.cancel_outlined;
+        iconBg = colors.error.withAlpha(30);
+        iconColor = colors.error;
+        badgeText = 'Ditolak';
+        badgeBg = colors.error.withAlpha(25);
+        badgeColor = colors.error;
+        title = 'Verifikasi Ditolak';
+        subtitle = 'Verifikasi sebelumnya ditolak. Silakan kirim ulang dengan dokumen yang valid.';
+        btnText = 'Coba Lagi';
+        btnGradient = [colors.error, colors.error.withAlpha(200)];
+        borderColor = colors.error.withAlpha(80);
+        glowColor = colors.error;
+        break;
+      default: // unverified
+        icon = Icons.shield_outlined;
+        iconBg = colors.input;
+        iconColor = colors.textMuted;
+        badgeText = 'Belum Diverifikasi';
+        badgeBg = colors.input;
+        badgeColor = colors.textMuted;
+        title = 'Verifikasi Identitas';
+        subtitle = 'Lengkapi verifikasi untuk membuka akses penuh ke semua fitur Petualang.';
+        btnText = 'Mulai Verifikasi';
+        btnGradient = [accent, accentDark];
+        borderColor = colors.border;
+        glowColor = null;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const IdentityVerificationScreen(),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: colors.card,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
+            boxShadow: glowColor != null
+                ? [
+                    BoxShadow(
+                      color: glowColor.withAlpha(40),
+                      blurRadius: 18,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: iconColor, size: 26),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: badgeBg,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            badgeText,
+                            maxLines: 1,
+                            style: GoogleFonts.poppins(
+                              color: badgeColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        color: colors.textSecondary,
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: btnGradient),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            btnText,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.arrow_forward_rounded,
+                              color: Colors.white, size: 14),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

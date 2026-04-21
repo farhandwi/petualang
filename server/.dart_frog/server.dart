@@ -37,6 +37,7 @@ import '../routes/api/community/[id]/posts/index.dart' as api_community_$id_post
 import '../routes/api/chat/[communityId]/read.dart' as api_chat_$community_id_read;
 import '../routes/api/chat/[communityId]/messages.dart' as api_chat_$community_id_messages;
 import '../routes/api/chat/[communityId]/index.dart' as api_chat_$community_id_index;
+import '../routes/api/auth/verify_identity.dart' as api_auth_verify_identity;
 import '../routes/api/auth/reset_password.dart' as api_auth_reset_password;
 import '../routes/api/auth/register.dart' as api_auth_register;
 import '../routes/api/auth/profile.dart' as api_auth_profile;
@@ -211,7 +212,7 @@ Handler buildApiChat$communityIdHandler(String communityId,) {
 Handler buildApiAuthHandler() {
   final pipeline = const Pipeline();
   final router = Router()
-    ..all('/forgot_password', (context) => api_auth_forgot_password.onRequest(context,))..all('/login', (context) => api_auth_login.onRequest(context,))..all('/me', (context) => api_auth_me.onRequest(context,))..all('/profile', (context) => api_auth_profile.onRequest(context,))..all('/register', (context) => api_auth_register.onRequest(context,))..all('/reset_password', (context) => api_auth_reset_password.onRequest(context,));
+    ..all('/forgot_password', (context) => api_auth_forgot_password.onRequest(context,))..all('/login', (context) => api_auth_login.onRequest(context,))..all('/me', (context) => api_auth_me.onRequest(context,))..all('/profile', (context) => api_auth_profile.onRequest(context,))..all('/register', (context) => api_auth_register.onRequest(context,))..all('/reset_password', (context) => api_auth_reset_password.onRequest(context,))..all('/verify_identity', (context) => api_auth_verify_identity.onRequest(context,));
   return pipeline.addHandler(router);
 }
 

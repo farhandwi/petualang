@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../models/user_model.dart';
@@ -214,4 +215,59 @@ class AuthService {
     }
     return 'Terjadi kesalahan. Silakan coba lagi.';
   }
+
+  /// Upload satu file gambar ke /api/upload/image, kembalikan URL-nya
+  Future<String?> uploadImageFile(String token, File imageFile) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(AppConfig.uploadImageEndpoint),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      final streamedResponse = await request.send().timeout(_timeout);
+      final response = await http.Response.fromStream(streamedResponse);
+      final data = json.decode(response.body) as Map<String, dynamic>;
+
+      if (data['success'] == true && data['url'] != null) {
+        return data['url'] as String;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Submit verifikasi identitas (KYC)
+  Future<AuthResult> verifyIdentity(String token, Map<String, dynamic> data) async {
+    try {
+      final response = await http.post(
+        Uri.parse(AppConfig.verifyIdentityEndpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(data),
+      ).timeout(_timeout);
+
+      final responseData = json.decode(response.body) as Map<String, dynamic>;
+      final success = responseData['success'] as bool? ?? false;
+      final message = responseData['message'] as String? ?? 'Terjadi kesalahan';
+
+      if (success && response.statusCode == 200) {
+        final userData = responseData['user'] as Map<String, dynamic>?;
+        return AuthResult(
+          success: true,
+          message: message,
+          user: userData != null ? UserModel.fromJson(userData) : null,
+        );
+      }
+
+      return AuthResult(success: false, message: message);
+    } on Exception catch (e) {
+      return AuthResult(success: false, message: _parseError(e));
+    }
+  }
 }
+

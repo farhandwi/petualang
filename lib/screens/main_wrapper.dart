@@ -19,6 +19,7 @@ class MainWrapper extends StatefulWidget {
 
 class MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
+  bool _hasShownCompletenessNotif = false;
 
   void switchTab(int index) {
     if (_currentIndex != index) {
@@ -43,10 +44,13 @@ class MainWrapperState extends State<MainWrapper> {
   }
 
   void _checkProfileCompleteness() {
+    if (_hasShownCompletenessNotif) return;
+
     final auth = context.read<AuthProvider>();
     final user = auth.user;
 
-    if (user != null && user.profileCompleteness < 0.7) {
+    if (user != null && user.profileCompleteness < 1.0) {
+      _hasShownCompletenessNotif = true;
       final percentage = (user.profileCompleteness * 100).toInt();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

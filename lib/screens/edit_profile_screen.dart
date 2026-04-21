@@ -100,16 +100,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _domicileAddressController.text = _ktpAddressController.text;
       }
 
+      // Helper: kirim null jika string kosong agar COALESCE di DB
+      // tidak menimpa nilai lama dengan string kosong.
+      String? _orNull(String s) => s.trim().isEmpty ? null : s.trim();
+
       final data = {
-        'name': _nameController.text,
-        'phone': _phoneController.text,
-        'nik': _nikController.text,
+        'name': _nameController.text.trim().isNotEmpty
+            ? _nameController.text.trim()
+            : null,
+        'phone': _orNull(_phoneController.text),
+        'nik': _orNull(_nikController.text),
         'date_of_birth': _selectedDate?.toIso8601String(),
         'gender': _selectedGender,
-        'ktp_address': _ktpAddressController.text,
-        'domicile_address': _domicileAddressController.text,
-        'emergency_contact_name': _emergencyNameController.text,
-        'emergency_contact_phone': _emergencyPhoneController.text,
+        'ktp_address': _orNull(_ktpAddressController.text),
+        'domicile_address': _orNull(_domicileAddressController.text),
+        'emergency_contact_name': _orNull(_emergencyNameController.text),
+        'emergency_contact_phone': _orNull(_emergencyPhoneController.text),
         'height_cm': int.tryParse(_heightController.text),
         'weight_kg': int.tryParse(_weightController.text),
       };
