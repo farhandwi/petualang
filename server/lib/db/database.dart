@@ -20,15 +20,17 @@ class Database {
         username: EnvConfig.dbUser,
         password: EnvConfig.dbPassword,
       );
-      
-      print('⏳ Connecting to PostgreSQL at ${EnvConfig.dbHost}:${EnvConfig.dbPort}...');
+
+      print(
+          '⏳ Connecting to PostgreSQL at ${EnvConfig.dbHost}:${EnvConfig.dbPort}...');
       await _connection!.open();
       print('✅ Connected to PostgreSQL database: ${EnvConfig.dbName}');
       await _runMigrations();
     } catch (e) {
       print('❌ Database Connection Error: $e');
-      print('⚠️ Please check your .env configuration and make sure PostgreSQL is running.');
-      // Don't rethrow if we want the server to still start, but in this app 
+      print(
+          '⚠️ Please check your .env configuration and make sure PostgreSQL is running.');
+      // Don't rethrow if we want the server to still start, but in this app
       // most routes need DB, so we let it fail or just log it.
     }
   }
@@ -76,7 +78,7 @@ class Database {
       ADD COLUMN IF NOT EXISTS verification_status VARCHAR(20) DEFAULT 'unverified',
       ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
     ''');
-    
+
     // ============================================================
     // GAMIFICATION TABLES
     // ============================================================
@@ -451,8 +453,27 @@ class Database {
         category VARCHAR(50) DEFAULT 'Tips',
         image_url TEXT,
         author VARCHAR(100),
+        view_count INTEGER DEFAULT 0,
+        likes_count INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
+        share_count INTEGER DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS article_comments (
+        id SERIAL PRIMARY KEY,
+        article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    ''');
+
+    await conn.execute('''
+      ALTER TABLE articles 
+      ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
     ''');
 
     await conn.execute('''
@@ -521,7 +542,6 @@ class Database {
       INSERT INTO achievements (activity_id, title, description, trigger_count, image_url)
       SELECT id, 'Magnet Tongkrongan', 'Join 10 open trip berbeda', 10, 'https://ui-avatars.com/api/?name=M+T&background=random' FROM activities WHERE name = 'Open Trip' ON CONFLICT DO NOTHING;
     ''');
-
 
     // Seed data
     await conn.execute('''
@@ -707,7 +727,6 @@ class Database {
         latitude = EXCLUDED.latitude,
         longitude = EXCLUDED.longitude;
     ''');
-
 
     await conn.execute('''
       INSERT INTO rental_items (vendor_id, mountain_id, name, category, description, price_per_day, image_url, stock, available_stock, brand, condition)

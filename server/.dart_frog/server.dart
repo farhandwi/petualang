@@ -44,6 +44,11 @@ import '../routes/api/auth/profile.dart' as api_auth_profile;
 import '../routes/api/auth/me.dart' as api_auth_me;
 import '../routes/api/auth/login.dart' as api_auth_login;
 import '../routes/api/auth/forgot_password.dart' as api_auth_forgot_password;
+import '../routes/api/articles/index.dart' as api_articles_index;
+import '../routes/api/articles/[id]/view.dart' as api_articles_$id_view;
+import '../routes/api/articles/[id]/share.dart' as api_articles_$id_share;
+import '../routes/api/articles/[id]/like.dart' as api_articles_$id_like;
+import '../routes/api/articles/[id]/comments.dart' as api_articles_$id_comments;
 
 import '../routes/_middleware.dart' as middleware;
 
@@ -79,7 +84,9 @@ Handler buildRootHandler() {
     ..mount('/api/community/<id>', (context,id,) => buildApiCommunity$idHandler(id,)(context))
     ..mount('/api/community/<id>/posts', (context,id,) => buildApiCommunity$idPostsHandler(id,)(context))
     ..mount('/api/chat/<communityId>', (context,communityId,) => buildApiChat$communityIdHandler(communityId,)(context))
-    ..mount('/api/auth', (context) => buildApiAuthHandler()(context));
+    ..mount('/api/auth', (context) => buildApiAuthHandler()(context))
+    ..mount('/api/articles', (context) => buildApiArticlesHandler()(context))
+    ..mount('/api/articles/<id>', (context,id,) => buildApiArticles$idHandler(id,)(context));
   return pipeline.addHandler(router);
 }
 
@@ -213,6 +220,20 @@ Handler buildApiAuthHandler() {
   final pipeline = const Pipeline();
   final router = Router()
     ..all('/forgot_password', (context) => api_auth_forgot_password.onRequest(context,))..all('/login', (context) => api_auth_login.onRequest(context,))..all('/me', (context) => api_auth_me.onRequest(context,))..all('/profile', (context) => api_auth_profile.onRequest(context,))..all('/register', (context) => api_auth_register.onRequest(context,))..all('/reset_password', (context) => api_auth_reset_password.onRequest(context,))..all('/verify_identity', (context) => api_auth_verify_identity.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildApiArticlesHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/', (context) => api_articles_index.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildApiArticles$idHandler(String id,) {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/comments', (context) => api_articles_$id_comments.onRequest(context,id,))..all('/like', (context) => api_articles_$id_like.onRequest(context,id,))..all('/share', (context) => api_articles_$id_share.onRequest(context,id,))..all('/view', (context) => api_articles_$id_view.onRequest(context,id,));
   return pipeline.addHandler(router);
 }
 

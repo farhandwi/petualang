@@ -54,6 +54,10 @@ class ArticleModel {
   final String category;
   final String? imageUrl;
   final String? author;
+  final int viewCount;
+  final int likesCount;
+  final int commentsCount;
+  final int shareCount;
   final DateTime createdAt;
 
   ArticleModel({
@@ -63,6 +67,10 @@ class ArticleModel {
     required this.category,
     this.imageUrl,
     this.author,
+    this.viewCount = 0,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+    this.shareCount = 0,
     required this.createdAt,
   });
 
@@ -74,6 +82,10 @@ class ArticleModel {
       category: json['category'] as String,
       imageUrl: json['image_url'] as String?,
       author: json['author'] as String?,
+      viewCount: json['view_count'] as int? ?? 0,
+      likesCount: json['likes_count'] as int? ?? 0,
+      commentsCount: json['comments_count'] as int? ?? 0,
+      shareCount: json['share_count'] as int? ?? 0,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }

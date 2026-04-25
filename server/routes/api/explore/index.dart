@@ -3,7 +3,8 @@ import '../../../lib/db/database.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   if (context.request.method != HttpMethod.get) {
-    return Response.json(statusCode: 405, body: {'message': 'Method not allowed'});
+    return Response.json(
+        statusCode: 405, body: {'message': 'Method not allowed'});
   }
 
   try {
@@ -28,22 +29,26 @@ Future<Response> onRequest(RequestContext context) async {
     ''');
     final trips = tripsResult.map((row) {
       final map = row['open_trips'] ?? {};
-      if (map['start_date'] != null) map['start_date'] = map['start_date'].toIso8601String();
-      if (map['end_date'] != null) map['end_date'] = map['end_date'].toIso8601String();
-      if (map['created_at'] != null) map['created_at'] = map['created_at'].toIso8601String();
+      if (map['start_date'] != null)
+        map['start_date'] = map['start_date'].toIso8601String();
+      if (map['end_date'] != null)
+        map['end_date'] = map['end_date'].toIso8601String();
+      if (map['created_at'] != null)
+        map['created_at'] = map['created_at'].toIso8601String();
       return map;
     }).toList();
 
-    // 3. Get Articles / News
+    // 3. Get Articles / News (Top 10 Trending)
     final articlesResult = await conn.mappedResultsQuery('''
-      SELECT id, title, content, category, image_url, author, created_at
+      SELECT id, title, content, category, image_url, author, view_count, likes_count, comments_count, share_count, created_at
       FROM articles
-      ORDER BY created_at DESC
-      LIMIT 5
+      ORDER BY view_count DESC, created_at DESC
+      LIMIT 10
     ''');
     final articles = articlesResult.map((row) {
       final map = row['articles'] ?? {};
-      if (map['created_at'] != null) map['created_at'] = map['created_at'].toIso8601String();
+      if (map['created_at'] != null)
+        map['created_at'] = map['created_at'].toIso8601String();
       return map;
     }).toList();
 

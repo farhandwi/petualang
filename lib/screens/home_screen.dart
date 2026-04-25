@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:ui';
 
 import '../providers/auth_provider.dart';
 import '../providers/community_provider.dart';
@@ -16,6 +19,8 @@ import 'community/community_detail_screen.dart';
 import 'community/community_screen.dart';
 import 'main_wrapper.dart';
 import 'explore/open_trip_list_screen.dart';
+import 'explore/article_list_screen.dart';
+import 'explore/article_detail_screen.dart';
 import 'rental/rental_main_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -56,80 +61,192 @@ class _HomeScreenState extends State<HomeScreen> {
           slivers: [
             // App Bar Header
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
+              child: Stack(
+                children: [
+                  // Background Decoration
+                  Positioned(
+                    top: -50,
+                    right: -50,
+                    child: Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: context.colors.primaryOrange.withOpacity(0.15),
+                      ),
+                    )
+                        .animate()
+                        .scale(duration: 1000.ms, curve: Curves.easeOutBack)
+                        .fadeIn(),
+                  ),
+                  Positioned(
+                    top: 50,
+                    left: -50,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF10B981).withOpacity(0.1),
+                      ),
+                    )
+                        .animate()
+                        .scale(duration: 1200.ms, curve: Curves.easeOutBack)
+                        .fadeIn(delay: 200.ms),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Halo, $firstName! 👋',
-                          style: GoogleFonts.beVietnamPro(
-                            color: context.colors.textSecondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Halo, $firstName!',
+                                      style: GoogleFonts.beVietnamPro(
+                                        color: context.colors.textSecondary,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Text('👋')
+                                        .animate(
+                                            onPlay: (controller) => controller
+                                                .repeat(reverse: true))
+                                        .moveY(
+                                            begin: -5,
+                                            end: 5,
+                                            duration: 1.seconds),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Siap untuk\nPuncak?',
+                                  style: GoogleFonts.beVietnamPro(
+                                    color: context.colors.textPrimary,
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.1,
+                                    letterSpacing: -0.5,
+                                  ),
+                                ).animate().fade(duration: 500.ms).slideX(
+                                    begin: -0.2, end: 0, curve: Curves.easeOut),
+                              ],
+                            ),
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    context.colors.primaryOrange,
+                                    const Color(0xFFFF9D42),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: context.colors.primaryOrange
+                                        .withOpacity(0.4),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  )
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  firstName[0].toUpperCase(),
+                                  style: GoogleFonts.beVietnamPro(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            )
+                                .animate()
+                                .fade(duration: 600.ms)
+                                .scale(begin: const Offset(0.5, 0.5)),
+                          ],
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Siap untuk\nPuncak?',
-                          style: GoogleFonts.beVietnamPro(
-                            color: context.colors.textPrimary,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            height: 1.1,
+                        const SizedBox(height: 20),
+                        // Glassmorphism Search Bar
+                        GestureDetector(
+                          onTap: () {
+                            final mainWrapper = context
+                                .findAncestorStateOfType<MainWrapperState>();
+                            if (mainWrapper != null) {
+                              mainWrapper
+                                  .switchTab(1); // Switch to Jelajah (Explore)
+                            } else {
+                              // Fallback direct push if not inside MainWrapper
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ExploreScreen(),
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white.withOpacity(0.05)
+                                  : Colors.white.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white.withOpacity(0.1)
+                                    : Colors.black.withOpacity(0.05),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                )
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.search_rounded,
+                                    color: context.colors.textMuted),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Cari gunung, trip, atau alat...',
+                                  style: GoogleFonts.beVietnamPro(
+                                    color: context.colors.textMuted,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        )
+                            .animate()
+                            .fade(delay: 300.ms, duration: 500.ms)
+                            .slideY(begin: 0.2, end: 0),
                       ],
                     ),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: context.colors.primaryOrange,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: context.colors.primaryOrange.withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          firstName[0].toUpperCase(),
-                          style: GoogleFonts.beVietnamPro(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Slogan Subtitle
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                child: Text(
-                  'Temukan perlengkapan dan teman mendaki terbaik untuk trip selanjutnya.',
-                  style: GoogleFonts.beVietnamPro(
-                    color: context.colors.textSecondary,
-                    fontSize: 14,
-                    height: 1.5,
                   ),
-                ),
+                ],
               ),
             ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
             // Layanan Utama Section
             _SectionTitle(title: 'Layanan Utama', onActionTap: () {}),
@@ -150,7 +267,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const CommunityScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const CommunityScreen()),
                       );
                     },
                   ),
@@ -161,7 +279,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const OpenTripListScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const OpenTripListScreen()),
                       );
                     },
                   ),
@@ -172,7 +291,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RentalMainScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const RentalMainScreen()),
                       );
                     },
                   ),
@@ -183,7 +303,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MountainListScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const MountainListScreen()),
                       );
                     },
                   ),
@@ -194,15 +315,20 @@ class _HomeScreenState extends State<HomeScreen> {
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
             // Petualangan Mendatang Section
-            _SectionTitle(title: 'Petualangan Mendatang', actionText: 'Lihat Semua', onActionTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const OpenTripListScreen()),
-              );
-            }),
+            _SectionTitle(
+                title: 'Petualangan Mendatang',
+                actionText: 'Lihat Semua',
+                onActionTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const OpenTripListScreen()),
+                  );
+                }),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Container(
                   height: 200,
                   decoration: BoxDecoration(
@@ -237,7 +363,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: context.colors.primaryOrange,
                             borderRadius: BorderRadius.circular(8),
@@ -264,7 +391,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(Icons.people_alt_rounded, color: context.colors.textSecondary, size: 14),
+                            Icon(Icons.people_alt_rounded,
+                                color: context.colors.textSecondary, size: 14),
                             const SizedBox(width: 6),
                             Text(
                               '8 orang bergabung',
@@ -300,19 +428,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         : ListView.separated(
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            itemCount: communityProvider.trendingCommunities.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 14),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            itemCount:
+                                communityProvider.trendingCommunities.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 14),
                             itemBuilder: (context, index) {
-                              final community = communityProvider.trendingCommunities[index];
+                              final community =
+                                  communityProvider.trendingCommunities[index];
                               return _TrendingCommunityCard(
                                 community: community,
                                 rank: index + 1,
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        CommunityDetailScreen(community: community),
+                                    builder: (_) => CommunityDetailScreen(
+                                        community: community),
                                   ),
                                 ),
                               );
@@ -324,25 +456,33 @@ class _HomeScreenState extends State<HomeScreen> {
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
             // Destinasi Populer Section (From Explore Screen)
-            if (exploreProvider.isLoading && exploreProvider.exploreData == null)
+            if (exploreProvider.isLoading &&
+                exploreProvider.exploreData == null)
               const SliverToBoxAdapter(
                 child: Center(
-                  child: CircularProgressIndicator(color: AppTheme.primaryOrange),
+                  child:
+                      CircularProgressIndicator(color: AppTheme.primaryOrange),
                 ),
               )
             else if (exploreProvider.exploreData != null) ...[
               if (exploreProvider.exploreData!.popularMountains.isNotEmpty) ...[
-                _SectionTitle(title: 'Destinasi Populer', actionText: 'Lihat Semua', onActionTap: () {}),
+                _SectionTitle(
+                    title: 'Destinasi Populer',
+                    actionText: 'Lihat Semua',
+                    onActionTap: () {}),
                 SliverToBoxAdapter(
                   child: SizedBox(
                     height: 240,
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       scrollDirection: Axis.horizontal,
-                      itemCount: exploreProvider.exploreData!.popularMountains.length,
+                      itemCount:
+                          exploreProvider.exploreData!.popularMountains.length,
                       itemBuilder: (context, index) {
                         return _MountainHeroCard(
-                          mountain: exploreProvider.exploreData!.popularMountains[index],
+                          mountain: exploreProvider
+                              .exploreData!.popularMountains[index],
                         );
                       },
                     ),
@@ -354,11 +494,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Edukasi & Tips Petualang Section (From Explore Screen)
               if (exploreProvider.exploreData!.articles.isNotEmpty) ...[
-                _SectionTitle(title: 'Edukasi & Tips Petualang', onActionTap: () {}),
+                _SectionTitle(
+                    title: 'Edukasi & Tips Petualang',
+                    actionText: 'Lihat Semua',
+                    onActionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ArticleListScreen()),
+                      );
+                    }),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
                   sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
@@ -424,7 +574,10 @@ class _SectionTitle extends StatelessWidget {
               ),
           ],
         ),
-      ),
+      )
+          .animate()
+          .fade(duration: 500.ms)
+          .slideX(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
     );
   }
 }
@@ -449,22 +602,35 @@ class _ServiceItem extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: 65,
+            height: 65,
             decoration: BoxDecoration(
-              color: context.colors.card,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: context.colors.border),
+              gradient: LinearGradient(
+                colors: [
+                  color.withOpacity(0.15),
+                  color.withOpacity(0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: color.withOpacity(0.3), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: color.withOpacity(0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
                 )
               ],
             ),
-            child: Icon(icon, color: color, size: 28),
-          ),
+            child: Icon(icon, color: color, size: 30)
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .moveY(begin: -2, end: 2, duration: 2.seconds),
+          )
+              .animate()
+              .fade(duration: 500.ms)
+              .scale(begin: const Offset(0.8, 0.8)),
           const SizedBox(height: 12),
           Text(
             label,
@@ -472,10 +638,10 @@ class _ServiceItem extends StatelessWidget {
             style: GoogleFonts.beVietnamPro(
               color: context.colors.textSecondary,
               fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               height: 1.2,
             ),
-          ),
+          ).animate().fade(delay: 200.ms, duration: 400.ms),
         ],
       ),
     );
@@ -520,7 +686,8 @@ class _TrendingCommunityCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                   child: SizedBox(
                     height: 90,
                     width: double.infinity,
@@ -528,7 +695,8 @@ class _TrendingCommunityCard extends StatelessWidget {
                         ? Image.network(
                             AppConfig.resolveImageUrl(community.coverImageUrl),
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _CoverFallback(name: community.name),
+                            errorBuilder: (_, __, ___) =>
+                                _CoverFallback(name: community.name),
                           )
                         : _CoverFallback(name: community.name),
                   ),
@@ -538,7 +706,8 @@ class _TrendingCommunityCard extends StatelessWidget {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
                       color: rank == 1
                           ? const Color(0xFFFFD700)
@@ -581,7 +750,8 @@ class _TrendingCommunityCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.people_alt_rounded, color: colors.textMuted, size: 12),
+                      Icon(Icons.people_alt_rounded,
+                          color: colors.textMuted, size: 12),
                       const SizedBox(width: 4),
                       Text(
                         _formatCount(community.memberCount),
@@ -590,11 +760,12 @@ class _TrendingCommunityCard extends StatelessWidget {
                           fontSize: 12,
                         ),
                       ),
-                      if (community.category != null) ...[ 
+                      if (community.category != null) ...[
                         const SizedBox(width: 8),
                         Flexible(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: colors.primaryOrange.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(6),
@@ -619,7 +790,10 @@ class _TrendingCommunityCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      )
+          .animate()
+          .fade(duration: 400.ms, delay: (100 * rank).ms)
+          .scale(begin: const Offset(0.9, 0.9)),
     );
   }
 
@@ -713,7 +887,8 @@ class _TrendingShimmerState extends State<_TrendingShimmer>
                 height: 90,
                 decoration: BoxDecoration(
                   color: colors.border.withOpacity(_animation.value + 0.2),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
               ),
               Padding(
@@ -721,8 +896,17 @@ class _TrendingShimmerState extends State<_TrendingShimmer>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 12, width: 120, color: colors.border.withOpacity(_animation.value + 0.2), margin: const EdgeInsets.only(bottom: 8)),
-                    Container(height: 10, width: 80, color: colors.border.withOpacity(_animation.value + 0.1)),
+                    Container(
+                        height: 12,
+                        width: 120,
+                        color:
+                            colors.border.withOpacity(_animation.value + 0.2),
+                        margin: const EdgeInsets.only(bottom: 8)),
+                    Container(
+                        height: 10,
+                        width: 80,
+                        color:
+                            colors.border.withOpacity(_animation.value + 0.1)),
                   ],
                 ),
               ),
@@ -825,7 +1009,8 @@ class _MountainHeroCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.location_on_rounded, color: Colors.white70, size: 14),
+                const Icon(Icons.location_on_rounded,
+                    color: Colors.white70, size: 14),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -851,7 +1036,10 @@ class _MountainHeroCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    )
+        .animate()
+        .fade(duration: 500.ms)
+        .slideY(begin: 0.1, end: 0, curve: Curves.easeOut);
   }
 }
 
@@ -865,75 +1053,111 @@ class _ArticleCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = context.colors;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: isDark 
-            ? Border.all(color: Colors.white.withOpacity(0.05))
-            : Border.all(color: Colors.grey.shade100),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                image: article.imageUrl != null 
-                  ? DecorationImage(
-                      image: AssetImage(article.imageUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-                color: isDark ? Colors.black12 : Colors.grey.shade100,
-              ),
-            ),
+    return GestureDetector(
+        onTap: () async {
+          try {
+            await http.post(Uri.parse(
+                '${AppConfig.baseUrlApi}/articles/${article.id}/view'));
+          } catch (e) {
+            print('Failed to increment view: $e');
+          }
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ArticleDetailScreen(article: article)),
+            );
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: isDark
+                ? Border.all(color: Colors.white.withOpacity(0.05))
+                : Border.all(color: Colors.grey.shade100),
           ),
-          Expanded(
-            flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    article.category,
-                    style: GoogleFonts.beVietnamPro(
-                      color: colors.primaryOrange,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    image: article.imageUrl != null
+                        ? DecorationImage(
+                            image: AssetImage(article.imageUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                    color: isDark ? Colors.black12 : Colors.grey.shade100,
                   ),
-                  const SizedBox(height: 4),
-                  Expanded(
-                    child: Text(
-                      article.title,
-                      style: GoogleFonts.beVietnamPro(
-                        color: colors.textPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        height: 1.3,
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        article.category,
+                        style: GoogleFonts.beVietnamPro(
+                          color: colors.primaryOrange,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      const SizedBox(height: 4),
+                      Expanded(
+                        child: Text(
+                          article.title,
+                          style: GoogleFonts.beVietnamPro(
+                            color: colors.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            height: 1.3,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            DateFormat('dd MMM yyyy').format(article.createdAt),
+                            style: GoogleFonts.beVietnamPro(
+                              color: colors.textSecondary,
+                              fontSize: 10,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.remove_red_eye_rounded,
+                                  size: 10, color: colors.textMuted),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${article.viewCount}',
+                                style: GoogleFonts.beVietnamPro(
+                                  color: colors.textMuted,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd MMM yyyy').format(article.createdAt),
-                    style: GoogleFonts.beVietnamPro(
-                      color: colors.textSecondary,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+        )).animate().fade(duration: 400.ms).slideY(begin: 0.1, end: 0);
   }
 }
