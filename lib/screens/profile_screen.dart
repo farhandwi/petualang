@@ -10,6 +10,7 @@ import '../models/gamification_models.dart';
 import '../widgets/level_avatar.dart';
 import 'gamification_detail_screen.dart';
 import 'identity_verification_screen.dart';
+import 'user_uploads_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -32,22 +33,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _fetchGamificationData() async {
     final auth = context.read<AuthProvider>();
     if (auth.token == null) return;
-    
+
     setState(() {
       _isLoadingGamification = true;
     });
-    
+
     try {
       final res = await http.get(
         Uri.parse('http://10.0.2.2:8080/api/gamification/me'),
         headers: {'Authorization': 'Bearer ${auth.token}'},
       );
-      
+
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['success'] == true) {
           setState(() {
-            _gamificationProfile = UserGamificationProfile.fromJson(data['gamification']);
+            _gamificationProfile =
+                UserGamificationProfile.fromJson(data['gamification']);
             _isLoadingGamification = false;
           });
           return;
@@ -56,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       debugPrint('Error fetching gamification: $e');
     }
-    
+
     if (mounted) {
       setState(() {
         _isLoadingGamification = false;
@@ -134,7 +136,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final gamification = _gamificationProfile;
     if (gamification == null) {
       return Center(
-        child: Text('Gagal memuat profil gamifikasi', style: TextStyle(color: context.colors.textPrimary)),
+        child: Text('Gagal memuat profil gamifikasi',
+            style: TextStyle(color: context.colors.textPrimary)),
       );
     }
 
@@ -143,11 +146,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Apply Filter based on selected activity
     final filteredCommunities = _selectedActivityId == null
         ? gamification.communities
-        : gamification.communities.where((c) => c.activityId == _selectedActivityId).toList();
-        
+        : gamification.communities
+            .where((c) => c.activityId == _selectedActivityId)
+            .toList();
+
     final filteredAchievements = _selectedActivityId == null
         ? gamification.achievements
-        : gamification.achievements.where((a) => a.activityId == _selectedActivityId).toList();
+        : gamification.achievements
+            .where((a) => a.activityId == _selectedActivityId)
+            .toList();
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -244,7 +251,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(4),
                                     child: LinearProgressIndicator(
-                                      value: (gamification.currentExp / gamification.nextLevelExp).clamp(0.0, 1.0),
+                                      value: (gamification.currentExp /
+                                              gamification.nextLevelExp)
+                                          .clamp(0.0, 1.0),
                                       backgroundColor: context.colors.textMuted
                                           .withOpacity(0.2),
                                       color: borderColor,
@@ -269,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Summary Stats
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -286,19 +295,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         GestureDetector(
                           onTap: () => _openGamificationDetail(0),
-                          child: _buildStatItem(context, '${gamification.totalActivities}', 'Aktifitas'),
+                          child: _buildStatItem(context,
+                              '${gamification.totalActivities}', 'Aktifitas'),
                         ),
-                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.1)),
+                        Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.white.withOpacity(0.1)),
                         GestureDetector(
                           onTap: () => _openGamificationDetail(1),
-                          child: _buildStatItem(context, '${gamification.totalCommunities}', 'Komunitas'),
+                          child: _buildStatItem(context,
+                              '${gamification.totalCommunities}', 'Komunitas'),
                         ),
-                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.1)),
+                        Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.white.withOpacity(0.1)),
                         GestureDetector(
                           onTap: () => _openGamificationDetail(2),
-                          child: _buildStatItem(context, '${gamification.unlockedAchievements}', 'Pencapaian'),
+                          child: _buildStatItem(
+                              context,
+                              '${gamification.unlockedAchievements}',
+                              'Pencapaian'),
                         ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Tombol Unggahan Saya (Aktivitas Konten)
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UserUploadsScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            context.colors.primaryOrange.withOpacity(0.8),
+                            context.colors.primaryOrange,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                context.colors.primaryOrange.withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.cloud_upload_rounded,
+                                color: Colors.white, size: 24),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Unggahan Konten Saya',
+                                  style: GoogleFonts.beVietnamPro(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Lihat postingan komunitas & jelajah Anda',
+                                  style: GoogleFonts.beVietnamPro(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded,
+                              color: Colors.white, size: 28),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -328,7 +423,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 itemBuilder: (context, index) {
                   final act = gamification.activities[index];
                   final isSelected = _selectedActivityId == act.id;
-                  
+
                   return GestureDetector(
                     onTap: () => _onActivityTapped(act.id),
                     child: AnimatedContainer(
@@ -337,19 +432,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       margin: const EdgeInsets.only(right: 12),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isSelected ? context.colors.primaryOrange.withOpacity(0.2) : context.colors.surface,
+                        color: isSelected
+                            ? context.colors.primaryOrange.withOpacity(0.2)
+                            : context.colors.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? context.colors.primaryOrange : Colors.white.withOpacity(0.05),
+                          color: isSelected
+                              ? context.colors.primaryOrange
+                              : Colors.white.withOpacity(0.05),
                           width: isSelected ? 2 : 1,
                         ),
-                        boxShadow: isSelected ? [
-                          BoxShadow(
-                            color: context.colors.primaryOrange.withOpacity(0.3),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          )
-                        ] : null,
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: context.colors.primaryOrange
+                                      .withOpacity(0.3),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                )
+                              ]
+                            : null,
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -357,7 +459,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: context.colors.primaryOrange.withOpacity(0.1),
+                              color:
+                                  context.colors.primaryOrange.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(_getActivityIcon(act.iconAsset),
@@ -460,28 +563,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ],
-          
+
           if (filteredCommunities.isEmpty && _selectedActivityId != null)
             SliverToBoxAdapter(
-               child: Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                 child: Text('Belum ada komunitas untuk aktivitas ini.', style: TextStyle(color: context.colors.textMuted)),
-               ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Text('Belum ada komunitas untuk aktivitas ini.',
+                    style: TextStyle(color: context.colors.textMuted)),
+              ),
             ),
 
           // Pencapaian (Achievements) Section
           SliverToBoxAdapter(
             child: _buildSectionTitle(context, 'Hall of Fame'),
           ),
-          
+
           if (filteredAchievements.isEmpty)
-             SliverToBoxAdapter(
-               child: Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                 child: Text('Tidak ada pencapaian di grup ini.', style: TextStyle(color: context.colors.textMuted)),
-               ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Text('Tidak ada pencapaian di grup ini.',
+                    style: TextStyle(color: context.colors.textMuted)),
+              ),
             ),
-            
+
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             sliver: SliverList(
@@ -492,8 +599,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: ach.isUnlocked 
-                          ? context.colors.card 
+                      color: ach.isUnlocked
+                          ? context.colors.card
                           : context.colors.surface.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
@@ -529,7 +636,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ach.imageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.emoji_events, color: Colors.grey.withOpacity(0.5)),
+                                    Icon(Icons.emoji_events,
+                                        color: Colors.grey.withOpacity(0.5)),
                               ),
                             ),
                           ),
@@ -555,7 +663,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                   if (ach.isUnlocked)
-                                    const Icon(Icons.stars_rounded, color: Colors.amber, size: 16),
+                                    const Icon(Icons.stars_rounded,
+                                        color: Colors.amber, size: 16),
                                 ],
                               ),
                               const SizedBox(height: 2),
@@ -659,7 +768,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         badgeBg = amber.withAlpha(30);
         badgeColor = amber;
         title = 'Verifikasi dalam Review';
-        subtitle = 'Data Anda sedang diproses tim kami. Biasanya selesai dalam 1×24 jam.';
+        subtitle =
+            'Data Anda sedang diproses tim kami. Biasanya selesai dalam 1×24 jam.';
         btnText = 'Lihat Status';
         btnGradient = [amber, const Color(0xFFFF9800)];
         borderColor = amber.withAlpha(80);
@@ -673,7 +783,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         badgeBg = accent.withAlpha(30);
         badgeColor = accent;
         title = 'Identitas Terverifikasi ✓';
-        subtitle = 'Identitas Anda telah diverifikasi. Nikmati akses penuh ke semua fitur.';
+        subtitle =
+            'Identitas Anda telah diverifikasi. Nikmati akses penuh ke semua fitur.';
         btnText = 'Lihat Detail';
         btnGradient = [accent, accentDark];
         borderColor = accent.withAlpha(80);
@@ -687,7 +798,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         badgeBg = colors.error.withAlpha(25);
         badgeColor = colors.error;
         title = 'Verifikasi Ditolak';
-        subtitle = 'Verifikasi sebelumnya ditolak. Silakan kirim ulang dengan dokumen yang valid.';
+        subtitle =
+            'Verifikasi sebelumnya ditolak. Silakan kirim ulang dengan dokumen yang valid.';
         btnText = 'Coba Lagi';
         btnGradient = [colors.error, colors.error.withAlpha(200)];
         borderColor = colors.error.withAlpha(80);
@@ -701,7 +813,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         badgeBg = colors.input;
         badgeColor = colors.textMuted;
         title = 'Verifikasi Identitas';
-        subtitle = 'Lengkapi verifikasi untuk membuka akses penuh ke semua fitur Petualang.';
+        subtitle =
+            'Lengkapi verifikasi untuk membuka akses penuh ke semua fitur Petualang.';
         btnText = 'Mulai Verifikasi';
         btnGradient = [accent, accentDark];
         borderColor = colors.border;
