@@ -21,6 +21,7 @@ import 'main_wrapper.dart';
 import 'explore/open_trip_list_screen.dart';
 import 'explore/article_list_screen.dart';
 import 'explore/article_detail_screen.dart';
+import 'explore/explore_screen.dart';
 import 'rental/rental_main_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -190,12 +191,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .switchTab(1); // Switch to Jelajah (Explore)
                             } else {
                               // Fallback direct push if not inside MainWrapper
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ExploreScreen(),
-                                ),
-                              );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ExploreScreen(),
+                                  ),
+                                );
                             }
                           },
                           child: Container(
