@@ -117,19 +117,24 @@ class _IdentityVerificationScreenState
               ),
             ),
             const SizedBox(height: 20),
-            _sourceOption(colors, Icons.camera_alt_rounded, 'Kamera',
-                () { Navigator.pop(context); _openCamera(isKtp); }),
+            _sourceOption(colors, Icons.camera_alt_rounded, 'Kamera', () {
+              Navigator.pop(context);
+              _openCamera(isKtp);
+            }),
             const SizedBox(height: 12),
             _sourceOption(colors, Icons.photo_library_rounded, 'Galeri Foto',
-                () { Navigator.pop(context); _pickImage(isKtp); }),
+                () {
+              Navigator.pop(context);
+              _pickImage(isKtp);
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _sourceOption(AppColors colors, IconData icon, String label,
-      VoidCallback onTap) {
+  Widget _sourceOption(
+      AppColors colors, IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -250,8 +255,8 @@ class _IdentityVerificationScreenState
                 ),
                 borderRadius: BorderRadius.circular(99),
               ),
-              child:
-                  const Icon(Icons.check_rounded, color: Colors.white, size: 40),
+              child: const Icon(Icons.check_rounded,
+                  color: Colors.white, size: 40),
             ),
             const SizedBox(height: 20),
             Text('Data Terkirim!',
@@ -349,8 +354,7 @@ class _IdentityVerificationScreenState
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                gradient:
-                    const LinearGradient(colors: [_accent, _accentDark]),
+                gradient: const LinearGradient(colors: [_accent, _accentDark]),
                 borderRadius: BorderRadius.circular(99),
                 boxShadow: [
                   BoxShadow(
@@ -398,8 +402,8 @@ class _IdentityVerificationScreenState
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                    colors: [amber, Color(0xFFFF9800)]),
+                gradient:
+                    const LinearGradient(colors: [amber, Color(0xFFFF9800)]),
                 borderRadius: BorderRadius.circular(99),
                 boxShadow: [
                   BoxShadow(
@@ -444,7 +448,6 @@ class _IdentityVerificationScreenState
           if (status == 'rejected') _buildRejectedBanner(colors),
           _buildStatusHeader(colors),
           const SizedBox(height: 24),
-
           _sectionLabel(colors, 'Data Diri', Icons.person_outline_rounded),
           const SizedBox(height: 12),
           _buildInputField(
@@ -482,15 +485,14 @@ class _IdentityVerificationScreenState
             label: 'Tempat Lahir',
             icon: Icons.location_city_rounded,
             validator: (v) {
-              if (v == null || v.trim().isEmpty)
+              if (v == null || v.trim().isEmpty) {
                 return 'Tempat lahir wajib diisi';
+              }
               return null;
             },
           ),
           const SizedBox(height: 28),
-
-          _sectionLabel(
-              colors, 'Dokumen Identitas', Icons.folder_open_rounded),
+          _sectionLabel(colors, 'Dokumen Identitas', Icons.folder_open_rounded),
           const SizedBox(height: 12),
           _buildUploadCard(
             colors: colors,
@@ -510,12 +512,10 @@ class _IdentityVerificationScreenState
             onTap: () => _showImageSourceSheet(false),
           ),
           const SizedBox(height: 28),
-
           _sectionLabel(colors, 'Persetujuan', Icons.handshake_outlined),
           const SizedBox(height: 12),
           _buildTermsCard(colors),
           const SizedBox(height: 32),
-
           _buildSubmitButton(colors),
           const SizedBox(height: 16),
         ],
@@ -667,9 +667,7 @@ class _IdentityVerificationScreenState
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.file(file,
-                        width: double.infinity,
-                        height: 180,
-                        fit: BoxFit.cover),
+                        width: double.infinity, height: 180, fit: BoxFit.cover),
                   ),
                   Positioned.fill(
                     child: Container(
@@ -723,8 +721,8 @@ class _IdentityVerificationScreenState
                 ],
               )
             : Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 24, horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                 child: Row(
                   children: [
                     Container(
@@ -785,8 +783,7 @@ class _IdentityVerificationScreenState
                 scale: 1.2,
                 child: Checkbox(
                   value: _termsAccepted,
-                  onChanged: (v) =>
-                      setState(() => _termsAccepted = v ?? false),
+                  onChanged: (v) => setState(() => _termsAccepted = v ?? false),
                   activeColor: _accent,
                   checkColor: Colors.white,
                   side: BorderSide(color: colors.border, width: 1.5),
@@ -835,14 +832,12 @@ class _IdentityVerificationScreenState
                   context,
                   MaterialPageRoute(
                     builder: (_) => TermsAndConditionsScreen(
-                      onAccept: () =>
-                          setState(() => _termsAccepted = true),
+                      onAccept: () => setState(() => _termsAccepted = true),
                     ),
                   ),
                 );
               },
-              icon: Icon(Icons.open_in_new_rounded,
-                  size: 16, color: _indigo),
+              icon: Icon(Icons.open_in_new_rounded, size: 16, color: _indigo),
               label: Text(
                 'Baca Syarat & Ketentuan Lengkap',
                 style: GoogleFonts.poppins(
@@ -879,11 +874,10 @@ class _IdentityVerificationScreenState
         child: ElevatedButton(
           onPressed: _isSubmitting ? null : _submit,
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                _isSubmitting ? colors.border : Colors.transparent,
+            backgroundColor: _isSubmitting ? colors.border : Colors.transparent,
             shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             padding: EdgeInsets.zero,
           ),
           child: _isSubmitting

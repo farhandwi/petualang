@@ -174,7 +174,9 @@ class UserModel {
     if (emergencyContactName != null &&
         emergencyContactName!.isNotEmpty &&
         emergencyContactPhone != null &&
-        emergencyContactPhone!.isNotEmpty) filled++;
+        emergencyContactPhone!.isNotEmpty) {
+      filled++;
+    }
     if (heightCm != null) filled++;
     if (weightKg != null) filled++;
 
