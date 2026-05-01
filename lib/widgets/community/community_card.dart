@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/community_model.dart';
 import '../../theme/app_theme.dart';
+import '../common/app_image.dart';
 
 class CommunityCard extends StatelessWidget {
   final CommunityModel community;
@@ -33,10 +34,12 @@ class CommunityCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: community.coverImageUrl != null
-                    ? Image.network(community.coverImageUrl!, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _DefaultCover(category: community.category))
-                    : _DefaultCover(category: community.category),
+                child: AppImage(
+                  url: community.coverImageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      _DefaultCover(category: community.category),
+                ),
               ),
             ),
             Padding(

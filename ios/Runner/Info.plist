@@ -67,6 +67,23 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
+	<!--
+		Google Sign-In (iOS) — daftarkan REVERSED_CLIENT_ID dari iOS OAuth
+		client di Google Cloud Console. Bentuknya:
+		com.googleusercontent.apps.<reversed-client-id>
+	-->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.610511157632-5usk6mh56983dsg2kdvbqj7902uoir18.apps.googleusercontent.com</string>
+			</array>
+		</dict>
+	</array>
+
 	<!-- geolocator: location permissions -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Aplikasi memerlukan akses lokasi untuk menemukan vendor penyewaan alat terdekat dari posisi Anda.</string>

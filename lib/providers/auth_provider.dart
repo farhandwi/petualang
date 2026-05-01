@@ -1,12 +1,15 @@
+import 'dart:io' as dart_io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/google_sign_in_service.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, onboarding }
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final GoogleSignInService _googleSignInService = GoogleSignInService();
   static const _storage = FlutterSecureStorage();
   static const String _tokenKey = 'auth_token';
   static const String _onboardingKey = 'has_seen_onboarding';
@@ -80,6 +83,49 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Login with Google
+  Future<bool> loginWithGoogle() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final idToken = await _googleSignInService.signInAndGetIdToken();
+      if (idToken == null) {
+        // user cancel — silent (no error toast)
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      final result = await _authService.loginWithGoogle(idToken);
+      _isLoading = false;
+
+      if (result.success && result.token != null) {
+        _token = result.token;
+        _user = result.user;
+        _status = AuthStatus.authenticated;
+        await _storage.write(key: _tokenKey, value: result.token);
+        notifyListeners();
+        return true;
+      }
+
+      _errorMessage = result.message;
+      notifyListeners();
+      return false;
+    } on GoogleSignInException catch (e) {
+      _isLoading = false;
+      _errorMessage = e.message;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Gagal login dengan Google: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Register
   Future<bool> register({
     required String name,
@@ -139,6 +185,35 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Upload gambar (KTP / selfie) ke server, kembalikan URL
+  Future<String?> uploadImage(dart_io.File imageFile) async {
+    if (_token == null) return null;
+    return _authService.uploadImageFile(_token!, imageFile);
+  }
+
+  /// Submit verifikasi identitas (KYC)
+  Future<bool> verifyIdentity(Map<String, dynamic> data) async {
+    if (_token == null) return false;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await _authService.verifyIdentity(_token!, data);
+
+    _isLoading = false;
+
+    if (result.success && result.user != null) {
+      _user = result.user;
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result.message;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Forgot Password
   Future<AuthResult> forgotPassword(String email) async {
     _isLoading = true;
@@ -182,6 +257,7 @@ class AuthProvider extends ChangeNotifier {
   /// Logout
   Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
+    await _googleSignInService.signOut();
     _token = null;
     _user = null;
     _status = AuthStatus.unauthenticated;

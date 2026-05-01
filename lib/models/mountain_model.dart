@@ -36,6 +36,8 @@ class MountainModel {
   final String imageUrl;
   final String description;
   final List<RouteModel> routes;
+  final double rating;
+  final bool isFeatured;
 
   MountainModel({
     required this.id,
@@ -47,6 +49,8 @@ class MountainModel {
     required this.imageUrl,
     required this.description,
     this.routes = const [],
+    this.rating = 0,
+    this.isFeatured = false,
   });
 
   factory MountainModel.fromJson(Map<String, dynamic> json) {
@@ -63,6 +67,10 @@ class MountainModel {
               ?.map((r) => RouteModel.fromJson(r as Map<String, dynamic>))
               .toList() ??
           [],
+      rating: json['rating'] is num
+          ? (json['rating'] as num).toDouble()
+          : double.tryParse(json['rating']?.toString() ?? '') ?? 0,
+      isFeatured: json['is_featured'] as bool? ?? false,
     );
   }
 

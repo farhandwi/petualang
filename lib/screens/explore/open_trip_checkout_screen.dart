@@ -172,7 +172,7 @@ class _OpenTripCheckoutScreenState extends State<OpenTripCheckoutScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${DateFormat('dd MMM yyyy').format(widget.trip.startDate)}',
+                          DateFormat('dd MMM yyyy').format(widget.trip.startDate),
                           style: GoogleFonts.beVietnamPro(
                             color: context.colors.textSecondary,
                             fontSize: 12,

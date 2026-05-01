@@ -1,26 +1,13 @@
-import 'package:postgres/postgres.dart';
+import 'package:petualang_server/db/database.dart';
+import 'package:petualang_server/utils/env_config.dart';
 
 void main() async {
-  print('Connecting to database...');
-  final connection = PostgreSQLConnection(
-    'localhost',
-    5432,
-    'petualang',
-    username: 'postgres',
-    password: 'farhandwi',
-  );
-
-  await connection.open();
-  print('Connected!');
-
-  try {
-    await connection.execute('''
-      ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS share_count INTEGER DEFAULT 0;
-    ''');
-    print('Migration complete!');
-  } catch (e) {
-    print('Error: \$e');
-  } finally {
-    await connection.close();
-  }
+  EnvConfig.init();
+  final conn = await Database.connection;
+  await conn.execute('''
+    ALTER TABLE articles 
+    ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
+  ''');
+  print('Migration success');
+  await Database.close();
 }

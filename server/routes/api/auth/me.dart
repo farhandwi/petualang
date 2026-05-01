@@ -42,7 +42,8 @@ Future<Response> onRequest(RequestContext context) async {
       '''
       SELECT id, name, email, phone, profile_picture, nik, date_of_birth, gender, 
              ktp_address, domicile_address, emergency_contact_name, emergency_contact_phone, 
-             height_cm, weight_kg, is_active, created_at
+             height_cm, weight_kg, level, exp, is_active, created_at,
+             birth_place, ktp_photo_url, selfie_ktp_url, verification_status, verified_at
       FROM users 
       WHERE id = @id AND is_active = true
       ''',
@@ -75,8 +76,15 @@ Future<Response> onRequest(RequestContext context) async {
           'emergency_contact_phone': user[11],
           'height_cm': user[12],
           'weight_kg': user[13],
-          'is_active': user[14],
-          'created_at': (user[15] as DateTime?)?.toIso8601String(),
+          'level': user[14] ?? 1,
+          'exp': user[15] ?? 0,
+          'is_active': user[16] ?? true,
+          'created_at': (user[17] as DateTime?)?.toIso8601String(),
+          'birth_place': user[18],
+          'ktp_photo_url': user[19],
+          'selfie_ktp_url': user[20],
+          'verification_status': user[21] ?? 'unverified',
+          'verified_at': (user[22] as DateTime?)?.toIso8601String(),
         },
       },
     );

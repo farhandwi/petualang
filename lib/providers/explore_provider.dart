@@ -25,6 +25,11 @@ class ExploreProvider extends ChangeNotifier {
         final Map<String, dynamic> body = json.decode(response.body);
         if (body['status'] == 'success') {
           _exploreData = ExploreDataResponse.fromJson(body['data']);
+          print('[ExploreProvider] LOADED: '
+              'mountains=${_exploreData!.popularMountains.length}, '
+              'openTrips=${_exploreData!.openTrips.length}, '
+              'vendors=${_exploreData!.topVendors.length}, '
+              'articles=${_exploreData!.articles.length}');
         } else {
           _error = 'Gagal memuat data: ${body['status']}';
         }

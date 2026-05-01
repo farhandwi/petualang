@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../theme/app_theme.dart';
 import 'dm_detail_screen.dart';
+import '../../widgets/level_avatar.dart';
 
 class DmSearchScreen extends StatefulWidget {
   const DmSearchScreen({super.key});
@@ -67,6 +68,7 @@ class _DmSearchScreenState extends State<DmSearchScreen> {
             targetUserId: user['id'] as int,
             targetUserName: user['name'] as String,
             targetUserAvatar: user['profile_picture'] as String?,
+            targetUserLevel: user['level'] as int? ?? 1,
           ),
         ),
       );
@@ -116,13 +118,11 @@ class _DmSearchScreenState extends State<DmSearchScreen> {
                     final user = _users[index] as Map<String, dynamic>;
                     final bool isBlocked = user['is_blocked'] == true;
                     return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: user['profile_picture'] != null && user['profile_picture'].toString().isNotEmpty
-                            ? NetworkImage(user['profile_picture'] as String)
-                            : null,
-                        child: user['profile_picture'] == null || user['profile_picture'].toString().isEmpty
-                            ? const Icon(Icons.person)
-                            : null,
+                      leading: LevelAvatar(
+                        level: user['level'] as int? ?? 1,
+                        radius: 20,
+                        avatarUrl: user['profile_picture'] as String?,
+                        name: user['name'] ?? '?',
                       ),
                       title: Text(
                         user['name'] ?? '',

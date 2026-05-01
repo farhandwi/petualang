@@ -7,15 +7,14 @@ import '../../providers/community_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/community/post_card.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/chat/chat_input_bar.dart';
 import '../../widgets/chat/typing_indicator.dart';
 import '../../widgets/chat/date_separator.dart';
+import '../../widgets/level_avatar.dart';
 import '../../utils/permission_helper.dart';
-import '../../config/app_config.dart';
-import 'create_post_screen.dart';
-import 'post_detail_screen.dart';
+import '../../widgets/common/app_image.dart';
+import '../../services/dm_api_service.dart';
 
 class CommunityDetailScreen extends StatefulWidget {
   final CommunityModel community;
@@ -36,13 +35,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _init());
   }
 
   void _onTabChanged() {
-    if (_tabController.index == 1 && !_tabController.indexIsChanging) {
+    if (_tabController.index == 0 && !_tabController.indexIsChanging) {
       _connectChat();
     }
   }
@@ -52,8 +51,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
     _initialized = true;
 
     final provider = context.read<CommunityProvider>();
-    await provider.fetchPosts(widget.community.id, refresh: true);
     await provider.fetchMembers(widget.community.id);
+    _connectChat();
   }
 
   Future<void> _connectChat() async {
@@ -77,8 +76,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
   Future<void> _joinOrLeave() async {
     final provider = context.read<CommunityProvider>();
     final community = widget.community;
-    
-    // Find latest community state from provider
+
     final current = provider.communities.firstWhere(
       (c) => c.id == community.id,
       orElse: () => community,
@@ -118,11 +116,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
       final token = context.read<AuthProvider>().token;
       if (token == null) return;
 
-      final imageUrl = await context.read<CommunityProvider>().service.uploadImage(File(picked.path), token);
+      final imageUrl = await DmApiService().uploadImage(File(picked.path), token);
       if (imageUrl != null) {
         chat.sendImageMessage(imageUrl);
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -148,7 +146,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
   Widget build(BuildContext context) {
     final colors = context.colors;
     final provider = context.watch<CommunityProvider>();
-    
+
     final currentCommunity = provider.communities.firstWhere(
       (c) => c.id == widget.community.id,
       orElse: () => widget.community,
@@ -181,33 +179,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (currentCommunity.coverImageUrl != null)
-                    Image.network(
-                      AppConfig.resolveImageUrl(currentCommunity.coverImageUrl),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [colors.primaryOrange, colors.primaryOrange.withOpacity(0.5)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.landscape, color: Colors.white, size: 48),
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [colors.primaryOrange, colors.primaryOrange.withOpacity(0.5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                    ),
+                  AppImage(
+                    url: currentCommunity.coverImageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => _coverFallback(colors),
+                  ),
                   Container(color: Colors.black38),
                 ],
               ),
@@ -262,7 +238,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                       backgroundColor: currentCommunity.isMember ? Colors.transparent : colors.primaryOrange,
                       foregroundColor: currentCommunity.isMember ? colors.textPrimary : Colors.white,
                       elevation: 0,
-                      minimumSize: Size.zero, // Add this to override theme's double.infinity
+                      minimumSize: Size.zero,
                       side: BorderSide(
                         color: currentCommunity.isMember ? colors.border : colors.primaryOrange,
                       ),
@@ -290,7 +266,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
                 indicatorWeight: 2,
                 labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 tabs: const [
-                  Tab(text: 'Diskusi'),
                   Tab(text: 'Chat'),
                   Tab(text: 'Anggota'),
                 ],
@@ -302,7 +277,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _DiscussionTab(communityId: widget.community.id),
             _ChatTab(
               communityId: widget.community.id,
               isMember: currentCommunity.isMember,
@@ -315,96 +289,20 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen>
           ],
         ),
       ),
-      floatingActionButton: _tabController.index == 0 && currentCommunity.isMember
-          ? FloatingActionButton(
-              mini: true,
-              backgroundColor: colors.primaryOrange,
-              onPressed: () async {
-                final result = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CreatePostScreen(
-                      communityId: widget.community.id,
-                      communityName: currentCommunity.name,
-                    ),
-                  ),
-                );
-
-                if (result == true && mounted) {
-                  context.read<CommunityProvider>().fetchPosts(widget.community.id, refresh: true);
-                }
-              },
-              child: const Icon(Icons.edit_rounded, color: Colors.white),
-            )
-          : null,
     );
   }
-}
 
-class _DiscussionTab extends StatelessWidget {
-  final int communityId;
-
-  const _DiscussionTab({required this.communityId});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<CommunityProvider>();
-    final posts = provider.postsByGroup[communityId] ?? [];
-
-    if (provider.isLoadingPosts && posts.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (posts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.forum_outlined, size: 64, color: context.colors.textMuted),
-            const SizedBox(height: 16),
-            Text(
-              'Belum ada diskusi',
-              style: TextStyle(
-                color: context.colors.textSecondary,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Jadilah yang pertama memulai obrolan!',
-              style: TextStyle(color: context.colors.textMuted, fontSize: 13),
-            ),
-          ],
+  Widget _coverFallback(AppColors colors) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colors.primaryOrange, colors.primaryOrange.withOpacity(0.5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      );
-    }
-
-    return RefreshIndicator(
-      color: context.colors.primaryOrange,
-      onRefresh: () =>
-          context.read<CommunityProvider>().fetchPosts(communityId, refresh: true),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: posts.length,
-        itemBuilder: (context, index) {
-          final post = posts[index];
-          return PostCard(
-            post: post,
-            showCommunityName: false,
-            onLike: () =>
-                context.read<CommunityProvider>().toggleLike(post.id, communityId),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PostDetailScreen(
-                  postId: post.id,
-                  communityId: communityId,
-                ),
-              ),
-            ),
-          );
-        },
+      ),
+      child: const Center(
+        child: Icon(Icons.landscape, color: Colors.white, size: 48),
       ),
     );
   }
@@ -502,9 +400,7 @@ class _ChatTab extends StatelessWidget {
         if (typingUsers.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: TypingIndicator(
-              typingUsers: typingUsers,
-            ),
+            child: TypingIndicator(typingUsers: typingUsers),
           ),
         ChatInputBar(
           controller: chatInputController,
@@ -542,15 +438,14 @@ class _MembersTab extends StatelessWidget {
         final colors = context.colors;
 
         return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: colors.primaryOrange.withOpacity(0.1),
-            child: Text(
-              member['username'][0].toUpperCase(),
-              style: TextStyle(color: colors.primaryOrange, fontWeight: FontWeight.bold),
-            ),
+          leading: LevelAvatar(
+            level: member['level'] as int? ?? 1,
+            radius: 20,
+            avatarUrl: member['profile_picture'] as String?,
+            name: (member['name'] ?? member['username'] ?? '?') as String,
           ),
           title: Text(
-            member['username'],
+            (member['name'] ?? member['username'] ?? '') as String,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           subtitle: Text(

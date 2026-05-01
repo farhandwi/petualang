@@ -5,6 +5,9 @@ import '../../providers/dm_provider.dart';
 import '../../theme/app_theme.dart';
 import 'dm_detail_screen.dart';
 import 'dm_search_screen.dart';
+import '../../widgets/level_avatar.dart';
+import '../../providers/community_provider.dart';
+import '../../widgets/community/joined_community_list_widget.dart';
 
 class DmListScreen extends StatefulWidget {
   const DmListScreen({super.key});
@@ -19,38 +22,53 @@ class _DmListScreenState extends State<DmListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DmProvider>().fetchConversations();
+      context.read<CommunityProvider>().fetchCommunities();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      appBar: AppBar(
-        backgroundColor: context.colors.surface,
-        elevation: 0,
-        title: Text(
-          'Pesan',
-          style: GoogleFonts.beVietnamPro(
-            color: context.colors.textPrimary,
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: context.colors.background,
+        appBar: AppBar(
+          backgroundColor: context.colors.surface,
+          elevation: 0,
+          title: Text(
+            'Chat',
+            style: GoogleFonts.beVietnamPro(
+              color: context.colors.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
           ),
+          bottom: TabBar(
+            indicatorColor: AppTheme.primaryOrange,
+            labelColor: AppTheme.primaryOrange,
+            unselectedLabelColor: context.colors.textSecondary,
+            tabs: const [
+              Tab(text: 'Direct'),
+              Tab(text: 'Komunitas'),
+            ],
+          ),
+          actions: [
+             IconButton(
+               icon: Icon(Icons.search, color: context.colors.textPrimary),
+               onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const DmSearchScreen()),
+                  );
+               },
+             ),
+          ],
         ),
-        actions: [
-           IconButton(
-             icon: Icon(Icons.search, color: context.colors.textPrimary),
-             onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DmSearchScreen()),
-                );
-             },
-           ),
-        ],
-      ),
-      body: Consumer<DmProvider>(
-        builder: (context, provider, child) {
+        body: TabBarView(
+          children: [
+            // DIRECT TAB
+            Consumer<DmProvider>(
+              builder: (context, provider, child) {
           if (provider.isConversationsLoading && provider.conversations.isEmpty) {
             return const Center(child: CircularProgressIndicator(color: AppTheme.primaryOrange));
           }
@@ -97,15 +115,11 @@ class _DmListScreenState extends State<DmListScreen> {
                 final conv = provider.conversations[index];
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  leading: CircleAvatar(
+                  leading: LevelAvatar(
+                    level: conv.otherUserLevel,
                     radius: 28,
-                    backgroundColor: context.colors.input,
-                    backgroundImage: conv.otherUserAvatar != null && conv.otherUserAvatar!.isNotEmpty
-                        ? NetworkImage(conv.otherUserAvatar!)
-                        : null,
-                    child: conv.otherUserAvatar == null || conv.otherUserAvatar!.isEmpty
-                        ? Icon(Icons.person, color: context.colors.textMuted)
-                        : null,
+                    avatarUrl: conv.otherUserAvatar,
+                    name: conv.otherUserName,
                   ),
                   title: Text(
                     conv.otherUserName,
@@ -167,6 +181,7 @@ class _DmListScreenState extends State<DmListScreen> {
                           targetUserId: conv.otherUserId,
                           targetUserName: conv.otherUserName,
                           targetUserAvatar: conv.otherUserAvatar,
+                          targetUserLevel: conv.otherUserLevel,
                         ),
                       ),
                     );
@@ -175,9 +190,19 @@ class _DmListScreenState extends State<DmListScreen> {
               },
             ),
           );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
+              },
+            ),
+            
+            // KOMUNITAS TAB
+            Consumer<CommunityProvider>(
+              builder: (context, provider, child) {
+                final joinedCommunities = provider.communities.where((c) => c.isMember).toList();
+                return JoinedCommunityListWidget(joinedCommunities: joinedCommunities);
+              },
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
         onPressed: () {
            Navigator.push(
              context,
@@ -187,7 +212,7 @@ class _DmListScreenState extends State<DmListScreen> {
         backgroundColor: AppTheme.primaryOrange,
         child: const Icon(Icons.chat, color: Colors.white),
       ),
-    );
+    ));
   }
 
   String _formatTime(DateTime time) {

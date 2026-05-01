@@ -17,7 +17,20 @@ class EnvConfig {
 
   // Xendit settings
   static String get xenditSecretKey => _dotEnv['XENDIT_SECRET_KEY'] ?? '';
-  
+
+  // Google OAuth Client IDs (untuk validasi `aud` pada id_token).
+  // Daftarkan ketiganya di Google Cloud Console — server menerima id_token
+  // dari Web/Android/iOS sehingga `aud` bisa salah satu dari ini.
+  static String get googleClientIdWeb => _dotEnv['GOOGLE_CLIENT_ID_WEB'] ?? '';
+  static String get googleClientIdAndroid => _dotEnv['GOOGLE_CLIENT_ID_ANDROID'] ?? '';
+  static String get googleClientIdIos => _dotEnv['GOOGLE_CLIENT_ID_IOS'] ?? '';
+
+  static List<String> get googleClientIds => [
+        googleClientIdWeb,
+        googleClientIdAndroid,
+        googleClientIdIos,
+      ].where((id) => id.isNotEmpty).toList();
+
   // Server settings
   static int get port => int.tryParse(_dotEnv['PORT'] ?? '8080') ?? 8080;
 }

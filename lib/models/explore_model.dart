@@ -1,4 +1,5 @@
 import 'mountain_model.dart';
+import 'vendor_model.dart';
 
 class OpenTripModel {
   final int id;
@@ -54,6 +55,10 @@ class ArticleModel {
   final String category;
   final String? imageUrl;
   final String? author;
+  final int viewCount;
+  final int likesCount;
+  final int commentsCount;
+  final int shareCount;
   final DateTime createdAt;
 
   ArticleModel({
@@ -63,6 +68,10 @@ class ArticleModel {
     required this.category,
     this.imageUrl,
     this.author,
+    this.viewCount = 0,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+    this.shareCount = 0,
     required this.createdAt,
   });
 
@@ -74,31 +83,57 @@ class ArticleModel {
       category: json['category'] as String,
       imageUrl: json['image_url'] as String?,
       author: json['author'] as String?,
+      viewCount: json['view_count'] as int? ?? 0,
+      likesCount: json['likes_count'] as int? ?? 0,
+      commentsCount: json['comments_count'] as int? ?? 0,
+      shareCount: json['share_count'] as int? ?? 0,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 }
 
 class ExploreDataResponse {
+  final MountainModel? featuredMountain;
   final List<MountainModel> popularMountains;
+  final List<OpenTripModel> heroCarousel;
+  final List<OpenTripModel> upcomingTrips;
   final List<OpenTripModel> openTrips;
   final List<ArticleModel> articles;
+  final List<VendorModel> topVendors;
 
   ExploreDataResponse({
+    this.featuredMountain,
     required this.popularMountains,
+    required this.heroCarousel,
+    required this.upcomingTrips,
     required this.openTrips,
     required this.articles,
+    required this.topVendors,
   });
 
   factory ExploreDataResponse.fromJson(Map<String, dynamic> json) {
+    final featured = json['featured_mountain'] as Map<String, dynamic>?;
     final mounts = json['popular_mountains'] as List? ?? [];
+    final hero = json['hero_carousel'] as List? ?? [];
+    final upcoming = json['upcoming_trips'] as List? ?? [];
     final trips = json['open_trips'] as List? ?? [];
     final arts = json['articles'] as List? ?? [];
+    final vendors = json['top_vendors'] as List? ?? [];
+
+    List<OpenTripModel> parseTrips(List src) =>
+        src.map((t) => OpenTripModel.fromJson(t as Map<String, dynamic>)).toList();
 
     return ExploreDataResponse(
+      featuredMountain:
+          featured != null ? MountainModel.fromJson(featured) : null,
       popularMountains: mounts.map((m) => MountainModel.fromJson(m as Map<String, dynamic>)).toList(),
-      openTrips: trips.map((t) => OpenTripModel.fromJson(t as Map<String, dynamic>)).toList(),
+      heroCarousel: parseTrips(hero),
+      upcomingTrips: parseTrips(upcoming),
+      openTrips: parseTrips(trips),
       articles: arts.map((a) => ArticleModel.fromJson(a as Map<String, dynamic>)).toList(),
+      topVendors: vendors
+          .map((v) => VendorModel.fromJson(v as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

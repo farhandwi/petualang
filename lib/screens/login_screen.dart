@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/custom_text_field.dart';
+import '../widgets/google_sign_in_button.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -383,6 +384,17 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             Expanded(child: Divider(color: colors.border)),
                           ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        GoogleSignInButton(
+                          onSuccess: () {
+                            if (Navigator.canPop(context)) {
+                              Navigator.of(context)
+                                  .popUntil((route) => route.isFirst);
+                            }
+                          },
                         ),
 
                         const SizedBox(height: 24),

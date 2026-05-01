@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../models/mountain_model.dart';
 import '../models/ticket_model.dart';
+import '../models/upcoming_booking_model.dart';
 import 'auth_provider.dart';
 
 class BookingProvider with ChangeNotifier {
@@ -13,13 +14,17 @@ class BookingProvider with ChangeNotifier {
 
   String _searchQuery = '';
   List<MountainModel> _mountains = [];
+  List<UpcomingBookingModel> _upcomingBookings = [];
   bool _isLoading = false;
+  bool _isLoadingUpcoming = false;
   String? _errorMessage;
   String? _lastPaymentUrl;
 
   String get searchQuery => _searchQuery;
   List<MountainModel> get mountains => _mountains;
+  List<UpcomingBookingModel> get upcomingBookings => _upcomingBookings;
   bool get isLoading => _isLoading;
+  bool get isLoadingUpcoming => _isLoadingUpcoming;
   String? get errorMessage => _errorMessage;
   String? get lastPaymentUrl => _lastPaymentUrl;
 
@@ -58,6 +63,42 @@ class BookingProvider with ChangeNotifier {
       _errorMessage = 'Terjadi kesalahan jaringan: $e';
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Fetch user's upcoming bookings (untuk section "Trip Mendatang" di home).
+  /// Kalau user belum login atau belum ada bookings, list akan kosong.
+  Future<void> fetchUpcomingBookings() async {
+    final token = authProvider.token;
+    if (token == null) {
+      _upcomingBookings = [];
+      notifyListeners();
+      return;
+    }
+
+    _isLoadingUpcoming = true;
+    notifyListeners();
+
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrlApi}/users/me/upcoming_bookings'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        if (data['success'] == true) {
+          final list = data['data'] as List;
+          _upcomingBookings = list
+              .map((e) => UpcomingBookingModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {
+      _upcomingBookings = [];
+    } finally {
+      _isLoadingUpcoming = false;
       notifyListeners();
     }
   }

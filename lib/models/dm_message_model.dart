@@ -3,6 +3,7 @@ class DMMessageModel {
   final int? senderId;
   final String? senderName;
   final String? senderAvatar;
+  final int senderLevel;
   final String type; // 'text' | 'image' | 'system'
   final String content;
   final String? imageUrl;
@@ -16,6 +17,7 @@ class DMMessageModel {
     this.senderId,
     this.senderName,
     this.senderAvatar,
+    this.senderLevel = 1,
     required this.type,
     required this.content,
     this.imageUrl,
@@ -32,6 +34,7 @@ class DMMessageModel {
       senderId: sId as int?,
       senderName: json['senderName'] ?? json['sender_name'] as String?,
       senderAvatar: json['senderAvatar'] ?? json['sender_avatar'] as String?,
+      senderLevel: json['senderLevel'] ?? json['sender_level'] as int? ?? 1,
       type: json['messageType'] ?? json['type'] as String? ?? 'text',
       content: json['content'] as String? ?? json['error'] as String? ?? '',
       imageUrl: json['imageUrl'] ?? json['image_url'] as String?,
@@ -52,12 +55,14 @@ class DMMessageModel {
     String type = 'text',
     String? imageUrl,
     String? senderAvatar,
+    int senderLevel = 1,
   }) {
     return DMMessageModel(
       id: tempId,
       senderId: senderId,
       senderName: senderName,
       senderAvatar: senderAvatar,
+      senderLevel: senderLevel,
       type: type,
       content: content,
       imageUrl: imageUrl,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../config/app_config.dart';
 import '../../models/chat_message_model.dart';
 import '../../theme/app_theme.dart';
-import '../community/report_bottom_sheet.dart';
+import '../level_avatar.dart';
 
 class MessageBubble extends StatelessWidget {
   final ChatMessageModel message;
@@ -48,17 +48,11 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (!isMe) ...[
-              _SmallAvatar(name: message.senderName ?? '?', url: message.senderAvatar),
+              _SmallAvatar(name: message.senderName ?? '?', url: message.senderAvatar, level: message.senderLevel),
               const SizedBox(width: 6),
             ],
             Flexible(
-              child: GestureDetector(
-                onLongPress: () => ReportBottomSheet.show(
-                  context,
-                  targetType: 'message',
-                  targetId: message.id,
-                ),
-                child: Column(
+              child: Column(
                   crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
                     if (!isMe)
@@ -101,7 +95,6 @@ class MessageBubble extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
             ),
           ],
         ),
@@ -148,23 +141,17 @@ class MessageBubble extends StatelessWidget {
 class _SmallAvatar extends StatelessWidget {
   final String name;
   final String? url;
-  const _SmallAvatar({required this.name, this.url});
+  final int level;
+  
+  const _SmallAvatar({required this.name, this.url, required this.level});
 
   @override
   Widget build(BuildContext context) {
-    if (url != null && url!.isNotEmpty) {
-      return CircleAvatar(
-        radius: 14,
-        backgroundImage: NetworkImage(AppConfig.resolveImageUrl(url)),
-      );
-    }
-    return CircleAvatar(
+    return LevelAvatar(
+      level: level,
       radius: 14,
-      backgroundColor: context.colors.primaryOrange,
-      child: Text(
-        name.isNotEmpty ? name[0].toUpperCase() : '?',
-        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
-      ),
+      avatarUrl: url,
+      name: name,
     );
   }
 }

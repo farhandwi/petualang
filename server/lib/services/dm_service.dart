@@ -223,7 +223,7 @@ class DmService {
       final conn = await Database.connection;
       final res = await conn.query('''
           SELECT c.id, c.updated_at,
-                 u.id AS other_user_id, u.name as other_user_name, u.profile_picture as other_user_avatar,
+                 u.id AS other_user_id, u.name as other_user_name, u.profile_picture as other_user_avatar, u.level as other_user_level,
                  m.content as last_message, m.type as last_message_type, m.created_at as last_message_time,
                  m.is_read as last_message_is_read, m.sender_id as last_message_sender,
                  (SELECT COUNT(*) FROM dm_messages um WHERE um.dm_conversation_id = c.id AND um.is_read = FALSE AND um.sender_id != @uid) as unread_count
@@ -245,12 +245,13 @@ class DmService {
           'other_user_id': r[2],
           'other_user_name': r[3],
           'other_user_avatar': r[4],
-          'last_message': r[5],
-          'last_message_type': r[6],
-          'last_message_time': (r[7] as DateTime?)?.toIso8601String(),
-          'last_message_is_read': r[8],
-          'last_message_sender': r[9],
-          'unread_count': r[10],
+          'other_user_level': r[5],
+          'last_message': r[6],
+          'last_message_type': r[7],
+          'last_message_time': (r[8] as DateTime?)?.toIso8601String(),
+          'last_message_is_read': r[9],
+          'last_message_sender': r[10],
+          'unread_count': r[11],
       }).toList();
   }
 
@@ -258,7 +259,7 @@ class DmService {
       final conn = await Database.connection;
       final where = beforeId != null ? 'AND m.id < @beforeId' : '';
       final results = await conn.query('''
-          SELECT m.id, m.sender_id, u.name, u.profile_picture, m.type, m.content, m.image_url, m.is_read, m.created_at
+          SELECT m.id, m.sender_id, u.name, u.profile_picture, u.level as sender_level, m.type, m.content, m.image_url, m.is_read, m.created_at
           FROM dm_messages m
           LEFT JOIN users u ON u.id = m.sender_id
           WHERE m.dm_conversation_id = @convId $where
@@ -275,11 +276,12 @@ class DmService {
           'sender_id': r[1],
           'sender_name': r[2],
           'sender_avatar': r[3],
-          'type': r[4],
-          'content': r[5],
-          'image_url': r[6],
-          'is_read': r[7],
-          'created_at': (r[8] as DateTime?)?.toIso8601String(),
+          'sender_level': r[4],
+          'type': r[5],
+          'content': r[6],
+          'image_url': r[7],
+          'is_read': r[8],
+          'created_at': (r[9] as DateTime?)?.toIso8601String(),
       }).toList();
   }
 

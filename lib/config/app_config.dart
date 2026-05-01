@@ -5,6 +5,17 @@ class AppConfig {
   AppConfig._();
 
   static const int serverPort = 8080;
+
+  /// Google OAuth **Web** Client ID — wajib di-set untuk Google Sign-In:
+  /// - Web: dipakai langsung sebagai client id.
+  /// - Android/iOS: dipakai sebagai `serverClientId` agar `id_token` yang
+  ///   dikirim ke server punya `aud` = Web Client ID (lebih mudah validasi
+  ///   di server karena hanya satu audience yang stabil lintas platform).
+  /// Format: `xxxxxxxx-xxxx.apps.googleusercontent.com`
+  static const String googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+    defaultValue: '',
+  );
   
   static String get baseUrl {
     if (kIsWeb) {
@@ -21,10 +32,12 @@ class AppConfig {
   static String get apiAuth => '$baseUrl/api/auth';
   static String get loginEndpoint => '$apiAuth/login';
   static String get registerEndpoint => '$apiAuth/register';
+  static String get googleLoginEndpoint => '$apiAuth/google_login';
   static String get meEndpoint => '$apiAuth/me';
   static String get profileEndpoint => '$apiAuth/profile';
   static String get forgotPasswordEndpoint => '$apiAuth/forgot_password';
   static String get resetPasswordEndpoint => '$apiAuth/reset_password';
+  static String get verifyIdentityEndpoint => '$apiAuth/verify_identity';
 
   // Rental endpoints
   static String get apiRentals => '$baseUrlApi/rentals';

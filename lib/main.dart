@@ -10,6 +10,8 @@ import 'providers/dm_provider.dart';
 import 'providers/rental_provider.dart';
 import 'providers/explore_provider.dart';
 import 'providers/open_trip_provider.dart';
+import 'providers/events_provider.dart';
+import 'providers/buddies_provider.dart';
 import 'screens/login_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'screens/main_wrapper.dart';
@@ -85,6 +87,14 @@ class PetualangApp extends StatelessWidget {
           update: (context, auth, previous) => OpenTripProvider(authProvider: auth),
         ),
         ChangeNotifierProvider(create: (_) => ExploreProvider()),
+        ChangeNotifierProvider(create: (_) => EventsProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, BuddiesProvider>(
+          create: (_) => BuddiesProvider(),
+          update: (context, auth, provider) {
+            provider!.setToken(auth.token);
+            return provider;
+          },
+        ),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

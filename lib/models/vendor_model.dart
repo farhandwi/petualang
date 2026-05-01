@@ -45,12 +45,21 @@ class VendorModel {
       id: id,
       name: json['name']?.toString() ?? 'Unknown',
       address: json['address']?.toString() ?? '',
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      rating: _toDouble(json['rating']) ?? 0.0,
       reviewCount: reviewCount,
       isOpen: json['is_open'] as bool? ?? true,
       imageUrl: json['image_url']?.toString(),
-      distance: (json['distance'] as num?)?.toDouble(),
+      distance: _toDouble(json['distance']),
       categories: categories,
     );
+  }
+
+  /// Defensive double parser — PostgreSQL NUMERIC bisa datang sebagai
+  /// String, num, atau null tergantung driver/koneksi.
+  static double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v);
+    return null;
   }
 }
