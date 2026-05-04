@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/booking_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'mountain_detail_screen.dart';
 
 class MountainListScreen extends StatefulWidget {
@@ -52,7 +53,12 @@ class _MountainListScreenState extends State<MountainListScreen> {
         centerTitle: true,
         iconTheme: IconThemeData(color: context.colors.textPrimary),
       ),
-      body: Column(
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
+          child: Column(
         children: [
           // Search Bar
           Padding(
@@ -134,10 +140,24 @@ class _MountainListScreenState extends State<MountainListScreen> {
                               ],
                             ),
                           )
-                        : ListView.builder(
+                        : context.isMobile
+                            ? ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: filteredMountains.length,
+                                itemBuilder: (c, index) => _buildMountainCard(c, filteredMountains[index]),
+                              )
+                            : GridView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             physics: const BouncingScrollPhysics(),
                             itemCount: filteredMountains.length,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: context.gridColumns(
+                                  mobile: 1, tablet: 2, desktop: 2, large: 3),
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              mainAxisExtent: 380,
+                            ),
                             itemBuilder: (context, index) {
                               final mountain = filteredMountains[index];
                               return GestureDetector(
@@ -150,7 +170,6 @@ class _MountainListScreenState extends State<MountainListScreen> {
                                   );
                                 },
                                 child: Container(
-                                  margin: const EdgeInsets.only(bottom: 20),
                                   decoration: BoxDecoration(
                                     color: context.colors.card,
                                     borderRadius: BorderRadius.circular(24),
@@ -245,27 +264,56 @@ class _MountainListScreenState extends State<MountainListScreen> {
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      'Harga Tiket',
-                                                      style: GoogleFonts.beVietnamPro(
-                                                        color: context.colors.textMuted,
-                                                        fontSize: 12,
-                                                      ),
+                                                if (mountain.hasExternalBooking)
+                                                  // Saat pembelian eksternal aktif, ganti
+                                                  // harga dengan label kecil agar layout
+                                                  // tetap balance dengan tombol arrow.
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                        horizontal: 10, vertical: 6),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.purple.withOpacity(0.12),
+                                                      borderRadius: BorderRadius.circular(8),
                                                     ),
-                                                    Text(
-                                                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
-                                                          .format(mountain.price),
-                                                      style: GoogleFonts.beVietnamPro(
-                                                        color: context.colors.textPrimary,
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.w700,
-                                                      ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.open_in_new_rounded,
+                                                            size: 14, color: Colors.purple),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          'Pembelian Eksternal',
+                                                          style: GoogleFonts.beVietnamPro(
+                                                            color: Colors.purple,
+                                                            fontSize: 12,
+                                                            fontWeight: FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
+                                                  )
+                                                else
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Harga Tiket',
+                                                        style: GoogleFonts.beVietnamPro(
+                                                          color: context.colors.textMuted,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
+                                                            .format(mountain.price),
+                                                        style: GoogleFonts.beVietnamPro(
+                                                          color: context.colors.textPrimary,
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.w700,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 Container(
                                                   padding: const EdgeInsets.all(12),
                                                   decoration: BoxDecoration(
@@ -291,6 +339,191 @@ class _MountainListScreenState extends State<MountainListScreen> {
                           ),
           ),
         ],
+      ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMountainCard(BuildContext context, dynamic mountain) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MountainDetailScreen(mountain: mountain),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: context.colors.card,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Hero(
+              tag: 'mountain_image_${mountain.id}',
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
+                child: Image.asset(
+                  mountain.imageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 200,
+                    color: context.colors.border,
+                    child: Center(
+                      child: Icon(Icons.terrain_rounded,
+                          size: 64, color: context.colors.textMuted),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          mountain.name,
+                          style: GoogleFonts.beVietnamPro(
+                            color: context.colors.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: context.colors.primaryOrange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${mountain.elevation} mdpl',
+                          style: GoogleFonts.beVietnamPro(
+                            color: context.colors.primaryOrange,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_rounded,
+                          size: 16, color: context.colors.textMuted),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          mountain.location,
+                          style: GoogleFonts.beVietnamPro(
+                            color: context.colors.textSecondary,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (mountain.hasExternalBooking)
+                        // Saat pembelian eksternal aktif, harga di-hide; ganti
+                        // dengan badge label kecil agar layout tetap balance.
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.open_in_new_rounded,
+                                  size: 14, color: Colors.purple),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Pembelian Eksternal',
+                                style: GoogleFonts.beVietnamPro(
+                                  color: Colors.purple,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Harga Tiket',
+                              style: GoogleFonts.beVietnamPro(
+                                color: context.colors.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              NumberFormat.currency(
+                                      locale: 'id_ID',
+                                      symbol: 'Rp',
+                                      decimalDigits: 0)
+                                  .format(mountain.price),
+                              style: GoogleFonts.beVietnamPro(
+                                color: context.colors.textPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: context.colors.primaryOrange,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

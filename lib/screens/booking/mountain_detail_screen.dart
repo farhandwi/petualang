@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/mountain_model.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'booking_form_screen.dart';
 
 class MountainDetailScreen extends StatelessWidget {
@@ -10,11 +12,45 @@ class MountainDetailScreen extends StatelessWidget {
 
   const MountainDetailScreen({super.key, required this.mountain});
 
+  /// Routing tombol "Pesan Sekarang":
+  /// - Jika gunung punya external booking aktif → buka URL eksternal di
+  ///   browser (`launchUrl`).
+  /// - Jika tidak → navigasi ke [BookingFormScreen] internal.
+  Future<void> _onPesanPressed(BuildContext context) async {
+    if (mountain.hasExternalBooking) {
+      final uri = Uri.tryParse(mountain.externalBookingUrl!.trim());
+      if (uri == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('URL pembelian tidak valid')),
+        );
+        return;
+      }
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak dapat membuka URL')),
+        );
+      }
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookingFormScreen(mountain: mountain),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: CustomScrollView(
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Breakpoints.maxReadingWidth),
+          child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           // Header with Hero and Back Button
@@ -199,6 +235,8 @@ class MountainDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+        ),
+      ),
       bottomSheet: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -213,39 +251,36 @@ class MountainDetailScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Harga Tiket',
-                  style: GoogleFonts.beVietnamPro(
-                    color: context.colors.textMuted,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
-                      .format(mountain.price),
-                  style: GoogleFonts.beVietnamPro(
-                    color: context.colors.textPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BookingFormScreen(mountain: mountain),
+            // Harga tiket disembunyikan saat pembelian eksternal aktif —
+            // pricing dikelola oleh website mitra eksternal.
+            if (!mountain.hasExternalBooking) ...[
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Harga Tiket',
+                    style: GoogleFonts.beVietnamPro(
+                      color: context.colors.textMuted,
+                      fontSize: 14,
                     ),
-                  );
-                },
+                  ),
+                  Text(
+                    NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
+                        .format(mountain.price),
+                    style: GoogleFonts.beVietnamPro(
+                      color: context.colors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 24),
+            ],
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _onPesanPressed(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.colors.primaryOrange,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -253,7 +288,14 @@ class MountainDetailScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(
+                icon: Icon(
+                  mountain.hasExternalBooking
+                      ? Icons.open_in_new_rounded
+                      : Icons.confirmation_number_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                label: Text(
                   'Pesan Sekarang',
                   style: GoogleFonts.beVietnamPro(
                     color: Colors.white,

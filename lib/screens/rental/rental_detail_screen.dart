@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../providers/rental_provider.dart';
 import '../../models/rental_model.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 
 class RentalDetailScreen extends StatefulWidget {
   final RentalItemModel item;
@@ -23,7 +24,11 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: CustomScrollView(
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Breakpoints.maxReadingWidth),
+          child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           // Header with Hero and Back Button
@@ -178,6 +183,8 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
             ),
           ),
         ],
+      ),
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(

@@ -43,15 +43,15 @@ Future<Response> onRequest(RequestContext context) async {
     // Find user by email — ambil semua kolom profil
     final results = await conn.query(
       '''
-      SELECT id, name, email, phone, password_hash, password_salt, 
+      SELECT id, name, email, phone, password_hash, password_salt,
              profile_picture, is_active,
              nik, date_of_birth, gender,
              ktp_address, domicile_address,
              emergency_contact_name, emergency_contact_phone,
              height_cm, weight_kg, level, exp, created_at,
              birth_place, ktp_photo_url, selfie_ktp_url,
-             verification_status, verified_at
-      FROM users 
+             verification_status, verified_at, role
+      FROM users
       WHERE email = @email
       ''',
       substitutionValues: {'email': email},
@@ -91,12 +91,14 @@ Future<Response> onRequest(RequestContext context) async {
     final userId = user[0] as int;
     final userName = user[1] as String;
     final userEmail = user[2] as String;
+    final userRole = (user[25] as String?) ?? 'user';
 
     // Generate JWT token
     final token = JwtHelper.generateToken(
       userId: userId,
       email: userEmail,
       name: userName,
+      role: userRole,
     );
 
     return Response.json(
@@ -128,6 +130,7 @@ Future<Response> onRequest(RequestContext context) async {
           'selfie_ktp_url': user[22],
           'verification_status': user[23] ?? 'unverified',
           'verified_at': (user[24] as DateTime?)?.toIso8601String(),
+          'role': userRole,
         },
       },
     );

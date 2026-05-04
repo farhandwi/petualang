@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'dm_detail_screen.dart';
 import 'dm_search_screen.dart';
 import '../../widgets/level_avatar.dart';
@@ -64,7 +65,12 @@ class _DmListScreenState extends State<DmListScreen> {
              ),
           ],
         ),
-        body: TabBarView(
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: Breakpoints.maxReadingWidth),
+            child: TabBarView(
           children: [
             // DIRECT TAB
             Consumer<DmProvider>(
@@ -201,6 +207,8 @@ class _DmListScreenState extends State<DmListScreen> {
               },
             ),
           ],
+        ),
+          ),
         ),
         floatingActionButton: FloatingActionButton(
         onPressed: () {

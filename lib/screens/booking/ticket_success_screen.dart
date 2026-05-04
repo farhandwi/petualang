@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/mountain_model.dart';
 import '../../models/ticket_model.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 
 class TicketSuccessScreen extends StatelessWidget {
   final TicketModel ticket;
@@ -28,7 +29,8 @@ class TicketSuccessScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: Column(
+          child: ContentConstrained.form(
+            child: Column(
             children: [
               // Success Header
               Container(
@@ -215,6 +217,7 @@ class TicketSuccessScreen extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

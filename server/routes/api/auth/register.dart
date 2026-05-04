@@ -98,12 +98,14 @@ Future<Response> onRequest(RequestContext context) async {
     final userId = user[0] as int;
     final userName = user[1] as String;
     final userEmail = user[2] as String;
+    const userRole = 'user';
 
     // Generate JWT
     final token = JwtHelper.generateToken(
       userId: userId,
       email: userEmail,
       name: userName,
+      role: userRole,
     );
 
     return Response.json(
@@ -117,6 +119,7 @@ Future<Response> onRequest(RequestContext context) async {
           'name': userName,
           'email': userEmail,
           'phone': user[3],
+          'role': userRole,
         },
       },
     );

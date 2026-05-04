@@ -38,6 +38,14 @@ class MountainModel {
   final List<RouteModel> routes;
   final double rating;
   final bool isFeatured;
+  // ---- Pembelian Eksternal ----
+  /// URL website pihak ketiga untuk pembelian tiket. Hanya dipakai saat
+  /// [useExternalBooking] true.
+  final String? externalBookingUrl;
+
+  /// Saat true, tombol "Pesan Sekarang" akan membuka [externalBookingUrl]
+  /// alih-alih flow booking internal.
+  final bool useExternalBooking;
 
   MountainModel({
     required this.id,
@@ -51,7 +59,15 @@ class MountainModel {
     this.routes = const [],
     this.rating = 0,
     this.isFeatured = false,
+    this.externalBookingUrl,
+    this.useExternalBooking = false,
   });
+
+  /// True jika fitur pembayaran eksternal aktif DAN URL non-empty.
+  bool get hasExternalBooking =>
+      useExternalBooking &&
+      externalBookingUrl != null &&
+      externalBookingUrl!.trim().isNotEmpty;
 
   factory MountainModel.fromJson(Map<String, dynamic> json) {
     return MountainModel(
@@ -71,6 +87,8 @@ class MountainModel {
           ? (json['rating'] as num).toDouble()
           : double.tryParse(json['rating']?.toString() ?? '') ?? 0,
       isFeatured: json['is_featured'] as bool? ?? false,
+      externalBookingUrl: json['external_booking_url'] as String?,
+      useExternalBooking: json['use_external_booking'] as bool? ?? false,
     );
   }
 

@@ -17,7 +17,9 @@ Future<Response> _getMountains(RequestContext context) async {
     
     // Fetch mountains
     final mountainResults = await conn.mappedResultsQuery(
-      'SELECT id, name, location, elevation, difficulty, price, image_url, description FROM mountains ORDER BY id ASC'
+      'SELECT id, name, location, elevation, difficulty, price, image_url, description, '
+      'is_featured, rating, external_booking_url, use_external_booking '
+      'FROM mountains ORDER BY id ASC',
     );
 
     // Fetch all routes for these mountains
@@ -51,6 +53,12 @@ Future<Response> _getMountains(RequestContext context) async {
         'price': (m['price'] is num) ? (m['price'] as num).toDouble() : double.parse(m['price'].toString()),
         'image_url': m['image_url'],
         'description': m['description'],
+        'is_featured': m['is_featured'] ?? false,
+        'rating': (m['rating'] is num)
+            ? (m['rating'] as num).toDouble()
+            : double.tryParse(m['rating']?.toString() ?? '') ?? 0,
+        'external_booking_url': m['external_booking_url'],
+        'use_external_booking': m['use_external_booking'] ?? false,
         'routes': routes,
       };
     }).toList();

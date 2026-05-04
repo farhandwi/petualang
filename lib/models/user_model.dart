@@ -23,6 +23,8 @@ class UserModel {
   final String? selfieKtpUrl;
   final String verificationStatus; // unverified | pending | verified | rejected
   final DateTime? verifiedAt;
+  // ---- Role ----
+  final String role; // 'user' | 'admin' | 'mitra'
 
   UserModel({
     required this.id,
@@ -48,6 +50,7 @@ class UserModel {
     this.selfieKtpUrl,
     this.verificationStatus = 'unverified',
     this.verifiedAt,
+    this.role = 'user',
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -79,6 +82,7 @@ class UserModel {
       verifiedAt: json['verified_at'] != null
           ? DateTime.tryParse(json['verified_at'] as String)
           : null,
+      role: json['role'] as String? ?? 'user',
     );
   }
 
@@ -107,6 +111,7 @@ class UserModel {
       'selfie_ktp_url': selfieKtpUrl,
       'verification_status': verificationStatus,
       'verified_at': verifiedAt?.toIso8601String(),
+      'role': role,
     };
   }
 
@@ -154,11 +159,15 @@ class UserModel {
       selfieKtpUrl: selfieKtpUrl ?? this.selfieKtpUrl,
       verificationStatus: verificationStatus ?? this.verificationStatus,
       verifiedAt: verifiedAt ?? this.verifiedAt,
+      role: role,
     );
   }
 
   bool get isVerified => verificationStatus == 'verified';
   bool get isPendingVerification => verificationStatus == 'pending';
+  bool get isAdmin => role == 'admin';
+  bool get isMitra => role == 'mitra';
+  bool get isRegularUser => role == 'user';
 
   double get profileCompleteness {
     int filled = 0;

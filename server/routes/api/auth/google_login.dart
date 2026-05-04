@@ -132,6 +132,7 @@ Future<Response> onRequest(RequestContext context) async {
     final userName = user[1] as String;
     final userEmail = user[2] as String;
     final googlePictureUrl = user[25] as String?;
+    final userRole = (user[27] as String?) ?? 'user';
 
     final profilePicture = (user[6] as String?) ?? googlePictureUrl;
 
@@ -139,6 +140,7 @@ Future<Response> onRequest(RequestContext context) async {
       userId: userId,
       email: userEmail,
       name: userName,
+      role: userRole,
     );
 
     return Response.json(
@@ -172,6 +174,7 @@ Future<Response> onRequest(RequestContext context) async {
           'verified_at': (user[24] as DateTime?)?.toIso8601String(),
           'google_picture_url': googlePictureUrl,
           'auth_provider': user[26] ?? 'google',
+          'role': userRole,
         },
       },
     );
@@ -198,7 +201,7 @@ String _userColumns() => '''
   height_cm, weight_kg, level, exp, created_at,
   birth_place, ktp_photo_url, selfie_ktp_url,
   verification_status, verified_at,
-  google_picture_url, auth_provider
+  google_picture_url, auth_provider, role
 ''';
 
 String _selectUserSql(String whereClause) => '''

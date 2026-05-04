@@ -1,0 +1,1 @@
+flutter run --dart-define=GOOGLE_WEB_CLIENT_ID=610511157632-9al46g24adojuto5t53cumq0pd0omrdp.apps.googleusercontent.com

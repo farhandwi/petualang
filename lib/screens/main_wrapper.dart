@@ -4,11 +4,29 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
-import 'rental/rental_main_screen.dart';
 import 'explore/explore_screen.dart';
 import 'dm/dm_list_screen.dart';
+import 'order_screen.dart';
+
+class _NavDestination {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  const _NavDestination(this.icon, this.selectedIcon, this.label);
+}
+
+const List<_NavDestination> _kDestinations = [
+  _NavDestination(Icons.home_outlined, Icons.home_rounded, 'Beranda'),
+  _NavDestination(Icons.search_outlined, Icons.search_rounded, 'Jelajah'),
+  _NavDestination(
+      Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Chat'),
+  _NavDestination(Icons.receipt_long_outlined, Icons.receipt_long_rounded,
+      'Pesanan'),
+  _NavDestination(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
+];
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -31,7 +49,7 @@ class MainWrapperState extends State<MainWrapper> {
     const HomeScreen(),
     const ExploreScreen(),
     const DmListScreen(),
-    const _PlaceholderScreen(title: 'Pesanan Saya', icon: Icons.receipt_long_rounded),
+    const OrderScreen(),
     const ProfileScreen(),
   ];
 
@@ -66,7 +84,6 @@ class MainWrapperState extends State<MainWrapper> {
             textColor: Colors.white,
             onPressed: () {
               setState(() => _currentIndex = 4);
-              // In real app, push EditProfileScreen here directly
             },
           ),
         ),
@@ -76,64 +93,176 @@ class MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
+    final colors = context.colors;
+    final body = IndexedStack(index: _currentIndex, children: _pages);
+
+    if (context.isMobile) {
+      return Scaffold(
+        backgroundColor: colors.background,
+        body: body,
+        bottomNavigationBar: _MobileBottomNav(
+          currentIndex: _currentIndex,
+          onTap: switchTab,
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+      );
+    }
+
+    final extended = context.isDesktop;
+    return Scaffold(
+      backgroundColor: colors.background,
+      body: Row(
+        children: [
+          _SideNavigationRail(
+            currentIndex: _currentIndex,
+            onTap: switchTab,
+            extended: extended,
+          ),
+          VerticalDivider(width: 1, thickness: 1, color: colors.border),
+          Expanded(child: body),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  const _MobileBottomNav({required this.currentIndex, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              for (var i = 0; i < _kDestinations.length; i++)
                 _NavBarItem(
-                  icon: Icons.home_rounded,
-                  label: 'Beranda',
-                  isSelected: _currentIndex == 0,
-                  onTap: () => setState(() => _currentIndex = 0),
+                  icon: _kDestinations[i].selectedIcon,
+                  label: _kDestinations[i].label,
+                  isSelected: currentIndex == i,
+                  onTap: () => onTap(i),
                 ),
-                _NavBarItem(
-                  icon: Icons.search_rounded,
-                  label: 'Jelajah',
-                  isSelected: _currentIndex == 1,
-                  onTap: () => setState(() => _currentIndex = 1),
-                ),
-                _NavBarItem(
-                  icon: Icons.chat_bubble_rounded,
-                  label: 'Chat',
-                  isSelected: _currentIndex == 2,
-                  onTap: () => setState(() => _currentIndex = 2),
-                ),
-                _NavBarItem(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Pesanan',
-                  isSelected: _currentIndex == 3,
-                  onTap: () => setState(() => _currentIndex = 3),
-                ),
-                _NavBarItem(
-                  icon: Icons.person_rounded,
-                  label: 'Profil',
-                  isSelected: _currentIndex == 4,
-                  onTap: () => setState(() => _currentIndex = 4),
-                ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SideNavigationRail extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final bool extended;
+
+  const _SideNavigationRail({
+    required this.currentIndex,
+    required this.onTap,
+    required this.extended,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final brandWidth = extended ? 220.0 : 76.0;
+    return SafeArea(
+      right: false,
+      child: NavigationRail(
+        backgroundColor: colors.surface,
+        selectedIndex: currentIndex,
+        onDestinationSelected: onTap,
+        extended: extended,
+        minWidth: 76,
+        minExtendedWidth: 220,
+        labelType: extended
+            ? NavigationRailLabelType.none
+            : NavigationRailLabelType.all,
+        useIndicator: true,
+        indicatorColor: colors.primaryOrange.withOpacity(0.12),
+        selectedIconTheme:
+            IconThemeData(color: colors.primaryOrange, size: 26),
+        unselectedIconTheme: IconThemeData(color: colors.textMuted, size: 24),
+        selectedLabelTextStyle: GoogleFonts.beVietnamPro(
+          color: colors.primaryOrange,
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+        ),
+        unselectedLabelTextStyle: GoogleFonts.beVietnamPro(
+          color: colors.textSecondary,
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+        ),
+        leading: SizedBox(
+          width: brandWidth,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: extended ? 20 : 12,
+              vertical: 20,
+            ),
+            child: extended
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _BrandMark(),
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: Text(
+                          'Petualang',
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.beVietnamPro(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Center(child: _BrandMark()),
+          ),
+        ),
+        destinations: [
+          for (final d in _kDestinations)
+            NavigationRailDestination(
+              icon: Icon(d.icon),
+              selectedIcon: Icon(d.selectedIcon),
+              label: Text(d.label),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BrandMark extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: AppTheme.primaryOrange,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Icon(Icons.landscape_rounded,
+          color: Colors.white, size: 22),
     );
   }
 }
@@ -164,11 +293,7 @@ class _NavBarItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            Icon(icon, color: color, size: 24),
             const SizedBox(height: 4),
             Text(
               label,
@@ -180,36 +305,6 @@ class _NavBarItem extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  final IconData icon;
-
-  const _PlaceholderScreen({required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon,
-              size: 80, color: context.colors.textMuted.withOpacity(0.3)),
-          const SizedBox(height: 24),
-          Text(
-            '$title\nSegera Hadir',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.beVietnamPro(
-              color: context.colors.textSecondary,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-          )
-        ],
       ),
     );
   }

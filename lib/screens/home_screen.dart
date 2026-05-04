@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../providers/booking_provider.dart';
 import '../providers/explore_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/home/service_cards_grid.dart';
 import '../widgets/home/hero_carousel.dart';
 import '../widgets/home/upcoming_trip_card.dart';
@@ -75,7 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
         child: RefreshIndicator(
           color: colors.primaryOrange,
           onRefresh: _onRefresh,
-          child: CustomScrollView(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
+              child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
@@ -233,6 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SliverToBoxAdapter(child: SizedBox(height: 40)),
             ],
+          ),
+            ),
           ),
         ),
       ),

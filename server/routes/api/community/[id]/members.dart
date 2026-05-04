@@ -18,6 +18,10 @@ Future<Response> onRequest(RequestContext context, String id) async {
   final limit = int.tryParse(params['limit'] ?? '30') ?? 30;
   final offset = int.tryParse(params['offset'] ?? '0') ?? 0;
 
-  final members = await CommunityService.getMembers(communityId, limit: limit, offset: offset);
+  final members = await CommunityService.getMembersWithOnline(
+    communityId,
+    limit: limit,
+    offset: offset,
+  );
   return Response.json(body: {'success': true, 'data': members});
 }

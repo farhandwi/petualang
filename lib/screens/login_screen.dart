@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/google_sign_in_button.dart';
 import 'register_screen.dart';
@@ -152,8 +153,12 @@ class _LoginScreenState extends State<LoginScreen>
               child: SlideTransition(
                 position: _slideAnim,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 28),
-                  child: Form(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.responsive<double>(
+                        mobile: 28, tablet: 40, desktop: 48),
+                  ),
+                  child: ContentConstrained.form(
+                    child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,6 +441,7 @@ class _LoginScreenState extends State<LoginScreen>
                         const SizedBox(height: 36),
                       ],
                     ),
+                  ),
                   ),
                 ),
               ),

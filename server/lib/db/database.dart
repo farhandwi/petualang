@@ -1,5 +1,6 @@
 import 'package:postgres/postgres.dart';
 import 'package:petualang_server/utils/env_config.dart';
+import 'package:petualang_server/utils/password_helper.dart';
 
 class Database {
   static PostgreSQLConnection? _connection;
@@ -79,7 +80,12 @@ class Database {
       ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ,
       ADD COLUMN IF NOT EXISTS google_id VARCHAR(255),
       ADD COLUMN IF NOT EXISTS google_picture_url TEXT,
-      ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(20) DEFAULT 'email';
+      ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(20) DEFAULT 'email',
+      ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user';
+    ''');
+
+    await conn.execute('''
+      CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
     ''');
 
     await conn.execute('''
@@ -173,7 +179,9 @@ class Database {
     await conn.execute('''
       ALTER TABLE mountains
       ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE,
-      ADD COLUMN IF NOT EXISTS rating NUMERIC(2,1) DEFAULT 0;
+      ADD COLUMN IF NOT EXISTS rating NUMERIC(2,1) DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS external_booking_url TEXT,
+      ADD COLUMN IF NOT EXISTS use_external_booking BOOLEAN DEFAULT FALSE;
     ''');
 
     // ============================================================
@@ -333,6 +341,53 @@ class Database {
         created_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE (user_id, post_id),
         UNIQUE (user_id, comment_id)
+      );
+    ''');
+
+    // ── Revamp Komunitas: kolom & tabel tambahan ──────────────────
+    await conn.execute('''
+      ALTER TABLE communities
+        ADD COLUMN IF NOT EXISTS location VARCHAR(150),
+        ADD COLUMN IF NOT EXISTS rating NUMERIC(2,1) DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS last_activity_at TIMESTAMPTZ DEFAULT NOW();
+    ''');
+
+    await conn.execute('''
+      ALTER TABLE community_members
+        ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ DEFAULT NOW();
+    ''');
+
+    await conn.execute('''
+      ALTER TABLE events
+        ADD COLUMN IF NOT EXISTS community_id INTEGER REFERENCES communities(id) ON DELETE CASCADE;
+    ''');
+    await conn.execute('''
+      CREATE INDEX IF NOT EXISTS idx_events_community ON events(community_id);
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS community_rules (
+        id SERIAL PRIMARY KEY,
+        community_id INTEGER NOT NULL REFERENCES communities(id) ON DELETE CASCADE,
+        ordinal INTEGER NOT NULL,
+        text TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    ''');
+    await conn.execute('''
+      CREATE INDEX IF NOT EXISTS idx_rules_community ON community_rules(community_id, ordinal);
+    ''');
+
+    await conn.execute('''
+      CREATE TABLE IF NOT EXISTS community_ratings (
+        id SERIAL PRIMARY KEY,
+        community_id INTEGER NOT NULL REFERENCES communities(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        stars INTEGER NOT NULL CHECK (stars BETWEEN 1 AND 5),
+        review TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE (community_id, user_id)
       );
     ''');
 
@@ -921,7 +976,79 @@ class Database {
       ON CONFLICT DO NOTHING;
     ''');
 
+    // ============================================================
+    // SEED AKUN ADMIN & MITRA (default password: WismaTugu1!)
+    // ============================================================
+    await _seedAdminAndMitraAccounts(conn);
+
     print('✅ Database migrations completed');
+  }
+
+  /// Seed akun admin dan mitra default jika belum ada.
+  /// Mitra di-link ke vendor existing 'Rinjani Outdoor Rental'.
+  static Future<void> _seedAdminAndMitraAccounts(PostgreSQLConnection conn) async {
+    const defaultPassword = 'WismaTugu1!';
+
+    // --- Admin ---
+    final adminSalt = PasswordHelper.generateSalt();
+    final adminHash = PasswordHelper.hashPassword(defaultPassword, adminSalt);
+    await conn.query(
+      '''
+      INSERT INTO users (
+        name, email, password_hash, password_salt,
+        role, is_active, verification_status, verified_at,
+        auth_provider
+      ) VALUES (
+        'Admin Petualang', 'admin@petualang.com', @hash, @salt,
+        'admin', TRUE, 'verified', NOW(), 'email'
+      )
+      ON CONFLICT (email) DO UPDATE SET
+        role = 'admin',
+        password_hash = EXCLUDED.password_hash,
+        password_salt = EXCLUDED.password_salt,
+        is_active = TRUE,
+        verification_status = 'verified'
+      ''',
+      substitutionValues: {'hash': adminHash, 'salt': adminSalt},
+    );
+
+    // --- Mitra ---
+    final mitraSalt = PasswordHelper.generateSalt();
+    final mitraHash = PasswordHelper.hashPassword(defaultPassword, mitraSalt);
+    final mitraResult = await conn.query(
+      '''
+      INSERT INTO users (
+        name, email, password_hash, password_salt,
+        role, is_active, verification_status, verified_at,
+        auth_provider
+      ) VALUES (
+        'Mitra Rinjani Outdoor', 'mitra@petualang.com', @hash, @salt,
+        'mitra', TRUE, 'verified', NOW(), 'email'
+      )
+      ON CONFLICT (email) DO UPDATE SET
+        role = 'mitra',
+        password_hash = EXCLUDED.password_hash,
+        password_salt = EXCLUDED.password_salt,
+        is_active = TRUE,
+        verification_status = 'verified'
+      RETURNING id
+      ''',
+      substitutionValues: {'hash': mitraHash, 'salt': mitraSalt},
+    );
+
+    if (mitraResult.isNotEmpty) {
+      final mitraId = mitraResult.first[0] as int;
+      // Link mitra ke vendor 'Rinjani Outdoor Rental'
+      await conn.execute(
+        '''
+        UPDATE rental_vendors
+        SET user_id = $mitraId
+        WHERE name = 'Rinjani Outdoor Rental'
+        ''',
+      );
+    }
+
+    print('✅ Seeded admin & mitra accounts');
   }
 
   static Future<void> close() async {

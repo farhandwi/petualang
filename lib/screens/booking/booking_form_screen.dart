@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/mountain_model.dart';
 import '../../providers/booking_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'ticket_success_screen.dart';
 
 class BookingFormScreen extends StatefulWidget {
@@ -129,7 +130,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
+          child: ContentConstrained.form(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Selection Section
@@ -454,6 +456,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               ),
               const SizedBox(height: 32),
             ],
+          ),
           ),
         ),
       ),

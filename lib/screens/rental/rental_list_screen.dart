@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/rental_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import '../../config/app_config.dart';
 import 'rental_detail_screen.dart';
 import 'rental_cart_screen.dart';
@@ -113,7 +114,12 @@ class _RentalListScreenState extends State<RentalListScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+                maxWidth: Breakpoints.maxContentWidth),
+            child: Column(
           children: [
             // Context Header Banner
             if (provider.selectedMountain != null)
@@ -399,6 +405,8 @@ class _RentalListScreenState extends State<RentalListScreen> {
             ),
           ],
         ),
+        ),
+      ),
       ),
     );
   }

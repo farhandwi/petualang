@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import 'settings_screen.dart';
 import '../models/gamification_models.dart';
 import '../widgets/level_avatar.dart';
@@ -157,7 +158,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: CustomScrollView(
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
+          child: CustomScrollView(
         slivers: [
           // AppBar
           SliverAppBar(
@@ -622,6 +628,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
+      ),
+        ),
       ),
     );
   }

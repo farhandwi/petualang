@@ -57,6 +57,11 @@ class AppConfig {
   static String postComments(int postId) => '$apiCommunity/posts/$postId/comments';
   static String get apiReport => '$baseUrl/api/report';
   static String get apiCommunityTrending => '$apiCommunity/trending';
+  static String get apiCommunityCategories => '$apiCommunity/categories';
+  static String communityEvents(int id) => '$apiCommunity/$id/events';
+  static String communityPhotos(int id) => '$apiCommunity/$id/photos';
+  static String communityRules(int id) => '$apiCommunity/$id/rules';
+  static String communityRating(int id) => '$apiCommunity/$id/rating';
 
   // Chat endpoints
   static String chatInfo(int communityId) => '$baseUrl/api/chat/$communityId';
@@ -72,6 +77,33 @@ class AppConfig {
 
   // Upload endpoint
   static String get uploadImageEndpoint => '$baseUrl/api/upload/image';
+
+  // Admin endpoints
+  static String get apiAdmin => '$baseUrlApi/admin';
+  static String get adminDashboardEndpoint => '$apiAdmin/dashboard';
+  static String get adminVerificationsEndpoint => '$apiAdmin/verifications';
+  static String adminVerificationDetail(int id) => '$apiAdmin/verifications/$id';
+  static String get adminUsersEndpoint => '$apiAdmin/users';
+  static String adminUserDetail(int id) => '$apiAdmin/users/$id';
+  static String get adminMountainsEndpoint => '$apiAdmin/mountains';
+  static String adminMountainDetail(int id) => '$apiAdmin/mountains/$id';
+  static String adminMountainRoutes(int mountainId) =>
+      '$apiAdmin/mountains/$mountainId/routes';
+  static String adminMountainRouteDetail(int mountainId, int routeId) =>
+      '$apiAdmin/mountains/$mountainId/routes/$routeId';
+  static String get adminReportsEndpoint => '$apiAdmin/reports';
+  static String adminReportDetail(int id) => '$apiAdmin/reports/$id';
+  static String adminCommunityPostDelete(int id) =>
+      '$apiAdmin/community/posts/$id';
+
+  // Mitra endpoints
+  static String get apiMitra => '$baseUrlApi/mitra';
+  static String get mitraVendorEndpoint => '$apiMitra/me/vendor';
+  static String get mitraItemsEndpoint => '$apiMitra/me/items';
+  static String mitraItemDetail(int id) => '$apiMitra/me/items/$id';
+  static String get mitraOrdersEndpoint => '$apiMitra/me/orders';
+  static String mitraOrderDetail(int id) => '$apiMitra/me/orders/$id';
+  static String get mitraStatsEndpoint => '$apiMitra/me/stats';
 
   // WebSocket base — ws:// not http://
   static String get wsBaseUrl {

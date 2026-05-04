@@ -76,15 +76,15 @@ Future<Response> onRequest(RequestContext context) async {
     // Fetch the updated user data to return
     final results = await conn.query(
       '''
-      SELECT id, name, email, phone, profile_picture, nik, date_of_birth, gender, 
-             ktp_address, domicile_address, emergency_contact_name, emergency_contact_phone, 
-             height_cm, weight_kg, level, exp, is_active, created_at
-      FROM users 
+      SELECT id, name, email, phone, profile_picture, nik, date_of_birth, gender,
+             ktp_address, domicile_address, emergency_contact_name, emergency_contact_phone,
+             height_cm, weight_kg, level, exp, is_active, created_at, role
+      FROM users
       WHERE id = @id
       ''',
       substitutionValues: {'id': userId},
     );
-    
+
     final user = results.first;
 
     return Response.json(
@@ -110,6 +110,7 @@ Future<Response> onRequest(RequestContext context) async {
           'exp': user[15],
           'is_active': user[16],
           'created_at': (user[17] as DateTime?)?.toIso8601String(),
+          'role': user[18] ?? 'user',
         },
       },
     );

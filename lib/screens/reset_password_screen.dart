@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/custom_text_field.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -94,7 +95,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: Form(
+          child: ContentConstrained.form(
+            child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,6 +210,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),

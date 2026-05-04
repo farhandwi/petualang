@@ -196,12 +196,135 @@ UPDATE articles SET image_url = 'https://picsum.photos/seed/article-1/800/450'
 -- 6. COMMUNITIES — refresh covers
 -- ─────────────────────────────────────────────────────────────
 
-UPDATE communities SET cover_image_url = 'https://picsum.photos/seed/community-1/800/500'
+UPDATE communities SET
+    cover_image_url = 'https://picsum.photos/seed/community-1/800/500',
+    icon_image_url  = 'https://picsum.photos/seed/icon-community-1/200/200',
+    location = 'Yogyakarta',
+    rating = 4.9,
+    review_count = 312
   WHERE slug = 'pendaki-rinjani';
-UPDATE communities SET cover_image_url = 'https://picsum.photos/seed/community-2/800/500'
+UPDATE communities SET
+    cover_image_url = 'https://picsum.photos/seed/community-2/800/500',
+    icon_image_url  = 'https://picsum.photos/seed/icon-community-2/200/200',
+    location = 'Bandung',
+    rating = 4.8,
+    review_count = 240
   WHERE slug = 'campers-nusantara';
-UPDATE communities SET cover_image_url = 'https://picsum.photos/seed/community-3/800/500'
+UPDATE communities SET
+    cover_image_url = 'https://picsum.photos/seed/community-3/800/500',
+    icon_image_url  = 'https://picsum.photos/seed/icon-community-3/200/200',
+    location = 'Jakarta',
+    rating = 4.7,
+    review_count = 178
   WHERE slug = 'fotografi-alam-liar';
+
+-- Tambah komunitas baru agar grid "Semua Komunitas" terisi
+INSERT INTO communities
+  (name, slug, description, cover_image_url, icon_image_url,
+   category, privacy, location, rating, review_count, member_count)
+VALUES
+  ('Pendaki Jogja', 'pendaki-jogja',
+   'Komunitas pendaki terbesar di Yogyakarta. Aktif mengadakan pendakian bareng, sharing info jalur, dan edukasi keselamatan gunung setiap bulan.',
+   'https://picsum.photos/seed/community-jogja/800/500',
+   'https://picsum.photos/seed/icon-jogja/200/200',
+   'Hiking & Trekking', 'public', 'Yogyakarta', 4.9, 312, 2800),
+  ('Camping Lovers ID', 'camping-lovers-id',
+   'Berbagi spot camping favorit dan tips outdoor untuk camper Indonesia.',
+   'https://picsum.photos/seed/community-camp/800/500',
+   'https://picsum.photos/seed/icon-camp/200/200',
+   'Camping & Outdoor', 'public', 'Indonesia', 4.8, 215, 8400),
+  ('Trail Runner Indonesia', 'trail-runner-id',
+   'Komunitas pelari trail dari berbagai kota — info lomba, training plan, dan partner lari.',
+   'https://picsum.photos/seed/community-run/800/500',
+   'https://picsum.photos/seed/icon-run/200/200',
+   'Running', 'public', 'Indonesia', 4.6, 98, 1200),
+  ('Fotografer Alam', 'fotografer-alam',
+   'Wadah fotografer landscape dan wildlife untuk berbagi karya, lokasi, dan teknik.',
+   'https://picsum.photos/seed/community-foto/800/500',
+   'https://picsum.photos/seed/icon-foto/200/200',
+   'Fotografi', 'public', 'Bandung', 4.7, 142, 940),
+  ('Climbers Hub', 'climbers-hub',
+   'Komunitas panjat tebing & sport climbing Indonesia. Info crag, gear, dan event nasional.',
+   'https://picsum.photos/seed/community-climb/800/500',
+   'https://picsum.photos/seed/icon-climb/200/200',
+   'Climbing', 'public', 'Bandung', 4.5, 67, 520),
+  ('Open Trip Hunter', 'open-trip-hunter',
+   'Bagi yang suka ikut open trip atau cari peserta — info promo dan testimoni.',
+   'https://picsum.photos/seed/community-trip/800/500',
+   'https://picsum.photos/seed/icon-trip/200/200',
+   'Lainnya', 'public', 'Indonesia', 4.4, 51, 690)
+ON CONFLICT (slug) DO NOTHING;
+
+-- Aturan komunitas (sample)
+DO $$
+DECLARE
+  cid INT;
+BEGIN
+  SELECT id INTO cid FROM communities WHERE slug = 'pendaki-jogja' LIMIT 1;
+  IF cid IS NOT NULL THEN
+    DELETE FROM community_rules WHERE community_id = cid;
+    INSERT INTO community_rules (community_id, ordinal, text) VALUES
+      (cid, 1, 'Saling menghormati antar anggota — no hate, no SARA.'),
+      (cid, 2, 'Dilarang promosi/jualan tanpa izin admin.'),
+      (cid, 3, 'Selalu utamakan keselamatan saat pendakian dan ikuti aturan TN.'),
+      (cid, 4, 'Sertakan info jelas saat sharing trip (tanggal, jalur, biaya).'),
+      (cid, 5, 'Hormati kearifan lokal & jaga kelestarian alam (no littering).');
+  END IF;
+
+  SELECT id INTO cid FROM communities WHERE slug = 'camping-lovers-id' LIMIT 1;
+  IF cid IS NOT NULL THEN
+    DELETE FROM community_rules WHERE community_id = cid;
+    INSERT INTO community_rules (community_id, ordinal, text) VALUES
+      (cid, 1, 'Bagikan lokasi camping yang legal dan aman.'),
+      (cid, 2, 'Tag lokasi & cantumkan info biaya/akses bila ada.'),
+      (cid, 3, 'No spam — promosi gear hanya di thread khusus.'),
+      (cid, 4, 'Leave No Trace — bawa pulang sampahmu.');
+  END IF;
+END $$;
+
+-- Sample community events (kegiatan)
+DO $$
+DECLARE
+  cid_jogja INT;
+  cid_camp INT;
+  organizer_id INT;
+BEGIN
+  SELECT id INTO cid_jogja FROM communities WHERE slug = 'pendaki-jogja' LIMIT 1;
+  SELECT id INTO cid_camp FROM communities WHERE slug = 'camping-lovers-id' LIMIT 1;
+  SELECT id INTO organizer_id FROM users ORDER BY id ASC LIMIT 1;
+
+  IF cid_jogja IS NOT NULL THEN
+    INSERT INTO events (title, description, location, event_date, image_url,
+                        organizer_id, max_participants, community_id)
+    VALUES
+      ('Pendakian Bareng Merbabu via Selo',
+       'Open trip santai untuk anggota Pendaki Jogja. Berangkat Sabtu pagi.',
+       'Boyolali, Jawa Tengah', NOW() + INTERVAL '14 days',
+       'https://picsum.photos/seed/event-merbabu/800/400',
+       organizer_id, 20, cid_jogja),
+      ('Workshop Navigasi & GPS',
+       'Belajar baca peta topografi dan pakai aplikasi GPS untuk pendakian aman.',
+       'Sekretariat Pendaki Jogja, Sleman', NOW() + INTERVAL '5 days',
+       'https://picsum.photos/seed/event-nav/800/400',
+       organizer_id, 30, cid_jogja),
+      ('Bersih Sampah Gunung Sumbing',
+       'Aksi bersih jalur pendakian Sumbing via Garung. Disediakan makan siang.',
+       'Wonosobo, Jawa Tengah', NOW() + INTERVAL '30 days',
+       'https://picsum.photos/seed/event-bersih/800/400',
+       organizer_id, 50, cid_jogja);
+  END IF;
+
+  IF cid_camp IS NOT NULL THEN
+    INSERT INTO events (title, description, location, event_date, image_url,
+                        organizer_id, max_participants, community_id)
+    VALUES
+      ('Family Camping di Curug Cilember',
+       'Camping ramah keluarga, cocok untuk pemula. Tenda disediakan.',
+       'Bogor, Jawa Barat', NOW() + INTERVAL '21 days',
+       'https://picsum.photos/seed/event-camping/800/400',
+       organizer_id, 25, cid_camp);
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────

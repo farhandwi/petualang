@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -164,7 +165,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
+        child: ContentConstrained.reading(
+          child: Column(
           children: [
             // Progress Bar
             Container(
@@ -372,6 +374,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

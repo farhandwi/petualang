@@ -7,6 +7,7 @@ import '../../models/vendor_model.dart';
 import '../../providers/rental_provider.dart';
 import '../../services/location_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'rental_list_screen.dart';
 
 
@@ -78,7 +79,12 @@ class _RentalVendorScreenState extends State<RentalVendorScreen> {
           )
         ],
       ),
-      body: Column(
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
+          child: Column(
         children: [
           // ── Location Header ──
           GestureDetector(
@@ -194,6 +200,8 @@ class _RentalVendorScreenState extends State<RentalVendorScreen> {
                       ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

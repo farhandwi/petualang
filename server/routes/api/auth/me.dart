@@ -40,11 +40,12 @@ Future<Response> onRequest(RequestContext context) async {
     final conn = await Database.connection;
     final results = await conn.query(
       '''
-      SELECT id, name, email, phone, profile_picture, nik, date_of_birth, gender, 
-             ktp_address, domicile_address, emergency_contact_name, emergency_contact_phone, 
+      SELECT id, name, email, phone, profile_picture, nik, date_of_birth, gender,
+             ktp_address, domicile_address, emergency_contact_name, emergency_contact_phone,
              height_cm, weight_kg, level, exp, is_active, created_at,
-             birth_place, ktp_photo_url, selfie_ktp_url, verification_status, verified_at
-      FROM users 
+             birth_place, ktp_photo_url, selfie_ktp_url, verification_status, verified_at,
+             role
+      FROM users
       WHERE id = @id AND is_active = true
       ''',
       substitutionValues: {'id': userId},
@@ -85,6 +86,7 @@ Future<Response> onRequest(RequestContext context) async {
           'selfie_ktp_url': user[20],
           'verification_status': user[21] ?? 'unverified',
           'verified_at': (user[22] as DateTime?)?.toIso8601String(),
+          'role': user[23] ?? 'user',
         },
       },
     );

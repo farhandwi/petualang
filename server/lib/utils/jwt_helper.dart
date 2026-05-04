@@ -10,12 +10,14 @@ class JwtHelper {
     required int userId,
     required String email,
     required String name,
+    String role = 'user',
   }) {
     final jwt = JWT(
       {
         'sub': userId,
         'email': email,
         'name': name,
+        'role': role,
         'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       },
     );

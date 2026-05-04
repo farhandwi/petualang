@@ -7,6 +7,7 @@ import '../../models/mountain_model.dart';
 import '../../providers/booking_provider.dart';
 import '../../providers/rental_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'rental_list_screen.dart';
 
 class RentalSearchScreen extends StatefulWidget {
@@ -124,7 +125,8 @@ class _RentalSearchScreenState extends State<RentalSearchScreen> {
           ? Center(child: CircularProgressIndicator(color: context.colors.primaryOrange))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: Column(
+              child: ContentConstrained.form(
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -281,6 +283,7 @@ class _RentalSearchScreenState extends State<RentalSearchScreen> {
                       ),
                   ],
                 ],
+              ),
               ),
             ),
     );

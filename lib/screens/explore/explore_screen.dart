@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/explore_provider.dart';
 import '../../providers/events_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import '../../widgets/explore/explore_mountain_card.dart';
 import '../../widgets/explore/explore_trip_card.dart';
 import '../../widgets/explore/explore_event_card.dart';
@@ -55,121 +56,131 @@ class _ExploreScreenState extends State<ExploreScreen>
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final hPad = context.responsive<double>(
+        mobile: 20, tablet: 32, desktop: 40);
 
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            // ── Header ───────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-              child: Row(
-                children: [
-                  Text(
-                    'Jelajah',
-                    style: GoogleFonts.beVietnamPro(
-                      color: colors.textPrimary,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.6,
-                    ),
-                  ),
-                  const Spacer(),
-                  _IconButton(
-                    icon: Icons.map_outlined,
-                    onTap: () => _showSoon(context, 'Peta destinasi'),
-                  ),
-                  const SizedBox(width: 8),
-                  _IconButton(
-                    icon: Icons.tune_rounded,
-                    onTap: () => _showSoon(context, 'Filter'),
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Search ───────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-              child: Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: colors.border),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search_rounded,
-                        color: colors.textMuted, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Cari destinasi, trip, event…',
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
+            child: Column(
+              children: [
+                // ── Header ───────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Jelajah',
                         style: GoogleFonts.beVietnamPro(
-                          color: colors.textMuted,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          color: colors.textPrimary,
+                          fontSize: context.responsive<double>(
+                              mobile: 28, tablet: 32, desktop: 34),
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.6,
                         ),
                       ),
+                      const Spacer(),
+                      _IconButton(
+                        icon: Icons.map_outlined,
+                        onTap: () => _showSoon(context, 'Peta destinasi'),
+                      ),
+                      const SizedBox(width: 8),
+                      _IconButton(
+                        icon: Icons.tune_rounded,
+                        onTap: () => _showSoon(context, 'Filter'),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ── Search ───────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 12),
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: colors.border),
                     ),
-                  ],
+                    child: Row(
+                      children: [
+                        Icon(Icons.search_rounded,
+                            color: colors.textMuted, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Cari destinasi, trip, event…',
+                            style: GoogleFonts.beVietnamPro(
+                              color: colors.textMuted,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
 
-            // ── TabBar ───────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-              child: Container(
-                height: 44,
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colors.border),
+                // ── TabBar ───────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 8),
+                  child: Container(
+                    height: 44,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: colors.border),
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      indicator: BoxDecoration(
+                        color: colors.primaryOrange,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: colors.textSecondary,
+                      labelStyle: GoogleFonts.beVietnamPro(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      unselectedLabelStyle: GoogleFonts.beVietnamPro(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      tabs: const [
+                        Tab(text: 'Gunung'),
+                        Tab(text: 'Trip'),
+                        Tab(text: 'Event'),
+                      ],
+                    ),
+                  ),
                 ),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: colors.primaryOrange,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: colors.textSecondary,
-                  labelStyle: GoogleFonts.beVietnamPro(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  unselectedLabelStyle: GoogleFonts.beVietnamPro(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  tabs: const [
-                    Tab(text: 'Gunung'),
-                    Tab(text: 'Trip'),
-                    Tab(text: 'Event'),
-                  ],
-                ),
-              ),
-            ),
 
-            // ── Tab content ──────────────────────────────
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _MountainsTab(onRefresh: _onRefresh),
-                  _TripsTab(onRefresh: _onRefresh),
-                  _EventsTab(onRefresh: _onRefresh),
-                ],
-              ),
+                // ── Tab content ──────────────────────────────
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _MountainsTab(onRefresh: _onRefresh),
+                      _TripsTab(onRefresh: _onRefresh),
+                      _EventsTab(onRefresh: _onRefresh),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -210,6 +221,50 @@ class _IconButton extends StatelessWidget {
 
 // ─── Tabs ─────────────────────────────────────────────────────
 
+/// Adaptive list/grid: 1 col on mobile, 2 on tablet, 3 on desktop.
+class _AdaptiveCardList extends StatelessWidget {
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+
+  const _AdaptiveCardList({
+    required this.itemCount,
+    required this.itemBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hPad = context.responsive<double>(
+        mobile: 20, tablet: 32, desktop: 40);
+
+    if (context.isMobile) {
+      return ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
+        padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 20),
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+      );
+    }
+
+    final cols =
+        context.gridColumns(mobile: 1, tablet: 2, desktop: 2, large: 3);
+    return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics()),
+      padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 20),
+      itemCount: itemCount,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: cols,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: context.responsive<double>(
+            mobile: 1.6, tablet: 1.4, desktop: 1.45),
+      ),
+      itemBuilder: itemBuilder,
+    );
+  }
+}
+
 class _MountainsTab extends StatelessWidget {
   const _MountainsTab({required this.onRefresh});
   final Future<void> Function() onRefresh;
@@ -234,12 +289,9 @@ class _MountainsTab extends StatelessWidget {
     return RefreshIndicator(
       color: colors.primaryOrange,
       onRefresh: onRefresh,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: _AdaptiveCardList(
         itemCount: mountains.length,
-        itemBuilder: (_, i) =>
-            ExploreMountainCard(mountain: mountains[i]),
+        itemBuilder: (_, i) => ExploreMountainCard(mountain: mountains[i]),
       ),
     );
   }
@@ -269,9 +321,7 @@ class _TripsTab extends StatelessWidget {
     return RefreshIndicator(
       color: colors.primaryOrange,
       onRefresh: onRefresh,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: _AdaptiveCardList(
         itemCount: trips.length,
         itemBuilder: (_, i) => ExploreTripCard(trip: trips[i]),
       ),
@@ -301,12 +351,9 @@ class _EventsTab extends StatelessWidget {
     return RefreshIndicator(
       color: colors.primaryOrange,
       onRefresh: onRefresh,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: _AdaptiveCardList(
         itemCount: provider.events.length,
-        itemBuilder: (_, i) =>
-            ExploreEventCard(event: provider.events[i]),
+        itemBuilder: (_, i) => ExploreEventCard(event: provider.events[i]),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import 'terms_and_conditions_screen.dart';
 
 class IdentityVerificationScreen extends StatefulWidget {
@@ -335,11 +336,18 @@ class _IdentityVerificationScreenState
           child: Divider(height: 1, thickness: 1, color: colors.border),
         ),
       ),
-      body: status == 'verified'
-          ? _buildVerifiedState(colors)
-          : status == 'pending'
-              ? _buildPendingState(colors)
-              : _buildForm(colors, status, isDark),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: Breakpoints.maxFormWidth),
+          child: status == 'verified'
+              ? _buildVerifiedState(colors)
+              : status == 'pending'
+                  ? _buildPendingState(colors)
+                  : _buildForm(colors, status, isDark),
+        ),
+      ),
     );
   }
 

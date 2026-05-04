@@ -2,7 +2,30 @@
   "permissions": {
     "allow": [
       "Bash(flutter analyze *)",
-      "Bash(dart analyze *)"
+      "Bash(dart analyze *)",
+      "Bash(grep -E \"\\\\.dart$\")",
+      "Bash(xargs grep *)",
+      "Bash(git -C /d/Project_2m/petualang log --oneline -20)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(git -C /d/Project_2m/petualang show --stat cfeda5c)",
+      "Bash(awk 'NR>=145 && NR<=170' d:/Project_2m/petualang/lib/screens/login_screen.dart)",
+      "Bash(awk 'NR>=440 && NR<=455' d:/Project_2m/petualang/lib/screens/login_screen.dart)",
+      "Bash(awk 'NR>=620 && NR<=660' d:/Project_2m/petualang/lib/screens/profile_screen.dart)",
+      "Bash(awk 'END{print NR}' d:/Project_2m/petualang/lib/screens/edit_profile_screen.dart)",
+      "Bash(awk 'NR>=370 && NR<=400' d:/Project_2m/petualang/lib/screens/edit_profile_screen.dart)",
+      "Bash(awk 'END{print NR}' d:/Project_2m/petualang/lib/screens/booking/booking_form_screen.dart d:/Project_2m/petualang/lib/screens/booking/ticket_success_screen.dart d:/Project_2m/petualang/lib/screens/booking/mountain_detail_screen.dart)",
+      "Bash(awk 'NR>=400 && NR<=450' d:/Project_2m/petualang/lib/screens/booking/booking_form_screen.dart)",
+      "Bash(awk 'NR>=200 && NR<=260' d:/Project_2m/petualang/lib/screens/booking/ticket_success_screen.dart)",
+      "Bash(awk 'END{print NR}' d:/Project_2m/petualang/lib/screens/booking/mountain_detail_screen.dart)",
+      "Bash(awk 'NR>=460 && NR<=520' d:/Project_2m/petualang/lib/screens/booking/mountain_detail_screen.dart)",
+      "Bash(awk 'NR>=190 && NR<=210' d:/Project_2m/petualang/lib/screens/rental/rental_vendor_screen.dart)",
+      "Bash(awk 'NR>=395 && NR<=412' d:/Project_2m/petualang/lib/screens/rental/rental_list_screen.dart)",
+      "Bash(awk 'NR>=180 && NR<=195' d:/Project_2m/petualang/lib/screens/rental/rental_detail_screen.dart)",
+      "Bash(awk 'NR>=275 && NR<=292' d:/Project_2m/petualang/lib/screens/rental/rental_search_screen.dart)",
+      "Bash(awk 'END{print NR}' d:/Project_2m/petualang/lib/screens/forgot_password_screen.dart d:/Project_2m/petualang/lib/screens/reset_password_screen.dart)",
+      "Bash(awk 'NR>=190 && NR<=204' d:/Project_2m/petualang/lib/screens/forgot_password_screen.dart)",
+      "Bash(awk 'NR>=205 && NR<=218' d:/Project_2m/petualang/lib/screens/reset_password_screen.dart)",
+      "Bash(xargs ls *)"
     ]
   }
 }

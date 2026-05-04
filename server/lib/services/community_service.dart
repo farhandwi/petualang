@@ -29,14 +29,22 @@ class CommunityService {
     final memberJoin = userId != null
         ? 'LEFT JOIN community_members cm2 ON cm2.community_id = c.id AND cm2.user_id = $userId'
         : '';
-    final memberField =
-        userId != null ? ', (cm2.id IS NOT NULL) AS is_member' : ', FALSE AS is_member';
+    final memberField = userId != null
+        ? ', (cm2.id IS NOT NULL) AS is_member, cm2.role AS my_role'
+        : ', FALSE AS is_member, NULL AS my_role';
 
     final results = await conn.query(
       '''
       SELECT c.id, c.name, c.slug, c.description, c.cover_image_url,
              c.icon_image_url, c.category, c.privacy,
-             c.member_count, c.post_count, c.created_at
+             c.member_count, c.post_count, c.created_at,
+             c.location, c.rating, c.review_count, c.created_by,
+             (SELECT COUNT(*) FROM community_members
+                WHERE community_id = c.id
+                  AND last_seen_at > NOW() - INTERVAL '5 minutes') AS online_count,
+             (SELECT COUNT(*) FROM events
+                WHERE community_id = c.id
+                  AND event_date >= NOW()) AS event_count
              $memberField
       FROM communities c
       $memberJoin
@@ -63,7 +71,15 @@ class CommunityService {
         SELECT c.id, c.name, c.slug, c.description, c.cover_image_url,
                c.icon_image_url, c.category, c.privacy,
                c.member_count, c.post_count, c.created_at,
+               c.location, c.rating, c.review_count, c.created_by,
+               (SELECT COUNT(*) FROM community_members
+                  WHERE community_id = c.id
+                    AND last_seen_at > NOW() - INTERVAL '5 minutes') AS online_count,
+               (SELECT COUNT(*) FROM events
+                  WHERE community_id = c.id
+                    AND event_date >= NOW()) AS event_count,
                FALSE AS is_member,
+               NULL AS my_role,
                COUNT(p.id) AS recent_post_count
         FROM communities c
         LEFT JOIN community_posts p
@@ -93,14 +109,22 @@ class CommunityService {
     final memberJoin = userId != null
         ? 'LEFT JOIN community_members cm2 ON cm2.community_id = c.id AND cm2.user_id = $userId'
         : '';
-    final memberField =
-        userId != null ? ', (cm2.id IS NOT NULL) AS is_member' : ', FALSE AS is_member';
+    final memberField = userId != null
+        ? ', (cm2.id IS NOT NULL) AS is_member, cm2.role AS my_role'
+        : ', FALSE AS is_member, NULL AS my_role';
 
     final results = await conn.query(
       '''
       SELECT c.id, c.name, c.slug, c.description, c.cover_image_url,
              c.icon_image_url, c.category, c.privacy,
-             c.member_count, c.post_count, c.created_at
+             c.member_count, c.post_count, c.created_at,
+             c.location, c.rating, c.review_count, c.created_by,
+             (SELECT COUNT(*) FROM community_members
+                WHERE community_id = c.id
+                  AND last_seen_at > NOW() - INTERVAL '5 minutes') AS online_count,
+             (SELECT COUNT(*) FROM events
+                WHERE community_id = c.id
+                  AND event_date >= NOW()) AS event_count
              $memberField
       FROM communities c
       $memberJoin
@@ -554,10 +578,17 @@ class CommunityService {
         'member_count': r[8],
         'post_count': r[9],
         'created_at': (r[10] as DateTime?)?.toIso8601String(),
-        'is_member': r[11] ?? false,
+        'location': r[11],
+        'rating': (r[12] is num) ? (r[12] as num).toDouble() : 0.0,
+        'review_count': r[13] ?? 0,
+        'created_by': r[14],
+        'online_count': r[15] ?? 0,
+        'event_count': r[16] ?? 0,
+        'is_member': r[17] ?? false,
+        'my_role': r[18],
       };
 
-  /// Mapper untuk getTopCommunitiesByPosts24h — kolom sama + recent_post_count di index 12.
+  /// Mapper untuk getTopCommunitiesByPosts24h — kolom sama + recent_post_count di akhir.
   static Map<String, dynamic> _mapCommunityTrending(dynamic r) => {
         'id': r[0],
         'name': r[1],
@@ -570,8 +601,15 @@ class CommunityService {
         'member_count': r[8],
         'post_count': r[9],
         'created_at': (r[10] as DateTime?)?.toIso8601String(),
-        'is_member': r[11] ?? false,
-        'recent_post_count': r[12] ?? 0,
+        'location': r[11],
+        'rating': (r[12] is num) ? (r[12] as num).toDouble() : 0.0,
+        'review_count': r[13] ?? 0,
+        'created_by': r[14],
+        'online_count': r[15] ?? 0,
+        'event_count': r[16] ?? 0,
+        'is_member': r[17] ?? false,
+        'my_role': r[18],
+        'recent_post_count': r[19] ?? 0,
       };
 
   static Map<String, dynamic> _mapPost(dynamic r) => {
@@ -606,4 +644,388 @@ class CommunityService {
         'created_at': (r[10] as DateTime?)?.toIso8601String(),
         'replies': <Map<String, dynamic>>[],
       };
+
+  // ─── Create Community ───────────────────────────────────────
+
+  static Future<Map<String, dynamic>> createCommunity({
+    required int userId,
+    required String name,
+    String? description,
+    String? location,
+    String? category,
+    String privacy = 'public',
+    String? coverImageUrl,
+    String? iconImageUrl,
+  }) async {
+    final conn = await Database.connection;
+    final baseSlug = name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '')
+        .replaceAll(RegExp(r'\s+'), '-');
+    final slug = '$baseSlug-${DateTime.now().millisecondsSinceEpoch}';
+
+    final result = await conn.query(
+      '''
+      INSERT INTO communities
+        (name, slug, description, location, category, privacy,
+         cover_image_url, icon_image_url, created_by, member_count)
+      VALUES (@name, @slug, @desc, @loc, @cat, @priv, @cover, @icon, @uid, 1)
+      RETURNING id, created_at
+      ''',
+      substitutionValues: {
+        'name': name,
+        'slug': slug,
+        'desc': description,
+        'loc': location,
+        'cat': category,
+        'priv': privacy,
+        'cover': coverImageUrl,
+        'icon': iconImageUrl,
+        'uid': userId,
+      },
+    );
+    final row = result.first;
+    final newId = row[0] as int;
+
+    // Auto-add creator as admin
+    await conn.execute(
+      '''
+      INSERT INTO community_members (community_id, user_id, role)
+      VALUES (@cid, @uid, 'admin')
+      ON CONFLICT DO NOTHING
+      ''',
+      substitutionValues: {'cid': newId, 'uid': userId},
+    );
+
+    return {
+      'id': newId,
+      'slug': slug,
+      'created_at': (row[1] as DateTime).toIso8601String(),
+    };
+  }
+
+  /// Update community info. Hanya owner / admin / moderator yang boleh.
+  /// Hanya field yang non-null yang diupdate.
+  static Future<Map<String, dynamic>> updateCommunity({
+    required int communityId,
+    required int userId,
+    String? name,
+    String? description,
+    String? location,
+    String? category,
+    String? privacy,
+    String? coverImageUrl,
+    String? iconImageUrl,
+  }) async {
+    final conn = await Database.connection;
+
+    // Authorization: created_by atau role admin/moderator.
+    final auth = await conn.query(
+      '''
+      SELECT
+        (c.created_by = @uid) AS is_owner,
+        (cm.role IN ('admin', 'moderator')) AS is_staff
+      FROM communities c
+      LEFT JOIN community_members cm
+        ON cm.community_id = c.id AND cm.user_id = @uid
+      WHERE c.id = @cid
+      ''',
+      substitutionValues: {'cid': communityId, 'uid': userId},
+    );
+    if (auth.isEmpty) {
+      return {'success': false, 'message': 'Komunitas tidak ditemukan'};
+    }
+    final isOwner = auth.first[0] == true;
+    final isStaff = auth.first[1] == true;
+    if (!isOwner && !isStaff) {
+      return {
+        'success': false,
+        'message': 'Hanya pemilik atau admin yang dapat mengubah komunitas',
+      };
+    }
+
+    final sets = <String>[];
+    final values = <String, dynamic>{'cid': communityId};
+    if (name != null && name.trim().isNotEmpty) {
+      sets.add('name = @name');
+      values['name'] = name.trim();
+    }
+    if (description != null) {
+      sets.add('description = @description');
+      values['description'] = description.trim().isEmpty ? null : description.trim();
+    }
+    if (location != null) {
+      sets.add('location = @location');
+      values['location'] = location.trim().isEmpty ? null : location.trim();
+    }
+    if (category != null) {
+      sets.add('category = @category');
+      values['category'] = category;
+    }
+    if (privacy != null) {
+      sets.add('privacy = @privacy');
+      values['privacy'] = privacy;
+    }
+    if (coverImageUrl != null) {
+      sets.add('cover_image_url = @cover');
+      values['cover'] = coverImageUrl;
+    }
+    if (iconImageUrl != null) {
+      sets.add('icon_image_url = @icon');
+      values['icon'] = iconImageUrl;
+    }
+
+    if (sets.isEmpty) {
+      return {'success': false, 'message': 'Tidak ada perubahan'};
+    }
+
+    await conn.execute(
+      'UPDATE communities SET ${sets.join(', ')} WHERE id = @cid',
+      substitutionValues: values,
+    );
+
+    return {'success': true};
+  }
+
+  // ─── Online tracking ────────────────────────────────────────
+
+  static Future<void> touchLastSeen(int communityId, int userId) async {
+    final conn = await Database.connection;
+    await conn.execute(
+      '''
+      UPDATE community_members
+         SET last_seen_at = NOW()
+       WHERE community_id = @cid AND user_id = @uid
+      ''',
+      substitutionValues: {'cid': communityId, 'uid': userId},
+    );
+  }
+
+  // ─── Events (Kegiatan) ──────────────────────────────────────
+
+  static Future<List<Map<String, dynamic>>> getEvents(
+    int communityId, {
+    int limit = 20,
+  }) async {
+    final conn = await Database.connection;
+    final results = await conn.query(
+      '''
+      SELECT id, title, description, location, event_date, image_url,
+             max_participants, current_participants, status
+      FROM events
+      WHERE community_id = @cid
+      ORDER BY event_date ASC
+      LIMIT @limit
+      ''',
+      substitutionValues: {'cid': communityId, 'limit': limit},
+    );
+    return results
+        .map((r) => {
+              'id': r[0],
+              'title': r[1],
+              'description': r[2],
+              'location': r[3],
+              'event_date': (r[4] as DateTime?)?.toIso8601String(),
+              'image_url': r[5],
+              'max_participants': r[6],
+              'current_participants': r[7],
+              'status': r[8],
+            })
+        .toList();
+  }
+
+  // ─── Photos (dari image_url di posts) ───────────────────────
+
+  static Future<List<Map<String, dynamic>>> getPhotos(
+    int communityId, {
+    int limit = 60,
+  }) async {
+    final conn = await Database.connection;
+    final results = await conn.query(
+      '''
+      SELECT id, image_url, created_at, user_id
+      FROM community_posts
+      WHERE community_id = @cid AND image_url IS NOT NULL AND image_url <> ''
+      ORDER BY created_at DESC
+      LIMIT @limit
+      ''',
+      substitutionValues: {'cid': communityId, 'limit': limit},
+    );
+    return results
+        .map((r) => {
+              'id': r[0],
+              'image_url': r[1],
+              'created_at': (r[2] as DateTime?)?.toIso8601String(),
+              'user_id': r[3],
+            })
+        .toList();
+  }
+
+  // ─── Rules ──────────────────────────────────────────────────
+
+  static Future<List<Map<String, dynamic>>> getRules(int communityId) async {
+    final conn = await Database.connection;
+    final results = await conn.query(
+      '''
+      SELECT id, ordinal, text
+      FROM community_rules
+      WHERE community_id = @cid
+      ORDER BY ordinal ASC, id ASC
+      ''',
+      substitutionValues: {'cid': communityId},
+    );
+    return results
+        .map((r) => {
+              'id': r[0],
+              'ordinal': r[1],
+              'text': r[2],
+            })
+        .toList();
+  }
+
+  static Future<bool> setRules(
+    int communityId,
+    int userId,
+    List<String> rules,
+  ) async {
+    final conn = await Database.connection;
+    final isAdmin = await conn.query(
+      '''
+      SELECT 1 FROM community_members
+      WHERE community_id = @cid AND user_id = @uid
+        AND role IN ('admin', 'moderator')
+      ''',
+      substitutionValues: {'cid': communityId, 'uid': userId},
+    );
+    if (isAdmin.isEmpty) return false;
+
+    await conn.execute(
+      'DELETE FROM community_rules WHERE community_id = @cid',
+      substitutionValues: {'cid': communityId},
+    );
+    for (var i = 0; i < rules.length; i++) {
+      final text = rules[i].trim();
+      if (text.isEmpty) continue;
+      await conn.execute(
+        '''
+        INSERT INTO community_rules (community_id, ordinal, text)
+        VALUES (@cid, @ord, @txt)
+        ''',
+        substitutionValues: {'cid': communityId, 'ord': i + 1, 'txt': text},
+      );
+    }
+    return true;
+  }
+
+  // ─── Ratings ────────────────────────────────────────────────
+
+  static Future<Map<String, dynamic>> rateCommunity({
+    required int communityId,
+    required int userId,
+    required int stars,
+    String? review,
+  }) async {
+    final conn = await Database.connection;
+    if (stars < 1 || stars > 5) {
+      return {'success': false, 'message': 'Rating harus 1-5'};
+    }
+    // Member-only
+    final isMem = await conn.query(
+      'SELECT 1 FROM community_members WHERE community_id = @cid AND user_id = @uid',
+      substitutionValues: {'cid': communityId, 'uid': userId},
+    );
+    if (isMem.isEmpty) {
+      return {'success': false, 'message': 'Hanya anggota yang dapat memberi rating'};
+    }
+
+    await conn.execute(
+      '''
+      INSERT INTO community_ratings (community_id, user_id, stars, review)
+      VALUES (@cid, @uid, @stars, @review)
+      ON CONFLICT (community_id, user_id)
+      DO UPDATE SET stars = @stars, review = @review, created_at = NOW()
+      ''',
+      substitutionValues: {
+        'cid': communityId,
+        'uid': userId,
+        'stars': stars,
+        'review': review,
+      },
+    );
+    await conn.execute(
+      '''
+      UPDATE communities c SET
+        rating = COALESCE((SELECT ROUND(AVG(stars)::numeric, 1)
+                           FROM community_ratings WHERE community_id = c.id), 0),
+        review_count = (SELECT COUNT(*) FROM community_ratings WHERE community_id = c.id)
+      WHERE id = @cid
+      ''',
+      substitutionValues: {'cid': communityId},
+    );
+    final r = await conn.query(
+      'SELECT rating, review_count FROM communities WHERE id = @cid',
+      substitutionValues: {'cid': communityId},
+    );
+    return {
+      'success': true,
+      'rating': (r.first[0] as num?)?.toDouble() ?? 0,
+      'review_count': r.first[1] ?? 0,
+    };
+  }
+
+  static Future<int?> getMyRating(int communityId, int userId) async {
+    final conn = await Database.connection;
+    final r = await conn.query(
+      'SELECT stars FROM community_ratings WHERE community_id = @cid AND user_id = @uid',
+      substitutionValues: {'cid': communityId, 'uid': userId},
+    );
+    if (r.isEmpty) return null;
+    return r.first[0] as int?;
+  }
+
+  // ─── Members tweak: include online indicator ────────────────
+
+  static Future<List<Map<String, dynamic>>> getMembersWithOnline(
+    int communityId, {
+    int limit = 30,
+    int offset = 0,
+  }) async {
+    final conn = await Database.connection;
+    final results = await conn.query(
+      '''
+      SELECT u.id, u.name, u.profile_picture, u.level,
+             cm.role, cm.joined_at, cm.last_seen_at,
+             (cm.last_seen_at > NOW() - INTERVAL '5 minutes') AS is_online
+      FROM community_members cm
+      JOIN users u ON u.id = cm.user_id
+      WHERE cm.community_id = @cid
+      ORDER BY is_online DESC, cm.role DESC, cm.joined_at ASC
+      LIMIT @limit OFFSET @offset
+      ''',
+      substitutionValues: {'cid': communityId, 'limit': limit, 'offset': offset},
+    );
+    return results
+        .map((r) => {
+              'id': r[0],
+              'name': r[1],
+              'profile_picture': r[2],
+              'level': r[3],
+              'role': r[4],
+              'joined_at': (r[5] as DateTime?)?.toIso8601String(),
+              'last_seen_at': (r[6] as DateTime?)?.toIso8601String(),
+              'is_online': r[7] ?? false,
+            })
+        .toList();
+  }
+
+  // ─── Stats global (untuk header dashboard) ──────────────────
+
+  static Future<int> getTotalMembersAcrossCommunities() async {
+    final conn = await Database.connection;
+    final r = await conn.query(
+      'SELECT COALESCE(SUM(member_count), 0) FROM communities',
+    );
+    final v = r.first[0];
+    return v is int ? v : (v as num).toInt();
+  }
 }

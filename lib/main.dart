@@ -5,6 +5,7 @@ import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/community_provider.dart';
+import 'providers/community_post_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/dm_provider.dart';
 import 'providers/rental_provider.dart';
@@ -12,9 +13,14 @@ import 'providers/explore_provider.dart';
 import 'providers/open_trip_provider.dart';
 import 'providers/events_provider.dart';
 import 'providers/buddies_provider.dart';
+import 'providers/order_provider.dart';
+import 'providers/admin_provider.dart';
+import 'providers/mitra_provider.dart';
 import 'screens/login_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'screens/main_wrapper.dart';
+import 'screens/admin/admin_wrapper.dart';
+import 'screens/mitra/mitra_wrapper.dart';
 import 'screens/onboarding_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -29,10 +35,12 @@ void main() async {
     ),
   );
 
-  // Lock to portrait only
+  // Allow all orientations — tablet & desktop windows can be wide/landscape.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
 
   runApp(const PetualangApp());
@@ -53,6 +61,13 @@ class PetualangApp extends StatelessWidget {
         ),
         ChangeNotifierProxyProvider<AuthProvider, CommunityProvider>(
           create: (_) => CommunityProvider(),
+          update: (context, auth, provider) {
+            provider!.setToken(auth.token);
+            return provider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, CommunityPostProvider>(
+          create: (_) => CommunityPostProvider(),
           update: (context, auth, provider) {
             provider!.setToken(auth.token);
             return provider;
@@ -90,6 +105,24 @@ class PetualangApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => EventsProvider()),
         ChangeNotifierProxyProvider<AuthProvider, BuddiesProvider>(
           create: (_) => BuddiesProvider(),
+          update: (context, auth, provider) {
+            provider!.setToken(auth.token);
+            return provider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, OrderProvider>(
+          create: (context) => OrderProvider(authProvider: context.read<AuthProvider>()),
+          update: (context, auth, previous) => OrderProvider(authProvider: auth),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, AdminProvider>(
+          create: (_) => AdminProvider(),
+          update: (context, auth, provider) {
+            provider!.setToken(auth.token);
+            return provider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, MitraProvider>(
+          create: (_) => MitraProvider(),
           update: (context, auth, provider) {
             provider!.setToken(auth.token);
             return provider;
@@ -134,8 +167,12 @@ class _AppEntry extends StatelessWidget {
     return switch (auth.status) {
       AuthStatus.initial || AuthStatus.loading => const _SplashScreen(),
       AuthStatus.onboarding => const OnboardingScreen(),
-      AuthStatus.authenticated => const MainWrapper(),
       AuthStatus.unauthenticated => const LoginScreen(),
+      AuthStatus.authenticated => switch (auth.user?.role) {
+          'admin' => const AdminWrapper(),
+          'mitra' => const MitraWrapper(),
+          _ => const MainWrapper(),
+        },
     };
   }
 }

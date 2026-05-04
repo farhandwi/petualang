@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -58,153 +59,206 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = context.isWide;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           children: [
-            // Full PageView for Content
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPageIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Image part
-                        Expanded(
-                          flex: 11,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Image.asset(
-                                _pages[index]['image']!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Spacer
-                        const SizedBox(height: 48),
-                        // Text Part
-                        Expanded(
-                          flex: 8,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: context.colors.primaryOrange.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  _pages[index]['badge']!,
-                                  style: GoogleFonts.beVietnamPro(
-                                    color: context.colors.primaryOrange,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 1.2,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                _pages[index]['title']!,
-                                style: GoogleFonts.beVietnamPro(
-                                  color: context.colors.textPrimary,
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w800,
-                                  height: 1.15,
-                                  letterSpacing: -1,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                _pages[index]['subtitle']!,
-                                style: GoogleFonts.beVietnamPro(
-                                  color: context.colors.textSecondary,
-                                  fontSize: 15,
-                                  height: 1.6,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                onPageChanged: (i) => setState(() => _currentPageIndex = i),
+                itemBuilder: (context, index) => _OnboardingPage(
+                  data: _pages[index],
+                  isWide: isWide,
+                ),
               ),
             ),
-            // Bottom Action Bar (Fixed at bottom)
-            Container(
-              padding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                border: Border(top: BorderSide(color: context.colors.border, width: 1)),
+            _BottomBar(
+              currentIndex: _currentPageIndex,
+              total: _pages.length,
+              onNext: _onNextPressed,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OnboardingPage extends StatelessWidget {
+  final Map<String, String> data;
+  final bool isWide;
+  const _OnboardingPage({required this.data, required this.isWide});
+
+  @override
+  Widget build(BuildContext context) {
+    final image = ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Image.asset(data['image']!, fit: BoxFit.cover),
+    );
+
+    final imageBox = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: image,
+    );
+
+    final textCol = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: context.colors.primaryOrange.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            data['badge']!,
+            style: GoogleFonts.beVietnamPro(
+              color: context.colors.primaryOrange,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          data['title']!,
+          style: GoogleFonts.beVietnamPro(
+            color: context.colors.textPrimary,
+            fontSize: context.responsive<double>(
+                mobile: 34, tablet: 40, desktop: 46),
+            fontWeight: FontWeight.w800,
+            height: 1.15,
+            letterSpacing: -1,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          data['subtitle']!,
+          style: GoogleFonts.beVietnamPro(
+            color: context.colors.textSecondary,
+            fontSize: context.responsive<double>(
+                mobile: 15, tablet: 16, desktop: 17),
+            height: 1.6,
+          ),
+        ),
+      ],
+    );
+
+    if (isWide) {
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: context.responsive<double>(
+              mobile: 24, tablet: 48, desktop: 72),
+          vertical: 32,
+        ),
+        child: ContentConstrained(
+          maxWidth: 1180,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(flex: 6, child: AspectRatio(
+                aspectRatio: 4 / 3, child: imageBox)),
+              const SizedBox(width: 56),
+              Expanded(flex: 5, child: textCol),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(flex: 11, child: imageBox),
+          const SizedBox(height: 48),
+          Expanded(flex: 8, child: textCol),
+        ],
+      ),
+    );
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  final int currentIndex;
+  final int total;
+  final VoidCallback onNext;
+  const _BottomBar({
+    required this.currentIndex,
+    required this.total,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        context.responsive<double>(mobile: 32, tablet: 48, desktop: 72),
+        20,
+        context.responsive<double>(mobile: 32, tablet: 48, desktop: 72),
+        32,
+      ),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        border: Border(top: BorderSide(color: context.colors.border, width: 1)),
+      ),
+      child: ContentConstrained(
+        maxWidth: 1180,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: List.generate(
+                total,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.only(right: 6),
+                  height: 6,
+                  width: currentIndex == index ? 24 : 6,
+                  decoration: BoxDecoration(
+                    color: currentIndex == index
+                        ? context.colors.primaryOrange
+                        : context.colors.textSecondary.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Page Indicators
-                  Row(
-                    children: List.generate(
-                      _pages.length,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.only(right: 6),
-                        height: 6,
-                        width: _currentPageIndex == index ? 24 : 6,
-                        decoration: BoxDecoration(
-                          color: _currentPageIndex == index
-                              ? context.colors.primaryOrange
-                              : context.colors.textSecondary.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Button CTA
-                  ElevatedButton(
-                    onPressed: _onNextPressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colors.primaryOrange,
-                      minimumSize: const Size(100, 54), // Overrides global double.infinity
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      _currentPageIndex == _pages.length - 1 ? 'Mulai' : 'Lanjut',
-                      style: GoogleFonts.beVietnamPro(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+            ),
+            ElevatedButton(
+              onPressed: onNext,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colors.primaryOrange,
+                minimumSize: const Size(100, 54),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                elevation: 0,
+              ),
+              child: Text(
+                currentIndex == total - 1 ? 'Mulai' : 'Lanjut',
+                style: GoogleFonts.beVietnamPro(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
